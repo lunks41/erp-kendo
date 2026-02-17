@@ -14,6 +14,7 @@ import {
 import { Port } from "@/lib/api-routes";
 import type { IPort } from "@/interfaces/port";
 
+import { ConfirmationDialog } from "@/components/confirmation";
 import { PortForm } from "./components/port-form";
 import { MasterTransactionId, ModuleId } from "@/lib/utils";
 import { usePermissionStore } from "@/stores/permission-store";
@@ -30,24 +31,25 @@ export default function PortMasterPage() {
   const canEdit = hasPermission(moduleId, transactionId, "isEdit");
   const canDelete = hasPermission(moduleId, transactionId, "isDelete");
   const canCreate = hasPermission(moduleId, transactionId, "isCreate");
-  const { defaults } = useUserSettingDefaults();
+  const { defaults, isLoading: defaultsLoading } = useUserSettingDefaults();
 
   const params = useParams();
   const companyId = (params?.companyId as string) ?? "";
   const [mounted, setMounted] = useState(false);
   const [searchFilter, setSearchFilter] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [portToDelete, setPortToDelete] = useState<IPort | null>(null);
+  const [saveDialogOpen, setSaveDialogOpen] = useState(false);
+  const [pendingSaveData, setPendingSaveData] = useState<Partial<IPort> | null>(
+    null
+  );
   const [selectedPort, setSelectedPort] = useState<IPort | null>(null);
   const [viewMode, setViewMode] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const preferredPageSize = defaults?.common?.masterGridTotalRecords || 50;
-  const [pageSize, setPageSize] = useState(preferredPageSize);
-
-  useEffect(() => {
-    if (defaults?.common?.masterGridTotalRecords) {
-      setPageSize(defaults.common.masterGridTotalRecords);
-    }
-  }, [defaults?.common?.masterGridTotalRecords]);
+  const [pageSize, setPageSize] = useState<number | null>(null);
+  const effectivePageSize = pageSize ?? preferredPageSize;
 
   useEffect(() => setMounted(true), []);
 
@@ -56,7 +58,8 @@ export default function PortMasterPage() {
     "ports",
     searchFilter,
     currentPage,
-    pageSize,
+    effectivePageSize,
+    { enabled: !defaultsLoading },
   );
 
   const ports = portsResponse?.data ?? [];
@@ -82,22 +85,39 @@ export default function PortMasterPage() {
     setDialogOpen(true);
   };
 
-  const handleDelete = async (item: IPort) => {
-    if (!confirm(`Delete port "${item.portName}"?`)) return;
+  const handleDelete = (item: IPort) => {
+    setPortToDelete(item);
+    setDeleteDialogOpen(true);
+  };
+
+  const portsQueryKey = ["ports", searchFilter, currentPage, effectivePageSize];
+
+  const handleDeleteConfirm = async () => {
+    if (!portToDelete) return;
     try {
-      await deleteMutation.mutateAsync(String(item.portId));
-      queryClient.invalidateQueries({ queryKey: ["ports"] });
+      await deleteMutation.mutateAsync(String(portToDelete.portId));
+      await queryClient.refetchQueries({ queryKey: portsQueryKey });
+      setDeleteDialogOpen(false);
+      setPortToDelete(null);
     } catch {
       // Error handled by mutation
     }
   };
 
-  const handleFormSubmit = async (data: Partial<IPort>) => {
+  const handleFormSubmit = (data: Partial<IPort>) => {
+    setPendingSaveData(data);
+    setSaveDialogOpen(true);
+  };
+
+  const handleSaveConfirm = async () => {
+    if (!pendingSaveData) return;
     try {
-      await saveMutation.mutateAsync(data);
-      queryClient.invalidateQueries({ queryKey: ["ports"] });
+      await saveMutation.mutateAsync(pendingSaveData);
+      await queryClient.refetchQueries({ queryKey: portsQueryKey });
       setDialogOpen(false);
       setSelectedPort(null);
+      setSaveDialogOpen(false);
+      setPendingSaveData(null);
     } catch {
       // Error handled by mutation
     }
@@ -116,7 +136,7 @@ export default function PortMasterPage() {
   };
 
   const handleRefresh = () => {
-    queryClient.invalidateQueries({ queryKey: ["ports"] });
+    queryClient.refetchQueries({ queryKey: portsQueryKey });
   };
 
   return (
@@ -148,7 +168,7 @@ export default function PortMasterPage() {
           onPageChange={handlePageChange}
           onPageSizeChange={handlePageSizeChange}
           currentPage={currentPage}
-          pageSize={pageSize}
+          pageSize={effectivePageSize}
           pageSizes={
             preferredPageSize && ![50, 100, 200].includes(preferredPageSize)
               ? [50, preferredPageSize, 100, 200].sort((a, b) => a - b)
@@ -233,14 +253,49 @@ export default function PortMasterPage() {
               <PortForm
                 initialData={selectedPort}
                 companyId={companyId}
-                onSubmit={handleFormSubmit}
-                onCancel={handleCloseDialog}
+                onSubmitAction={handleFormSubmit}
+                onCancelAction={handleCloseDialog}
                 isLoading={saveMutation.isPending}
               />
             </>
           )}
         </Dialog>
       )}
+
+      <ConfirmationDialog
+        open={saveDialogOpen}
+        onClose={() => {
+          setSaveDialogOpen(false);
+          setPendingSaveData(null);
+        }}
+        onConfirm={handleSaveConfirm}
+        type="save"
+        title={selectedPort ? "Update Port" : "Create Port"}
+        message={
+          selectedPort
+            ? `Are you sure you want to update port "${selectedPort.portName}"?`
+            : "Are you sure you want to create this port?"
+        }
+        confirmLabel={selectedPort ? "Update" : "Save"}
+        loading={saveMutation.isPending}
+      />
+
+      <ConfirmationDialog
+        open={deleteDialogOpen}
+        onClose={() => {
+          setDeleteDialogOpen(false);
+          setPortToDelete(null);
+        }}
+        onConfirm={handleDeleteConfirm}
+        type="delete"
+        title="Delete Port"
+        message={
+          portToDelete
+            ? `Are you sure you want to delete port "${portToDelete.portName}"? This action cannot be undone.`
+            : "Are you sure you want to delete this item?"
+        }
+        loading={deleteMutation.isPending}
+      />
     </div>
   );
 }

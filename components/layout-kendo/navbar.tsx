@@ -1,7 +1,9 @@
 "use client";
 
-import { useRouter } from "@/i18n/navigation";
+import { useRouter, usePathname } from "@/i18n/navigation";
 import { Link } from "@/i18n/navigation";
+import { useLocale } from "next-intl";
+import { DropDownList } from "@progress/kendo-react-dropdowns";
 import { useAuthStore } from "@/stores/auth-store";
 import { LanguageSwitcher } from "@/components/i18n/language-switcher";
 import { LayoutDashboard, LogOut, User, ChevronDown } from "lucide-react";
@@ -15,8 +17,23 @@ interface NavbarProps {
 
 export function Navbar({ companyId }: NavbarProps) {
   const router = useRouter();
-  const { user, logOut } = useAuthStore();
+  const pathname = usePathname();
+  const locale = useLocale();
+  const { user, logOut, companies, isCompanySwitchEnabled } = useAuthStore();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+
+  const showCompanyDropdown = isCompanySwitchEnabled && companies.length > 1;
+  const currentCompanyItem = companies.find(
+    (c) => c.companyId.toString() === companyId,
+  );
+
+  const handleCompanyChange = (e: { value: { companyId: string } | null }) => {
+    const newCompany = e.value;
+    if (!newCompany || newCompany.companyId === companyId) return;
+    const newPath = pathname.replace(/^\/[^/]+/, `/${newCompany.companyId}`);
+    const fullUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/${locale}${newPath}`;
+    window.open(fullUrl, "_blank");
+  };
 
   const handleLogout = async () => {
     await logOut();
@@ -33,6 +50,16 @@ export function Navbar({ companyId }: NavbarProps) {
           <LayoutDashboard className="h-5 w-5 text-indigo-500" />
           <span>{SITE_NAME}</span>
         </Link>
+        {showCompanyDropdown && (
+          <DropDownList
+            data={companies}
+            textField="companyName"
+            dataItemKey="companyId"
+            value={currentCompanyItem ?? null}
+            onChange={handleCompanyChange}
+            style={{ minWidth: 140, fontSize: "0.8125rem" }}
+          />
+        )}
       </div>
 
       <div className="flex items-center gap-4">

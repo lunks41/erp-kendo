@@ -1,5 +1,26 @@
 import { format, isValid, parse } from "date-fns";
 
+/**
+ * Format a date/time value for display using a custom format string.
+ * Supports date-fns format tokens (e.g. dd/MM/yyyy HH:mm:ss, dd-MMM-yy HH:mm).
+ *
+ * @param value - Date, string, null, or undefined
+ * @param dateTimeFormat - date-fns format string (e.g. from user locale settings)
+ * @returns Formatted string or empty string if invalid
+ */
+export function formatDateTime(
+  value: Date | string | null | undefined,
+  dateTimeFormat: string
+): string {
+  if (value == null) return "";
+  try {
+    const d = value instanceof Date ? value : new Date(value);
+    return isValid(d) ? format(d, dateTimeFormat) : "";
+  } catch {
+    return "";
+  }
+}
+
 export function formatDate(
   date: Date | string | number | undefined,
   opts: Intl.DateTimeFormatOptions = {},

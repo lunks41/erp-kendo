@@ -1,22 +1,12 @@
 "use client";
 
-import { format, isValid } from "date-fns";
+import { useMemo } from "react";
 import type { MasterDataGridColumn } from "@/components/table";
 import { MasterDataGrid } from "@/components/table";
 import type { IPort } from "@/interfaces/port";
+import { formatDateTime } from "@/lib/date-utils";
 import { TableName } from "@/lib/utils";
-
-const DATE_TIME_FORMAT = "dd-MMM-yy HH:mm";
-
-function formatDateTime(value: Date | string | null | undefined): string {
-  if (value == null) return "";
-  try {
-    const d = value instanceof Date ? value : new Date(value);
-    return isValid(d) ? format(d, DATE_TIME_FORMAT) : "";
-  } catch {
-    return "";
-  }
-}
+import { useAuthStore } from "@/stores/auth-store";
 
 export interface PortTableProps {
   data: IPort[];
@@ -43,59 +33,70 @@ export interface PortTableProps {
   canCreate?: boolean;
 }
 
-const columns: MasterDataGridColumn[] = [
-  { field: "portCode", title: "Code", width: 100, minWidth: 80 },
-  { field: "portName", title: "Name", flex: true, minWidth: 150 },
-  {
-    field: "portShortName",
-    title: "Short Name",
-    width: 100,
-    media: "(min-width: 768px)",
-  },
-  { field: "portRegionName", title: "Region", width: 120, minWidth: 100 },
-  { field: "isActive", title: "Active", width: 80 },
-  { field: "remarks", title: "Remarks", flex: true, minWidth: 100 },
-  {
-    field: "createBy",
-    title: "Created By",
-    width: 100,
-    media: "(min-width: 992px)",
-  },
-  { field: "editBy", title: "Edited", width: 100, media: "(min-width: 1200px)" },
-  {
-    field: "createDate",
-    title: "Created Date",
-    width: 130,
-    cells: {
-      data: (props) => {
-        const val = (props.dataItem as IPort).createDate;
-        return (
-          <td {...props.tdProps} className="k-table-td">
-            {formatDateTime(val)}
-          </td>
-        );
-      },
-    },
-  },
-  {
-    field: "editDate",
-    title: "Edited Date",
-    width: 130,
-    media: "(min-width: 1200px)",
-    cells: {
-      data: (props) => {
-        const val = (props.dataItem as IPort).editDate;
-        return (
-          <td {...props.tdProps} className="k-table-td">
-            {formatDateTime(val)}
-          </td>
-        );
-      },
-    },
-  },
-];
-
 export function PortTable(props: PortTableProps) {
+  const { decimals } = useAuthStore();
+  const datetimeFormat = decimals[0]?.longDateFormat ?? "dd/MM/yyyy HH:mm:ss";
+
+  const columns: MasterDataGridColumn[] = useMemo(
+    () => [
+      { field: "portCode", title: "Code", width: 100, minWidth: 80 },
+      { field: "portName", title: "Name", flex: true, minWidth: 150 },
+      {
+        field: "portShortName",
+        title: "Short Name",
+        width: 100,
+        media: "(min-width: 768px)",
+      },
+      { field: "portRegionName", title: "Region", width: 120, minWidth: 100 },
+      { field: "isActive", title: "Active", width: 80 },
+      { field: "remarks", title: "Remarks", flex: true, minWidth: 100 },
+      {
+        field: "createBy",
+        title: "Created By",
+        width: 100,
+        media: "(min-width: 992px)",
+      },
+      {
+        field: "editBy",
+        title: "Edited",
+        width: 100,
+        media: "(min-width: 1200px)",
+      },
+      {
+        field: "createDate",
+        title: "Created Date",
+        width: 130,
+        cells: {
+          data: (props) => {
+            const val = (props.dataItem as IPort).createDate;
+            return (
+              <td {...props.tdProps} className="k-table-td">
+                {formatDateTime(val, datetimeFormat)}
+              </td>
+            );
+          },
+        },
+      },
+      {
+        field: "editDate",
+        title: "Edited Date",
+        width: 130,
+        media: "(min-width: 1200px)",
+        cells: {
+          data: (props) => {
+            const val = (props.dataItem as IPort).editDate;
+            return (
+              <td {...props.tdProps} className="k-table-td">
+                {formatDateTime(val, datetimeFormat)}
+              </td>
+            );
+          },
+        },
+      },
+    ],
+    [datetimeFormat]
+  );
+
   const {
     data,
     totalRecords = 0,

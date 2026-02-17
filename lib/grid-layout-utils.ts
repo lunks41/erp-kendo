@@ -160,6 +160,22 @@ export function parseGridLayoutToColumnsState(
 }
 
 /**
+ * Build default columns state from field names (natural order, optional hidden).
+ */
+export function buildDefaultColumnsState(
+  baseColumnFields: string[],
+  hiddenFields?: Set<string>
+): GridColumnState[] {
+  const hidden = hiddenFields ?? new Set<string>()
+  return baseColumnFields.map((field, idx) => ({
+    id: field,
+    field,
+    hidden: hidden.has(field),
+    orderIndex: idx,
+  }))
+}
+
+/**
  * Serialize Kendo Grid columnsState to backend layout format.
  * Uses JSON key-value format when LAYOUT_USE_JSON_FORMAT is true.
  */

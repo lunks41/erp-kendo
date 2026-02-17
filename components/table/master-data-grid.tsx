@@ -21,9 +21,11 @@ import type {
   GridColumnMenuProps,
 } from "@progress/kendo-react-grid";
 import { Button } from "@progress/kendo-react-buttons";
-import { Plus, RotateCcw, Save } from "lucide-react";
+import { Plus, RotateCcw, Save, LayoutGrid } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useGetGridLayout, useUpdateGridLayout } from "@/hooks/use-settings";
 import {
+  buildDefaultColumnsState,
   parseGridLayoutToColumnsState,
   serializeColumnsStateToLayout,
   normalizeLayout,
@@ -169,6 +171,7 @@ export function MasterDataGrid<T extends object>({
     tableName || "",
   );
 
+  const queryClient = useQueryClient();
   const updateLayoutMutation = useUpdateGridLayout();
 
   const rawLayout = gridLayoutResponse?.data ?? gridLayoutResponse;
@@ -237,25 +240,9 @@ export function MasterDataGrid<T extends object>({
     (e: GridColumnsStateChangeEvent) => {
       columnsStateRef.current = e.columnsState;
       setColumnsState(e.columnsState);
-      if (!moduleId || !transactionId || !tableName) return;
-      const companyId = getCompanyIdFromSession();
-      if (!companyId) return;
-      const { grdColOrder, grdColVisible, grdColSize } =
-        serializeColumnsStateToLayout(e.columnsState);
-      updateLayoutMutation.mutate({
-        companyId: Number(companyId),
-        moduleId: Number(moduleId),
-        transactionId: Number(transactionId),
-        grdName: tableName,
-        grdKey: tableName,
-        grdColOrder,
-        grdColVisible,
-        grdColSize,
-        grdSort: (layout as { grdSort?: string })?.grdSort ?? "",
-        grdString: (layout as { grdString?: string })?.grdString ?? "",
-      });
+      // Layout is only saved when user clicks "Save layout" button
     },
-    [moduleId, transactionId, tableName, layout, updateLayoutMutation],
+    [],
   );
 
   const ActionCellComponent = hasActions
@@ -282,6 +269,55 @@ export function MasterDataGrid<T extends object>({
     serverSidePagination && typeof skip === "number" ? skip : undefined;
   const gridTotal =
     serverSidePagination && typeof total === "number" ? total : undefined;
+
+  const handleDefaultLayout = useCallback(() => {
+    if (!moduleId || !transactionId || !tableName) return;
+    const companyId = getCompanyIdFromSession();
+    if (!companyId) return;
+    const fields = hasActions
+      ? ["__actions", ...baseColumnFields]
+      : baseColumnFields;
+    const hiddenFields = new Set(
+      columns.filter((c) => c.hidden).map((c) => c.field),
+    );
+    const defaultState = buildDefaultColumnsState(fields, hiddenFields);
+    setColumnsState(defaultState);
+    columnsStateRef.current = defaultState;
+    const { grdColOrder, grdColVisible, grdColSize } =
+      serializeColumnsStateToLayout(defaultState);
+    const layoutData = layout as { grdSort?: string; grdString?: string };
+    updateLayoutMutation.mutate(
+      {
+        companyId: Number(companyId),
+        moduleId: Number(moduleId),
+        transactionId: Number(transactionId),
+        grdName: tableName,
+        grdKey: tableName,
+        grdColOrder,
+        grdColVisible,
+        grdColSize,
+        grdSort: layoutData?.grdSort ?? "",
+        grdString: layoutData?.grdString ?? "",
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: ["gridlayout", moduleId, transactionId, tableName],
+          });
+        },
+      },
+    );
+  }, [
+    moduleId,
+    transactionId,
+    tableName,
+    hasActions,
+    baseColumnFields,
+    columns,
+    layout,
+    updateLayoutMutation,
+    queryClient,
+  ]);
 
   const handleSaveLayout = useCallback(() => {
     if (!moduleId || !transactionId || !tableName) return;
@@ -401,14 +437,24 @@ export function MasterDataGrid<T extends object>({
               </Button>
             )}
             {canSaveLayout && (
-              <Button
-                onClick={handleSaveLayout}
-                title="Save layout"
-                disabled={updateLayoutMutation.isPending}
-              >
-                <Save size={18} className="mr-1.5 inline" />
-                Save layout
-              </Button>
+              <>
+                <Button
+                  onClick={handleSaveLayout}
+                  title="Save layout"
+                  disabled={updateLayoutMutation.isPending}
+                >
+                  <Save size={18} className="mr-1.5 inline" />
+                  Save layout
+                </Button>
+                <Button
+                  onClick={handleDefaultLayout}
+                  title="Default layout"
+                  disabled={updateLayoutMutation.isPending}
+                >
+                  <LayoutGrid size={18} className="mr-1.5 inline" />
+                  Default layout
+                </Button>
+              </>
             )}
           </div>
         </div>

@@ -1,27 +1,29 @@
 "use client";
 
-import { useForm, Controller } from "react-hook-form";
+import { PortRegionCombobox } from "@/components/combobox";
+import { FormField } from "@/components/form";
+import { usePortregionLookup } from "@/hooks/use-lookup";
+import type { IPortRegionLookup } from "@/interfaces/lookup";
+import type { IPort } from "@/interfaces/port";
+import { portSchema, type PortSchemaType } from "@/schemas/port";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@progress/kendo-react-buttons";
 import { Input, Switch } from "@progress/kendo-react-inputs";
-import { PortRegionDropdownList } from "@/components/dropdownlist";
-import type { IPort } from "@/interfaces/port";
-import type { IPortRegionLookup } from "@/interfaces/lookup";
-import { portSchema, type PortSchemaType } from "@/schemas/port";
+import { Controller, useForm } from "react-hook-form";
 
 export interface PortFormProps {
   initialData?: IPort | null;
   companyId: string;
-  onSubmit: (data: Partial<IPort>) => void;
-  onCancel: () => void;
+  onSubmitAction: (data: Partial<IPort>) => void;
+  onCancelAction: () => void;
   isLoading?: boolean;
 }
 
 export function PortForm({
   initialData,
   companyId,
-  onSubmit,
-  onCancel,
+  onSubmitAction,
+  onCancelAction,
   isLoading = false,
 }: PortFormProps) {
   const isEdit = !!initialData?.portId;
@@ -46,6 +48,7 @@ export function PortForm({
   });
 
   const portRegionId = watch("portRegionId");
+  const { data: portRegionData = [] } = usePortregionLookup();
 
   const handlePortRegionChange = (value: IPortRegionLookup | null) => {
     setValue("portRegionId", value?.portRegionId ?? 0, {
@@ -54,7 +57,7 @@ export function PortForm({
   };
 
   const onFormSubmit = (data: PortSchemaType) => {
-    onSubmit({
+    onSubmitAction({
       ...data,
       companyId: Number(companyId),
     });
@@ -62,23 +65,25 @@ export function PortForm({
 
   const portRegionValue: IPortRegionLookup | null =
     portRegionId > 0
-      ? initialData && initialData.portRegionId === portRegionId
-        ? {
-            portRegionId: initialData.portRegionId,
-            portRegionCode: initialData.portRegionCode ?? "",
-            portRegionName: initialData.portRegionName ?? "",
-          }
-        : { portRegionId, portRegionCode: "", portRegionName: "" }
+      ? portRegionData.find((r) => r.portRegionId === portRegionId) ??
+        (initialData && initialData.portRegionId === portRegionId
+          ? {
+              portRegionId: initialData.portRegionId,
+              portRegionCode: initialData.portRegionCode ?? "",
+              portRegionName: initialData.portRegionName ?? "",
+            }
+          : { portRegionId, portRegionCode: "", portRegionName: "" })
       : null;
 
   return (
     <form onSubmit={handleSubmit(onFormSubmit)} className="flex flex-col gap-5">
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-        <div>
-          <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
-            Port Region <span className="text-rose-500">*</span>
-          </label>
-          <PortRegionDropdownList
+        <FormField
+          label="Port Region"
+          isRequired
+          error={errors.portRegionId?.message}
+        >
+          <PortRegionCombobox
             value={
               portRegionValue ??
               (portRegionId
@@ -89,15 +94,13 @@ export function PortForm({
             disabled={isLoading}
             placeholder="Select PortRegion..."
           />
-          {errors.portRegionId && (
-            <p className="mt-1 text-sm text-rose-500">{errors.portRegionId.message}</p>
-          )}
-        </div>
+        </FormField>
 
-        <div>
-          <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
-            Port Code <span className="text-rose-500">*</span>
-          </label>
+        <FormField
+          label="Port Code"
+          isRequired
+          error={errors.portCode?.message}
+        >
           <Controller
             name="portCode"
             control={control}
@@ -112,15 +115,13 @@ export function PortForm({
               />
             )}
           />
-          {errors.portCode && (
-            <p className="mt-1 text-sm text-rose-500">{errors.portCode.message}</p>
-          )}
-        </div>
+        </FormField>
 
-        <div>
-          <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
-            Port Name <span className="text-rose-500">*</span>
-          </label>
+        <FormField
+          label="Port Name"
+          isRequired
+          error={errors.portName?.message}
+        >
           <Controller
             name="portName"
             control={control}
@@ -134,15 +135,12 @@ export function PortForm({
               />
             )}
           />
-          {errors.portName && (
-            <p className="mt-1 text-sm text-rose-500">{errors.portName.message}</p>
-          )}
-        </div>
+        </FormField>
 
-        <div>
-          <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
-            Port Short Name
-          </label>
+        <FormField
+          label="Port Short Name"
+          error={errors.portShortName?.message}
+        >
           <Controller
             name="portShortName"
             control={control}
@@ -156,15 +154,13 @@ export function PortForm({
               />
             )}
           />
-          {errors.portShortName && (
-            <p className="mt-1 text-sm text-rose-500">{errors.portShortName.message}</p>
-          )}
-        </div>
+        </FormField>
 
-        <div className="sm:col-span-2">
-          <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
-            Remarks
-          </label>
+        <FormField
+          label="Remarks"
+          error={errors.remarks?.message}
+          className="sm:col-span-2"
+        >
           <Controller
             name="remarks"
             control={control}
@@ -178,15 +174,9 @@ export function PortForm({
               />
             )}
           />
-          {errors.remarks && (
-            <p className="mt-1 text-sm text-rose-500">{errors.remarks.message}</p>
-          )}
-        </div>
+        </FormField>
 
-        <div className="sm:col-span-2">
-          <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
-            Active Status
-          </label>
+        <FormField label="Active Status" className="sm:col-span-2">
           <Controller
             name="isActive"
             control={control}
@@ -200,11 +190,16 @@ export function PortForm({
               />
             )}
           />
-        </div>
+        </FormField>
       </div>
 
       <div className="flex justify-end gap-2 border-t border-slate-200 pt-4 dark:border-slate-700">
-        <Button type="button" fillMode="flat" onClick={onCancel} disabled={isLoading}>
+        <Button
+          type="button"
+          fillMode="flat"
+          onClick={onCancelAction}
+          disabled={isLoading}
+        >
           Cancel
         </Button>
         <Button type="submit" themeColor="primary" disabled={isLoading}>
