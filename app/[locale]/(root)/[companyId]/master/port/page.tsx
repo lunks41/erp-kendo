@@ -120,18 +120,18 @@ export default function PortMasterPage() {
   };
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-4 p-4">
       <div>
-        <h1 className="flex items-center gap-2 text-2xl font-semibold text-slate-900 dark:text-white">
-          <MapPin className="h-6 w-6 text-rose-500" />
+        <h1 className="flex items-center gap-1.5 text-lg font-semibold text-slate-900 dark:text-white">
+          <MapPin className="h-5 w-5 text-rose-500" />
           Port Master
         </h1>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+        <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
           Manage ports and port regions.
         </p>
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800/50">
+      <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-700 dark:bg-slate-800/50">
         {isLoading ? (
           <div className="flex items-center justify-center py-16">
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent" />

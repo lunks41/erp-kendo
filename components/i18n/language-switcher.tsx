@@ -29,7 +29,7 @@ export function LanguageSwitcher() {
           router.replace(pathname, { locale: val.locale });
         }
       }}
-      style={{ minWidth: 120 }}
+      style={{ minWidth: 90, fontSize: "0.8125rem" }}
     />
   );
 }

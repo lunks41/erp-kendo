@@ -96,7 +96,7 @@ export interface MasterDataGridProps<T = unknown> {
   csvFileName?: string;
   /** Enable PDF export */
   pdfEnabled?: boolean;
-  /** Scroll mode: "scrollable" | "virtual" */
+  /** Scroll mode: "scrollable" | "virtual" - fixed height + scrollable data */
   scrollableMode?: "scrollable" | "virtual";
   /** Show actions column first (true) or last (false) */
   actionsColumnFirst?: boolean;
@@ -105,8 +105,8 @@ export interface MasterDataGridProps<T = unknown> {
   /** Page size dropdown options. Defaults to [50,100,500] with current pageSize included. */
   pageSizes?: number[];
 }
-/** Height = all rows + toolbar; grows with pageSize so 100 or 500 rows all fit (page scrolls). */
-const getTableHeight = (pageSize: number) => `550px`; // ✅ No max limit
+/** Fixed grid height; data area scrolls inside. Pagination stays visible. */
+const TABLE_HEIGHT = "min(650px, 70vh)";
 
 function DefaultColumnMenu(props: GridColumnMenuProps) {
   return (
@@ -129,7 +129,7 @@ export function MasterDataGrid<T extends object>({
   showDelete = true,
   showAdd: _showAdd = true,
   pageable = true,
-  pageSize = 50,
+  pageSize = 100,
   sortable = true,
   filterable = false,
   className,
@@ -414,8 +414,8 @@ export function MasterDataGrid<T extends object>({
         </div>
       )}
       <div
-        className="k-grid-container min-w-0 overflow-hidden rounded border border-slate-500 bg-white dark:border-slate-700 dark:bg-slate-800/50"
-        style={{ height: getTableHeight(gridPageSize) }}
+        className="k-grid-container min-w-0 shrink-0 overflow-hidden rounded border border-slate-500 bg-white dark:border-slate-700 dark:bg-slate-800/50"
+        style={{ height: TABLE_HEIGHT }}
       >
         <Grid
           data={data}
@@ -451,7 +451,7 @@ export function MasterDataGrid<T extends object>({
             search: true,
             sort: true,
             filter: filterable,
-            page: pageable,
+            page: pageable && !serverSidePagination,
           }}
           searchFields={gridSearchFields}
           csv={{ fileName: csvFileName, allPages: true }}

@@ -44,14 +44,24 @@ export interface PortTableProps {
 }
 
 const columns: MasterDataGridColumn[] = [
-  { field: "portCode", title: "Code", width: 120 },
-  { field: "portName", title: "Name", width: 220 },
-  { field: "portShortName", title: "Short Name", width: 100 },
-  { field: "portRegionName", title: "Region", width: 160 },
-  { field: "isActive", title: "Active", width: 90 },
-  { field: "remarks", title: "Remarks", width: 150 },
-  { field: "createBy", title: "Created By", width: 120 },
-  { field: "editBy", title: "Edited", width: 100 },
+  { field: "portCode", title: "Code", width: 100, minWidth: 80 },
+  { field: "portName", title: "Name", flex: true, minWidth: 150 },
+  {
+    field: "portShortName",
+    title: "Short Name",
+    width: 100,
+    media: "(min-width: 768px)",
+  },
+  { field: "portRegionName", title: "Region", width: 120, minWidth: 100 },
+  { field: "isActive", title: "Active", width: 80 },
+  { field: "remarks", title: "Remarks", flex: true, minWidth: 100 },
+  {
+    field: "createBy",
+    title: "Created By",
+    width: 100,
+    media: "(min-width: 992px)",
+  },
+  { field: "editBy", title: "Edited", width: 100, media: "(min-width: 1200px)" },
   {
     field: "createDate",
     title: "Created Date",
@@ -71,6 +81,7 @@ const columns: MasterDataGridColumn[] = [
     field: "editDate",
     title: "Edited Date",
     width: 130,
+    media: "(min-width: 1200px)",
     cells: {
       data: (props) => {
         const val = (props.dataItem as IPort).editDate;
