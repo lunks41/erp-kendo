@@ -1,0 +1,31 @@
+---
+description: ERP project overview - tech stack, conventions, structure
+alwaysApply: true
+---
+
+# ERP Project - Cursor Rules
+
+## Tech Stack
+- Next.js 16 App Router, React 19
+- Kendo React (Grid, Dialogs, Inputs, Buttons, Dropdowns), Tailwind, Lucide
+- Zustand (auth-store, permission-store, notification-store, locale-store)
+- TanStack Query, Axios via /api/proxy
+- next-intl (en, ar, ja), locale in URL
+- react-hook-form, zod, @hookform/resolvers
+- Debug: lib/debug.ts - use debug.log, debug.warn, debug.error
+
+## Folder Structure
+- app/[locale]/(auth): login, register, company-select, forgot-password
+- app/[locale]/(root)/[companyId]: master, reports, settings (navbar + sidebar)
+- components/layout-kendo: navbar, sidebar, root-shell, notification-container
+- hooks, lib, stores, interfaces, schemas, messages, i18n
+
+## Key Conventions
+1. Navigation: Link, useRouter, usePathname from @/i18n/navigation
+2. API: getData, apiClient from lib/api-client
+3. Permissions: usePermissionStore().hasPermission(moduleId, transactionId, action)
+4. Module/Transaction IDs: enums from lib/utils (ModuleId, MasterTransactionId)
+5. Grid: MasterDataGrid with tableName, useGetGridLayout, useUpdateGridLayout
+
+## Dev
+- Port 4100 (npm run dev)

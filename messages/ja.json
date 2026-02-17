@@ -1,0 +1,23 @@
+{
+  "common": {
+    "save": "保存",
+    "cancel": "キャンセル",
+    "delete": "削除",
+    "edit": "編集",
+    "add": "追加",
+    "close": "閉じる",
+    "search": "検索",
+    "loading": "読み込み中...",
+    "noData": "データがありません"
+  },
+  "auth": {
+    "login": "ログイン",
+    "register": "登録",
+    "forgotPassword": "パスワードをお忘れですか？",
+    "secureAccess": "ワークスペースへの安全なアクセス"
+  },
+  "master": {
+    "port": "港",
+    "customer": "顧客"
+  }
+}

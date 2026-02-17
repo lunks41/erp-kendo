@@ -1,0 +1,23 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "close": "Close",
+    "search": "Search",
+    "loading": "Loading...",
+    "noData": "No data"
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "forgotPassword": "Forgot Password?",
+    "secureAccess": "Secure access to your workspace"
+  },
+  "master": {
+    "port": "Port",
+    "customer": "Customer"
+  }
+}

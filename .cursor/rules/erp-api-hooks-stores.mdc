@@ -1,0 +1,30 @@
+---
+description: API, hooks, and Zustand store patterns
+globs: "**/lib/api*.ts,**/hooks/*.ts,**/stores/*.ts"
+alwaysApply: false
+---
+
+# API, Hooks & Stores
+
+## API Client
+- Base URL: `/api/proxy` (Next.js API route proxies to backend)
+- Add `X-Company-Id` header via `getCompanyIdFromSession()`
+- Use `getData`, `postData`, etc. from `lib/api-client`
+- Routes defined in `lib/api-routes.ts`
+
+## Hooks
+- `use-common`: `useGet`, `useGetWithPagination`, `usePersist`, `useDelete`
+- `use-settings`: `useUserSettingDefaults`, `useGetGridLayout`, `useUpdateGridLayout`
+- Permission checks: `usePermissionStore().hasPermission(moduleId, transactionId, action)`
+
+## Zustand Stores
+- `auth-store`: login, logout, companies, currentCompany, decimals, permissions
+- `permission-store`: hasPermission, setPermissions
+- `notification-store`: toast (success, error, info, warning)
+- `locale-store`: setLocale (for cookie-based locale; URL-based uses next-intl)
+- Use `useAuthStore()`, etc. - avoid importing store state in non-React code when possible
+
+## Error Handling
+- Use `debug.error()` for logging
+- `lib/error-handler.ts`: logError, retryWithBackoff, CircuitBreaker
+- Show user errors via `toast.error()` from notification-store
