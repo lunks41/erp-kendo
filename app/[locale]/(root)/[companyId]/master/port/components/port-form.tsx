@@ -3,15 +3,14 @@
 import { useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { PortRegionCombobox } from "@/components/combobox/port-region-combobox";
-import { FormField } from "@/components/form";
+import { FormInput, FormSwitch, FormTextArea } from "@/components/form";
 import { usePortregionLookup } from "@/hooks/use-lookup";
 import type { IPortRegionLookup } from "@/interfaces/lookup";
 import type { IPort } from "@/interfaces/port";
 import { portSchema, type PortSchemaType } from "@/schemas/port";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@progress/kendo-react-buttons";
-import { Input, Switch } from "@progress/kendo-react-inputs";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 
 export interface PortFormProps {
   initialData?: IPort | null;
@@ -19,6 +18,7 @@ export interface PortFormProps {
   onSubmitAction: (data: Partial<IPort>) => void;
   onCancelAction: () => void;
   isLoading?: boolean;
+  isViewMode?: boolean;
 }
 
 export function PortForm({
@@ -27,6 +27,7 @@ export function PortForm({
   onSubmitAction,
   onCancelAction,
   isLoading = false,
+  isViewMode = false,
 }: PortFormProps) {
   const t = useTranslations("portForm");
   const tc = useTranslations("common");
@@ -55,22 +56,6 @@ export function PortForm({
   const portRegionId = watch("portRegionId");
   const portRegionIdNum = Number(portRegionId) || 0;
   const { data: portRegionData = [] } = usePortregionLookup();
-
-  console.log("[PortForm] initialData:", {
-    portId: initialData?.portId,
-    portRegionId: initialData?.portRegionId,
-    portRegionIdType:
-      initialData?.portRegionId != null
-        ? typeof initialData.portRegionId
-        : "n/a",
-    portRegionName: initialData?.portRegionName,
-    portRegionCode: initialData?.portRegionCode,
-  });
-  console.log("[PortForm] form state:", {
-    portRegionId,
-    portRegionIdNum,
-    portRegionDataLength: portRegionData.length,
-  });
 
   useEffect(() => {
     if (!initialData) return;
@@ -114,127 +99,73 @@ export function PortForm({
             }))
       : null;
 
-  console.log(
-    "[PortForm] portRegionValue passed to combobox:",
-    portRegionValue,
-  );
-
   return (
     <form onSubmit={handleSubmit(onFormSubmit)} className="flex flex-col gap-5">
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-        <FormField
+        <PortRegionCombobox
+          value={
+            portRegionValue ??
+            (portRegionId
+              ? { portRegionId, portRegionCode: "", portRegionName: "" }
+              : null)
+          }
+          onChange={handlePortRegionChange}
+          isDisable={isLoading}
+          placeholder={t("selectPortRegion")}
           label={t("portRegion")}
           isRequired
           error={errors.portRegionId?.message}
-        >
-          <PortRegionCombobox
-            value={
-              portRegionValue ??
-              (portRegionId
-                ? { portRegionId, portRegionCode: "", portRegionName: "" }
-                : null)
-            }
-            onChange={handlePortRegionChange}
-            disabled={isLoading}
-            placeholder={t("selectPortRegion")}
-          />
-        </FormField>
+        />
 
-        <FormField
+        <FormInput
+          control={control}
+          name="portCode"
           label={t("portCode")}
           isRequired
+          isDisable={isEdit}
           error={errors.portCode?.message}
-        >
-          <Controller
-            name="portCode"
-            control={control}
-            render={({ field }) => (
-              <Input
-                value={field.value}
-                onChange={(e) => field.onChange(e.value)}
-                onBlur={field.onBlur}
-                disabled={isEdit}
-                className="w-full"
-                valid={!errors.portCode}
-              />
-            )}
-          />
-        </FormField>
+          valid={!errors.portCode}
+        />
 
-        <FormField
+        <FormInput
+          control={control}
+          name="portName"
           label={t("portName")}
           isRequired
+          isDisable={isViewMode}
           error={errors.portName?.message}
-        >
-          <Controller
-            name="portName"
-            control={control}
-            render={({ field }) => (
-              <Input
-                value={field.value}
-                onChange={(e) => field.onChange(e.value)}
-                onBlur={field.onBlur}
-                className="w-full"
-                valid={!errors.portName}
-              />
-            )}
-          />
-        </FormField>
+          valid={!errors.portName}
+        />
 
-        <FormField
+        <FormInput
+          control={control}
+          name="portShortName"
           label={t("portShortName")}
+          isDisable={isViewMode}
           error={errors.portShortName?.message}
-        >
-          <Controller
-            name="portShortName"
-            control={control}
-            render={({ field }) => (
-              <Input
-                value={field.value ?? ""}
-                onChange={(e) => field.onChange(e.value ?? "")}
-                onBlur={field.onBlur}
-                className="w-full"
-                valid={!errors.portShortName}
-              />
-            )}
-          />
-        </FormField>
+          valid={!errors.portShortName}
+        />
 
-        <FormField
+        <FormTextArea
+          control={control}
+          name="remarks"
           label={t("remarks")}
-          error={errors.remarks?.message}
+          isDisable={isViewMode}
+          rows={3}
           className="sm:col-span-2"
-        >
-          <Controller
-            name="remarks"
-            control={control}
-            render={({ field }) => (
-              <textarea
-                value={field.value ?? ""}
-                onChange={(e) => field.onChange(e.target.value)}
-                onBlur={field.onBlur}
-                rows={3}
-                className="k-input w-full resize-y rounded border border-slate-300 bg-white px-3 py-2 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white"
-              />
-            )}
-          />
-        </FormField>
+          error={errors.remarks?.message}
+          valid={!errors.remarks}
+        />
 
-        <FormField label={t("activeStatus")} className="sm:col-span-2">
-          <Controller
-            name="isActive"
-            control={control}
-            render={({ field }) => (
-              <Switch
-                checked={field.value}
-                onChange={(e) => field.onChange(e.value ?? false)}
-                disabled={isLoading}
-                onLabel={t("onLabel")}
-                offLabel={t("offLabel")}
-              />
-            )}
-          />
-        </FormField>
+        <FormSwitch
+          control={control}
+          name="isActive"
+          label={t("activeStatus")}
+          isDisable={isLoading}
+          onLabel={t("onLabel")}
+          offLabel={t("offLabel")}
+          className="sm:col-span-2"
+        />
       </div>
 
       <div className="flex justify-end gap-2 border-t border-slate-200 pt-4 dark:border-slate-700">

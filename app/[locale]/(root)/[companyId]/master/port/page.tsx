@@ -51,7 +51,7 @@ export default function PortMasterPage() {
   const [portToDelete, setPortToDelete] = useState<IPort | null>(null);
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [pendingSaveData, setPendingSaveData] = useState<Partial<IPort> | null>(
-    null
+    null,
   );
   const [selectedPort, setSelectedPort] = useState<IPort | null>(null);
   const [viewMode, setViewMode] = useState(false);
@@ -74,10 +74,17 @@ export default function PortMasterPage() {
       });
     } else {
       console.debug(
-        "[Port Master] No permission entry for moduleId=1, transactionId=37 (Port)."
+        "[Port Master] No permission entry for moduleId=1, transactionId=37 (Port).",
       );
     }
-  }, [mounted, permissionsLoaded, permissions, moduleId, transactionId, getPermissions]);
+  }, [
+    mounted,
+    permissionsLoaded,
+    permissions,
+    moduleId,
+    transactionId,
+    getPermissions,
+  ]);
 
   const { data: portsResponse, isLoading } = useGetWithPagination<IPort>(
     `${Port.get}`,
@@ -186,41 +193,41 @@ export default function PortMasterPage() {
           </div>
         ) : (
           <PortTable
-          data={ports}
-          totalRecords={totalRecords}
-          onView={handleView}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          onAdd={mounted && canCreate ? handleAdd : undefined}
-          onRefresh={handleRefresh}
-          searchFilter={searchInput}
-          onSearchChange={setSearchInput}
-          onSearchSubmit={() => {
-            setSearchFilter(searchInput);
-            setCurrentPage(1);
-          }}
-          onSearchClear={() => {
-            setSearchInput("");
-            setSearchFilter("");
-            setCurrentPage(1);
-          }}
-          onPageChange={handlePageChange}
-          onPageSizeChange={handlePageSizeChange}
-          currentPage={currentPage}
-          pageSize={effectivePageSize}
-          pageSizes={
-            preferredPageSize && ![50, 100, 200].includes(preferredPageSize)
-              ? [50, preferredPageSize, 100, 200].sort((a, b) => a - b)
-              : undefined
-          }
-          serverSidePagination
-          moduleId={moduleId}
-          transactionId={transactionId}
-          canEdit={mounted ? canEdit : false}
-          canDelete={mounted ? canDelete : false}
-          canView={mounted ? canView : false}
-          canCreate={mounted ? canCreate : false}
-        />
+            data={ports}
+            totalRecords={totalRecords}
+            onView={handleView}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            onAdd={mounted && canCreate ? handleAdd : undefined}
+            onRefresh={handleRefresh}
+            searchFilter={searchInput}
+            onSearchChange={setSearchInput}
+            onSearchSubmit={() => {
+              setSearchFilter(searchInput);
+              setCurrentPage(1);
+            }}
+            onSearchClear={() => {
+              setSearchInput("");
+              setSearchFilter("");
+              setCurrentPage(1);
+            }}
+            onPageChange={handlePageChange}
+            onPageSizeChange={handlePageSizeChange}
+            currentPage={currentPage}
+            pageSize={effectivePageSize}
+            pageSizes={
+              preferredPageSize && ![50, 100, 200].includes(preferredPageSize)
+                ? [50, preferredPageSize, 100, 200].sort((a, b) => a - b)
+                : undefined
+            }
+            serverSidePagination
+            moduleId={moduleId}
+            transactionId={transactionId}
+            canEdit={mounted ? canEdit : false}
+            canDelete={mounted ? canDelete : false}
+            canView={mounted ? canView : false}
+            canCreate={mounted ? canCreate : false}
+          />
         )}
       </div>
 
@@ -240,11 +247,15 @@ export default function PortMasterPage() {
             <div className="space-y-4 py-2">
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="text-slate-500 dark:text-slate-400">Code</span>
+                  <span className="text-slate-500 dark:text-slate-400">
+                    Code
+                  </span>
                   <p className="font-medium">{selectedPort.portCode}</p>
                 </div>
                 <div>
-                  <span className="text-slate-500 dark:text-slate-400">Name</span>
+                  <span className="text-slate-500 dark:text-slate-400">
+                    Name
+                  </span>
                   <p className="font-medium">{selectedPort.portName}</p>
                 </div>
                 <div>
@@ -296,6 +307,7 @@ export default function PortMasterPage() {
                 onSubmitAction={handleFormSubmit}
                 onCancelAction={handleCloseDialog}
                 isLoading={saveMutation.isPending}
+                isViewMode={viewMode}
               />
             </>
           )}

@@ -6,6 +6,7 @@ import {
   ComboBoxFilterChangeEvent,
 } from "@progress/kendo-react-dropdowns";
 import { filterBy, FilterDescriptor } from "@progress/kendo-data-query";
+import { FormField } from "@/components/form";
 import { usePortregionLookup } from "@/hooks/use-lookup";
 import type { IPortRegionLookup } from "@/interfaces/lookup";
 
@@ -19,8 +20,11 @@ export interface PortRegionComboboxProps {
   value?: IPortRegionLookup | null;
   onChange?: (value: IPortRegionLookup | null) => void;
   onBlur?: () => void;
-  disabled?: boolean;
+  isDisable?: boolean;
   placeholder?: string;
+  label?: string;
+  isRequired?: boolean;
+  error?: string;
   dataItemKey?: string;
   textField?: string;
   allowCustom?: boolean;
@@ -37,8 +41,11 @@ export function PortRegionCombobox({
   value = null,
   onChange,
   onBlur,
-  disabled = false,
+  isDisable = false,
   placeholder = "Select port region...",
+  label,
+  isRequired = false,
+  error,
   dataItemKey = "portRegionId",
   textField = "portRegionName",
   allowCustom = false,
@@ -91,7 +98,7 @@ export function PortRegionCombobox({
     return [resolvedValue, ...filteredData];
   }, [filteredData, resolvedValue, dataItemKey]);
 
-  return (
+  const combobox = (
     <ComboBox
       id={id}
       data={dataWithValue}
@@ -99,7 +106,7 @@ export function PortRegionCombobox({
       onFilterChange={filterChange}
       onChange={(e) => onChange?.(e.value ?? null)}
       onBlur={onBlur}
-      disabled={disabled}
+      disabled={isDisable}
       placeholder={placeholder}
       dataItemKey={dataItemKey}
       textField={textField}
@@ -113,4 +120,14 @@ export function PortRegionCombobox({
       style={{ minWidth: 200 }}
     />
   );
+
+  if (label != null) {
+    return (
+      <FormField label={label} isRequired={isRequired} error={error}>
+        {combobox}
+      </FormField>
+    );
+  }
+
+  return combobox;
 }
