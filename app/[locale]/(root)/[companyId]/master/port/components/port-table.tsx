@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { useTranslations } from "next-intl";
 import type { MasterDataGridColumn } from "@/components/table";
 import { MasterDataGrid } from "@/components/table";
 import type { IPort } from "@/interfaces/port";
@@ -18,6 +19,14 @@ export interface PortTableProps {
   onRefresh?: () => void;
   addButtonLabel?: string;
   searchPlaceholder?: string;
+  /** Current search/filter string for the toolbar search box */
+  searchFilter?: string;
+  /** Called when user changes the search input (e.g. types) */
+  onSearchChange?: (value: string) => void;
+  /** Called when user clicks Search or presses Enter (e.g. reset to page 1 and refetch) */
+  onSearchSubmit?: () => void;
+  /** Called when user clicks the clear (X) button in the search box */
+  onSearchClear?: () => void;
   onPageChange?: (page: number) => void;
   onPageSizeChange?: (pageSize: number) => void;
   currentPage?: number;
@@ -34,37 +43,38 @@ export interface PortTableProps {
 }
 
 export function PortTable(props: PortTableProps) {
+  const t = useTranslations("portTable");
   const { decimals } = useAuthStore();
   const datetimeFormat = decimals[0]?.longDateFormat ?? "dd/MM/yyyy HH:mm:ss";
 
   const columns: MasterDataGridColumn[] = useMemo(
     () => [
-      { field: "portCode", title: "Code", width: 100, minWidth: 80 },
-      { field: "portName", title: "Name", flex: true, minWidth: 150 },
+      { field: "portCode", title: t("code"), width: 100, minWidth: 80 },
+      { field: "portName", title: t("name"), flex: true, minWidth: 150 },
       {
         field: "portShortName",
-        title: "Short Name",
+        title: t("shortName"),
         width: 100,
         media: "(min-width: 768px)",
       },
-      { field: "portRegionName", title: "Region", width: 120, minWidth: 100 },
-      { field: "isActive", title: "Active", width: 80 },
-      { field: "remarks", title: "Remarks", flex: true, minWidth: 100 },
+      { field: "portRegionName", title: t("region"), width: 120, minWidth: 100 },
+      { field: "isActive", title: t("active"), width: 80 },
+      { field: "remarks", title: t("remarks"), flex: true, minWidth: 100 },
       {
         field: "createBy",
-        title: "Created By",
+        title: t("createdBy"),
         width: 100,
         media: "(min-width: 992px)",
       },
       {
         field: "editBy",
-        title: "Edited",
+        title: t("editedBy"),
         width: 100,
         media: "(min-width: 1200px)",
       },
       {
         field: "createDate",
-        title: "Created Date",
+        title: t("createdDate"),
         width: 130,
         cells: {
           data: (props) => {
@@ -79,7 +89,7 @@ export function PortTable(props: PortTableProps) {
       },
       {
         field: "editDate",
-        title: "Edited Date",
+        title: t("editedDate"),
         width: 130,
         media: "(min-width: 1200px)",
         cells: {
@@ -94,7 +104,7 @@ export function PortTable(props: PortTableProps) {
         },
       },
     ],
-    [datetimeFormat]
+    [datetimeFormat, t],
   );
 
   const {
@@ -105,8 +115,12 @@ export function PortTable(props: PortTableProps) {
     onDelete,
     onAdd,
     onRefresh,
-    addButtonLabel = "+ Add Port",
-    searchPlaceholder = "Search ports...",
+    addButtonLabel,
+    searchPlaceholder,
+    searchFilter,
+    onSearchChange,
+    onSearchSubmit,
+    onSearchClear,
     onPageChange,
     onPageSizeChange,
     currentPage = 1,
@@ -149,8 +163,12 @@ export function PortTable(props: PortTableProps) {
       tableName={TableName.port}
       onAdd={onAdd}
       onRefresh={onRefresh}
-      addButtonLabel={addButtonLabel}
-      searchPlaceholder={searchPlaceholder}
+      addButtonLabel={addButtonLabel ?? t("addPort")}
+      searchPlaceholder={searchPlaceholder ?? t("searchPortsPlaceholder")}
+      searchValue={searchFilter}
+      onSearchChange={onSearchChange}
+      onSearchSubmit={onSearchSubmit}
+      onSearchClear={onSearchClear}
     />
   );
 }

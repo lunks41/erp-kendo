@@ -49,7 +49,7 @@ export default function CompanySelectPage() {
     setError(null);
     try {
       await switchCompany(selectedCompanyId, true);
-      router.push(`/${selectedCompanyId}/master/customer`);
+      router.push(`/${selectedCompanyId}`);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Failed to select company"

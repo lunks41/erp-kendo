@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
-import { Navbar } from "./navbar";
-import { Sidebar } from "./sidebar";
+import { Navbar } from "@/components/layout/navbar";
+import { Sidebar } from "@/components/layout/sidebar";
 import { useAuthStore } from "@/stores/auth-store";
 
 interface RootShellProps {

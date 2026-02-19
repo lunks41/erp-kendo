@@ -1,7 +1,7 @@
 import { ApiResponse } from "@/interfaces/auth"
 import { UseQueryOptions, useMutation, useQuery } from "@tanstack/react-query"
 import { AxiosError } from "axios"
-import { toast } from "@/components/layout-kendo/notification-container"
+import { toast } from "@/components/layout/notification-container"
 
 import {
   deleteData,

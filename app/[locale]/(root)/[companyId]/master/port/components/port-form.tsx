@@ -1,6 +1,8 @@
 "use client";
 
-import { PortRegionCombobox } from "@/components/combobox";
+import { useEffect } from "react";
+import { useTranslations } from "next-intl";
+import { PortRegionCombobox } from "@/components/combobox/port-region-combobox";
 import { FormField } from "@/components/form";
 import { usePortregionLookup } from "@/hooks/use-lookup";
 import type { IPortRegionLookup } from "@/interfaces/lookup";
@@ -26,6 +28,8 @@ export function PortForm({
   onCancelAction,
   isLoading = false,
 }: PortFormProps) {
+  const t = useTranslations("portForm");
+  const tc = useTranslations("common");
   const isEdit = !!initialData?.portId;
 
   const {
@@ -33,6 +37,7 @@ export function PortForm({
     handleSubmit,
     setValue,
     watch,
+    reset,
     formState: { errors },
   } = useForm<PortSchemaType>({
     resolver: zodResolver(portSchema),
@@ -41,14 +46,44 @@ export function PortForm({
       portCode: initialData?.portCode ?? "",
       portName: initialData?.portName ?? "",
       portShortName: initialData?.portShortName ?? "",
-      portRegionId: initialData?.portRegionId ?? 0,
+      portRegionId: Number(initialData?.portRegionId) || 0,
       remarks: initialData?.remarks ?? "",
       isActive: initialData?.isActive ?? true,
     },
   });
 
   const portRegionId = watch("portRegionId");
+  const portRegionIdNum = Number(portRegionId) || 0;
   const { data: portRegionData = [] } = usePortregionLookup();
+
+  console.log("[PortForm] initialData:", {
+    portId: initialData?.portId,
+    portRegionId: initialData?.portRegionId,
+    portRegionIdType:
+      initialData?.portRegionId != null
+        ? typeof initialData.portRegionId
+        : "n/a",
+    portRegionName: initialData?.portRegionName,
+    portRegionCode: initialData?.portRegionCode,
+  });
+  console.log("[PortForm] form state:", {
+    portRegionId,
+    portRegionIdNum,
+    portRegionDataLength: portRegionData.length,
+  });
+
+  useEffect(() => {
+    if (!initialData) return;
+    reset({
+      portId: initialData.portId,
+      portCode: initialData.portCode ?? "",
+      portName: initialData.portName ?? "",
+      portShortName: initialData.portShortName ?? "",
+      portRegionId: Number(initialData.portRegionId) || 0,
+      remarks: initialData.remarks ?? "",
+      isActive: initialData.isActive ?? true,
+    });
+  }, [initialData, reset]);
 
   const handlePortRegionChange = (value: IPortRegionLookup | null) => {
     setValue("portRegionId", value?.portRegionId ?? 0, {
@@ -64,22 +99,31 @@ export function PortForm({
   };
 
   const portRegionValue: IPortRegionLookup | null =
-    portRegionId > 0
-      ? portRegionData.find((r) => r.portRegionId === portRegionId) ??
-        (initialData && initialData.portRegionId === portRegionId
+    portRegionIdNum > 0
+      ? (portRegionData.find((r) => r.portRegionId === portRegionIdNum) ??
+        (initialData && Number(initialData.portRegionId) === portRegionIdNum
           ? {
-              portRegionId: initialData.portRegionId,
+              portRegionId: portRegionIdNum,
               portRegionCode: initialData.portRegionCode ?? "",
               portRegionName: initialData.portRegionName ?? "",
             }
-          : { portRegionId, portRegionCode: "", portRegionName: "" })
+          : {
+              portRegionId: portRegionIdNum,
+              portRegionCode: "",
+              portRegionName: "",
+            }))
       : null;
+
+  console.log(
+    "[PortForm] portRegionValue passed to combobox:",
+    portRegionValue,
+  );
 
   return (
     <form onSubmit={handleSubmit(onFormSubmit)} className="flex flex-col gap-5">
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         <FormField
-          label="Port Region"
+          label={t("portRegion")}
           isRequired
           error={errors.portRegionId?.message}
         >
@@ -92,12 +136,12 @@ export function PortForm({
             }
             onChange={handlePortRegionChange}
             disabled={isLoading}
-            placeholder="Select PortRegion..."
+            placeholder={t("selectPortRegion")}
           />
         </FormField>
 
         <FormField
-          label="Port Code"
+          label={t("portCode")}
           isRequired
           error={errors.portCode?.message}
         >
@@ -118,7 +162,7 @@ export function PortForm({
         </FormField>
 
         <FormField
-          label="Port Name"
+          label={t("portName")}
           isRequired
           error={errors.portName?.message}
         >
@@ -138,7 +182,7 @@ export function PortForm({
         </FormField>
 
         <FormField
-          label="Port Short Name"
+          label={t("portShortName")}
           error={errors.portShortName?.message}
         >
           <Controller
@@ -157,7 +201,7 @@ export function PortForm({
         </FormField>
 
         <FormField
-          label="Remarks"
+          label={t("remarks")}
           error={errors.remarks?.message}
           className="sm:col-span-2"
         >
@@ -176,7 +220,7 @@ export function PortForm({
           />
         </FormField>
 
-        <FormField label="Active Status" className="sm:col-span-2">
+        <FormField label={t("activeStatus")} className="sm:col-span-2">
           <Controller
             name="isActive"
             control={control}
@@ -185,8 +229,8 @@ export function PortForm({
                 checked={field.value}
                 onChange={(e) => field.onChange(e.value ?? false)}
                 disabled={isLoading}
-                onLabel="ON"
-                offLabel="OFF"
+                onLabel={t("onLabel")}
+                offLabel={t("offLabel")}
               />
             )}
           />
@@ -200,10 +244,10 @@ export function PortForm({
           onClick={onCancelAction}
           disabled={isLoading}
         >
-          Cancel
+          {tc("cancel")}
         </Button>
         <Button type="submit" themeColor="primary" disabled={isLoading}>
-          {isLoading ? "Saving..." : isEdit ? "Update Port" : "Create Port"}
+          {isLoading ? t("saving") : isEdit ? t("updatePort") : t("createPort")}
         </Button>
       </div>
     </form>

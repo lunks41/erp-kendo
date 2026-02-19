@@ -17,7 +17,7 @@ alwaysApply: true
 ## Folder Structure
 - app/[locale]/(auth): login, register, company-select, forgot-password
 - app/[locale]/(root)/[companyId]: master, reports, settings (navbar + sidebar)
-- components/layout-kendo: navbar, sidebar, root-shell, notification-container
+- components/layout: navbar, sidebar, root-shell, notification-container
 - hooks, lib, stores, interfaces, schemas, messages, i18n
 
 ## Key Conventions

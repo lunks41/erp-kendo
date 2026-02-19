@@ -1,4 +1,4 @@
-import { RootShell } from "@/components/layout-kendo/root-shell";
+import { RootShell } from "@/components/layout/root-shell";
 
 type Props = {
   children: React.ReactNode;

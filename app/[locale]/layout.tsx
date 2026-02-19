@@ -3,7 +3,7 @@ import { getMessages, setRequestLocale } from "next-intl/server";
 import { hasLocale } from "next-intl";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
-import { NotificationContainer } from "@/components/layout-kendo/notification-container";
+import { NotificationContainer } from "@/components/layout/notification-container";
 import { KendoIntlProvider } from "@/components/i18n/intl-provider";
 import { QueryProvider } from "@/components/providers/query-provider";
 

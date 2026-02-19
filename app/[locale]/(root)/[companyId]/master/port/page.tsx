@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Button } from "@progress/kendo-react-buttons";
 import { Dialog, DialogActionsBar } from "@progress/kendo-react-dialogs";
 import { useQueryClient } from "@tanstack/react-query";
@@ -15,6 +16,7 @@ import { Port } from "@/lib/api-routes";
 import type { IPort } from "@/interfaces/port";
 
 import { ConfirmationDialog } from "@/components/confirmation";
+import { TableSkeleton } from "@/components/skeleton";
 import { PortForm } from "./components/port-form";
 import { MasterTransactionId, ModuleId } from "@/lib/utils";
 import { usePermissionStore } from "@/stores/permission-store";
@@ -22,11 +24,12 @@ import { useUserSettingDefaults } from "@/hooks/use-settings";
 import { PortTable } from "./components/port-table";
 
 export default function PortMasterPage() {
+  const t = useTranslations("portPage");
   const moduleId = ModuleId.master;
   const transactionId = MasterTransactionId.port;
 
   const queryClient = useQueryClient();
-  const { hasPermission } = usePermissionStore();
+  const { hasPermission, getPermissions, permissions } = usePermissionStore();
   const canView = hasPermission(moduleId, transactionId, "isRead");
   const canEdit = hasPermission(moduleId, transactionId, "isEdit");
   const canDelete = hasPermission(moduleId, transactionId, "isDelete");
@@ -36,7 +39,13 @@ export default function PortMasterPage() {
   const params = useParams();
   const companyId = (params?.companyId as string) ?? "";
   const [mounted, setMounted] = useState(false);
+
+  const permissionsLoaded = Object.keys(permissions).length > 0;
+  const portPermission = getPermissions(moduleId, transactionId);
+  const hasNoPortRights =
+    mounted && permissionsLoaded && portPermission === undefined;
   const [searchFilter, setSearchFilter] = useState("");
+  const [searchInput, setSearchInput] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [portToDelete, setPortToDelete] = useState<IPort | null>(null);
@@ -52,6 +61,23 @@ export default function PortMasterPage() {
   const effectivePageSize = pageSize ?? preferredPageSize;
 
   useEffect(() => setMounted(true), []);
+
+  useEffect(() => {
+    if (!mounted || !permissionsLoaded) return;
+    const portPerm = getPermissions(moduleId, transactionId);
+    if (portPerm) {
+      console.debug("[Port Master] Permission (1-37):", {
+        isRead: portPerm.isRead,
+        isCreate: portPerm.isCreate,
+        isEdit: portPerm.isEdit,
+        isDelete: portPerm.isDelete,
+      });
+    } else {
+      console.debug(
+        "[Port Master] No permission entry for moduleId=1, transactionId=37 (Port)."
+      );
+    }
+  }, [mounted, permissionsLoaded, permissions, moduleId, transactionId, getPermissions]);
 
   const { data: portsResponse, isLoading } = useGetWithPagination<IPort>(
     `${Port.get}`,
@@ -144,15 +170,17 @@ export default function PortMasterPage() {
       <div>
         <h1 className="flex items-center gap-1.5 text-lg font-semibold text-slate-900 dark:text-white">
           <MapPin className="h-5 w-5 text-rose-500" />
-          Port Master
+          {t("title")}
         </h1>
         <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
-          Manage ports and port regions.
+          {t("description")}
         </p>
       </div>
 
       <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-700 dark:bg-slate-800/50">
-        {isLoading ? (
+        {hasNoPortRights ? (
+          <TableSkeleton showLock rowCount={10} columnCount={6} />
+        ) : isLoading ? (
           <div className="flex items-center justify-center py-16">
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent" />
           </div>
@@ -165,6 +193,17 @@ export default function PortMasterPage() {
           onDelete={handleDelete}
           onAdd={mounted && canCreate ? handleAdd : undefined}
           onRefresh={handleRefresh}
+          searchFilter={searchInput}
+          onSearchChange={setSearchInput}
+          onSearchSubmit={() => {
+            setSearchFilter(searchInput);
+            setCurrentPage(1);
+          }}
+          onSearchClear={() => {
+            setSearchInput("");
+            setSearchFilter("");
+            setCurrentPage(1);
+          }}
           onPageChange={handlePageChange}
           onPageSizeChange={handlePageSizeChange}
           currentPage={currentPage}
@@ -251,6 +290,7 @@ export default function PortMasterPage() {
                 </p>
               )}
               <PortForm
+                key={selectedPort?.portId ?? "new"}
                 initialData={selectedPort}
                 companyId={companyId}
                 onSubmitAction={handleFormSubmit}

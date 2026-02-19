@@ -17,6 +17,8 @@ import { usePermissionStore } from "./permission-store"
 
 // Constants and Configuration
 // -------------------------
+/** Login goes to same-origin API route so the backend URL is never exposed and password is only sent to our server. */
+const LOGIN_API_URL = "/api/auth/login"
 const BACKEND_API_URL = process.env.NEXT_PUBLIC_API_URL
 const ENABLE_COMPANY_SWITCHING =
   process.env.NEXT_PUBLIC_ENABLE_COMPANY_SWITCH === "true"
@@ -255,12 +257,9 @@ export const useAuthStore = create<AuthState>()(
           set({ isLoading: true, error: null })
 
           try {
-            const response = await fetch(`${BACKEND_API_URL}/auth/login`, {
+            const response = await fetch(LOGIN_API_URL, {
               method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "X-Reg-Id": DEFAULT_REGISTRATION_ID,
-              },
+              headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ userName, userPassword }),
             })
 
@@ -315,12 +314,9 @@ export const useAuthStore = create<AuthState>()(
           set({ isLoading: true, error: null })
 
           try {
-            const response = await fetch(`${BACKEND_API_URL}/auth/login`, {
+            const response = await fetch(LOGIN_API_URL, {
               method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "X-Reg-Id": DEFAULT_REGISTRATION_ID,
-              },
+              headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ userName, userPassword }),
             })
 

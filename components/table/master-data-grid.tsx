@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useCallback, useRef, useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import {
   Grid,
   GridColumn,
@@ -21,7 +22,7 @@ import type {
   GridColumnMenuProps,
 } from "@progress/kendo-react-grid";
 import { Button } from "@progress/kendo-react-buttons";
-import { Plus, RotateCcw, Save, LayoutGrid } from "lucide-react";
+import { Plus, RotateCcw, Save, LayoutGrid, Search, X } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useGetGridLayout, useUpdateGridLayout } from "@/hooks/use-settings";
 import {
@@ -106,6 +107,14 @@ export interface MasterDataGridProps<T = unknown> {
   columnMenu?: boolean;
   /** Page size dropdown options. Defaults to [50,100,500] with current pageSize included. */
   pageSizes?: number[];
+  /** External search: current value (controlled). When set with onSearchChange/onSearchSubmit, shows search box + Search button on toolbar right. */
+  searchValue?: string;
+  /** Called when search input value changes (e.g. user types). */
+  onSearchChange?: (value: string) => void;
+  /** Called when user clicks Search or presses Enter. Use to apply search and e.g. reset to page 1. */
+  onSearchSubmit?: () => void;
+  /** Called when user clicks the clear (X) button. Use to clear filter and refetch (e.g. set filter to "", reset page). */
+  onSearchClear?: () => void;
 }
 /** Fixed grid height; data area scrolls inside. Pagination stays visible. */
 const TABLE_HEIGHT = "min(650px, 70vh)";
@@ -156,7 +165,13 @@ export function MasterDataGrid<T extends object>({
   actionsColumnFirst = true,
   columnMenu = true,
   pageSizes: pageSizesProp,
+  searchValue: searchValueProp,
+  onSearchChange,
+  onSearchSubmit,
+  onSearchClear,
 }: MasterDataGridProps<T>) {
+  const t = useTranslations("grid");
+  const tc = useTranslations("common");
   const { onView, onEdit, onDelete } = actions;
   const hasActions = !!(onView || onEdit || onDelete);
 
@@ -352,7 +367,8 @@ export function MasterDataGrid<T extends object>({
   }, [moduleId, transactionId, tableName, layout, updateLayoutMutation]);
 
   const canSaveLayout = !!(moduleId && transactionId && tableName);
-  const showToolbar = onAdd || onRefresh || canSaveLayout;
+  const showSearchBar = onSearchSubmit != null;
+  const showToolbar = onAdd || onRefresh || canSaveLayout || showSearchBar;
 
   const gridSearchFields = searchFields ?? baseColumnFields;
   const gridPageSize = pageable ? pageSize : 1000;
@@ -373,7 +389,7 @@ export function MasterDataGrid<T extends object>({
       key="__actions"
       id="__actions"
       field="__actions"
-      title="Actions"
+      title={t("actions")}
       width={130}
       locked
       sortable={false}
@@ -406,7 +422,7 @@ export function MasterDataGrid<T extends object>({
         minWidth={(minWidth ?? (flex ? 120 : undefined)) as number | undefined}
         locked={locked}
         sortable={colSortable ?? sortable}
-        filterable={colFilterable ?? filterable}
+        filterable={false}
         {...rest}
       />
     );
@@ -422,7 +438,7 @@ export function MasterDataGrid<T extends object>({
   return (
     <div className="flex min-w-0 flex-col gap-4">
       {showToolbar && (
-        <div className="flex justify-between gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex gap-2">
             {onAdd && (
               <Button themeColor="primary" onClick={onAdd}>
@@ -431,32 +447,73 @@ export function MasterDataGrid<T extends object>({
               </Button>
             )}
             {onRefresh && (
-              <Button onClick={onRefresh} title="Refresh">
+              <Button onClick={onRefresh} title={t("refresh")}>
                 <RotateCcw size={18} className="mr-1.5 inline" />
-                Refresh
+                {t("refresh")}
               </Button>
             )}
             {canSaveLayout && (
               <>
                 <Button
                   onClick={handleSaveLayout}
-                  title="Save layout"
+                  title={t("saveLayout")}
                   disabled={updateLayoutMutation.isPending}
                 >
                   <Save size={18} className="mr-1.5 inline" />
-                  Save layout
+                  {t("saveLayout")}
                 </Button>
                 <Button
                   onClick={handleDefaultLayout}
-                  title="Default layout"
+                  title={t("defaultLayout")}
                   disabled={updateLayoutMutation.isPending}
                 >
                   <LayoutGrid size={18} className="mr-1.5 inline" />
-                  Default layout
+                  {t("defaultLayout")}
                 </Button>
               </>
             )}
           </div>
+          {showSearchBar && (
+            <div className="flex items-center gap-2">
+              <div className="relative">
+                <input
+                  type="text"
+                  value={searchValueProp ?? ""}
+                  onChange={(e) => onSearchChange?.(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      onSearchSubmit?.();
+                    }
+                  }}
+                  placeholder={searchPlaceholder ?? tc("search")}
+                  className="rounded border border-slate-300 bg-white py-1.5 pl-3 pr-8 text-sm text-slate-900 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400"
+                />
+                {(searchValueProp ?? "").length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onSearchChange?.("");
+                      onSearchClear?.();
+                    }}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-slate-500 hover:bg-slate-200 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-600 dark:hover:text-slate-200"
+                    title={t("clearSearch")}
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+              <Button
+                type="button"
+                themeColor="primary"
+                onClick={onSearchSubmit}
+                title={t("search")}
+              >
+                <Search size={18} className="mr-1.5 inline" />
+                {t("search")}
+              </Button>
+            </div>
+          )}
         </div>
       )}
       <div
@@ -480,7 +537,7 @@ export function MasterDataGrid<T extends object>({
           skip={gridSkip}
           total={gridTotal}
           sortable={sortable}
-          filterable={filterable}
+          filterable={false}
           resizable
           reorderable
           columnMenu={columnMenu ? DefaultColumnMenu : undefined}
@@ -496,7 +553,7 @@ export function MasterDataGrid<T extends object>({
           autoProcessData={{
             search: true,
             sort: true,
-            filter: filterable,
+            filter: false,
             page: pageable && !serverSidePagination,
           }}
           searchFields={gridSearchFields}
@@ -506,10 +563,10 @@ export function MasterDataGrid<T extends object>({
         >
           {orderedColumns}
           <GridToolbar>
-            <GridCsvExportButton>Excel</GridCsvExportButton>
-            <GridPdfExportButton>PDF</GridPdfExportButton>
+            <GridCsvExportButton>{t("excel")}</GridCsvExportButton>
+            <GridPdfExportButton>{t("pdf")}</GridPdfExportButton>
             <GridToolbarSpacer />
-            <GridSearchBox placeholder={searchPlaceholder} />
+            <GridSearchBox placeholder={searchPlaceholder ?? tc("search")} />
           </GridToolbar>
         </Grid>
       </div>

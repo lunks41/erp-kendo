@@ -1,15 +1,12 @@
 "use client";
 
 import { useRouter, usePathname } from "@/i18n/navigation";
-import { Link } from "@/i18n/navigation";
 import { useLocale } from "next-intl";
 import { DropDownList } from "@progress/kendo-react-dropdowns";
 import { useAuthStore } from "@/stores/auth-store";
 import { LanguageSwitcher } from "@/components/i18n/language-switcher";
-import { LayoutDashboard, LogOut, User, ChevronDown } from "lucide-react";
+import { LogOut, User, ChevronDown } from "lucide-react";
 import { useState } from "react";
-
-const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "ERP";
 
 interface NavbarProps {
   companyId: string;
@@ -26,6 +23,7 @@ export function Navbar({ companyId }: NavbarProps) {
   const currentCompanyItem = companies.find(
     (c) => c.companyId.toString() === companyId,
   );
+  const companyName = currentCompanyItem?.companyName ?? "";
 
   const handleCompanyChange = (e: { value: { companyId: string } | null }) => {
     const newCompany = e.value;
@@ -43,14 +41,8 @@ export function Navbar({ companyId }: NavbarProps) {
   return (
     <header className="sticky top-0 z-40 flex h-11 items-center justify-between border-b border-slate-200 bg-white px-3 shadow-sm dark:border-slate-700 dark:bg-slate-900">
       <div className="flex items-center gap-4">
-        <Link
-          href={companyId ? `/${companyId}/master/customer` : "/"}
-          className="flex items-center gap-1.5 text-sm font-semibold text-slate-900 dark:text-white"
-        >
-          <LayoutDashboard className="h-5 w-5 text-indigo-500" />
-          <span>{SITE_NAME}</span>
-        </Link>
-        {showCompanyDropdown && (
+        {/* 1. Company dropdown */}
+        {showCompanyDropdown ? (
           <DropDownList
             data={companies}
             textField="companyName"
@@ -59,12 +51,27 @@ export function Navbar({ companyId }: NavbarProps) {
             onChange={handleCompanyChange}
             style={{ minWidth: 140, fontSize: "0.8125rem" }}
           />
+        ) : companyName ? (
+          <span className="text-sm font-semibold text-slate-900 dark:text-white">
+            {companyName}
+          </span>
+        ) : null}
+      </div>
+
+      {/* 2. Company name (centered, bold) */}
+      <div className="flex flex-1 items-center justify-center px-4">
+        {companyName && (
+          <span className="text-lg font-bold text-slate-900 dark:text-white">
+            {companyName}
+          </span>
         )}
       </div>
 
       <div className="flex items-center gap-4">
+        {/* 3. Language */}
         <LanguageSwitcher />
 
+        {/* 4. User name */}
         <div className="relative">
           <button
             onClick={() => setUserMenuOpen(!userMenuOpen)}
