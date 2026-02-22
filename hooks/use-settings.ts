@@ -1,6 +1,5 @@
 import { useMemo } from "react"
 import {
-  ICloneUserGridSetting,
   IDecFormat,
   IDefaultSetting,
   IFinance,
@@ -346,42 +345,6 @@ export const useGridSettingSave = () => {
   })
 }
 // End Grid Setting Hooks
-// =========================
-// User Grid Setting Hooks
-// =========================
-// 1. Get User Grid Settings by User ID
-export const useUserGridSettingbyidGet = (userId: number, options = {}) => {
-  return useQuery({
-    queryKey: ["usergridsetting", userId],
-    placeholderData: keepPreviousData,
-    staleTime: 600000,
-    queryFn: async () => {
-      return await getData(`${UserGrid.getByUserId}/${userId}`)
-    },
-    refetchOnWindowFocus: false,
-    ...options,
-  })
-}
-// 2. Clone User Grid Settings
-export const useCloneUserSettingSave = () => {
-  return useMutation({
-    mutationFn: async (data: ICloneUserGridSetting) => {
-      try {
-        return await saveData(
-          `${UserGrid.clone}/${data.fromUserId}/${data.toUserId}`,
-          data
-        )
-      } catch (error: unknown) {
-        if (error instanceof AxiosError) {
-          console.error("Error cloning user grid settings:", error)
-          throw error.response?.data || "Error cloning user grid settings."
-        }
-        throw error
-      }
-    },
-  })
-}
-// End User Grid Setting Hooks
 // =========================
 // Module Transaction List Hooks
 // =========================

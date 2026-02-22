@@ -2,8 +2,8 @@
 
 import { useEffect } from "react";
 import { useTranslations } from "next-intl";
-import { PortRegionCombobox } from "@/components/combobox/port-region-combobox";
-import { FormInput, FormSwitch, FormTextArea } from "@/components/form";
+import { PortRegionCombobox } from "@/components/ui/combobox/port-region-combobox";
+import { FormInput, FormSwitch, FormTextArea } from "@/components/ui/form";
 import { usePortregionLookup } from "@/hooks/use-lookup";
 import type { IPortRegionLookup } from "@/interfaces/lookup";
 import type { IPort } from "@/interfaces/port";
@@ -100,23 +100,8 @@ export function PortForm({
       : null;
 
   return (
-    <form onSubmit={handleSubmit(onFormSubmit)} className="flex flex-col gap-5">
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-        <PortRegionCombobox
-          value={
-            portRegionValue ??
-            (portRegionId
-              ? { portRegionId, portRegionCode: "", portRegionName: "" }
-              : null)
-          }
-          onChange={handlePortRegionChange}
-          isDisable={isLoading}
-          placeholder={t("selectPortRegion")}
-          label={t("portRegion")}
-          isRequired
-          error={errors.portRegionId?.message}
-        />
-
+    <form onSubmit={handleSubmit(onFormSubmit)} className="flex flex-col gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <FormInput
           control={control}
           name="portCode"
@@ -135,6 +120,20 @@ export function PortForm({
           isDisable={isViewMode}
           error={errors.portName?.message}
           valid={!errors.portName}
+        />
+        <PortRegionCombobox
+          value={
+            portRegionValue ??
+            (portRegionId
+              ? { portRegionId, portRegionCode: "", portRegionName: "" }
+              : null)
+          }
+          onChange={handlePortRegionChange}
+          isDisable={isLoading}
+          placeholder={t("selectPortRegion")}
+          label={t("portRegion")}
+          isRequired
+          error={errors.portRegionId?.message}
         />
 
         <FormInput
@@ -168,7 +167,7 @@ export function PortForm({
         />
       </div>
 
-      <div className="flex justify-end gap-2 border-t border-slate-200 pt-4 dark:border-slate-700">
+      <div className="flex justify-end gap-2 border-t border-slate-200 pt-3 dark:border-slate-700">
         <Button
           type="button"
           fillMode="flat"

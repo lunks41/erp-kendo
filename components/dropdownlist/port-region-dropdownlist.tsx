@@ -49,7 +49,7 @@ export function PortRegionDropdownList({
               portRegionId: 0,
               portRegionCode: "",
               portRegionName: placeholder,
-            } as IPortRegionLookup)
+            } as unknown as IPortRegionLookup)
           : undefined
       }
       dataItemKey={dataItemKey}

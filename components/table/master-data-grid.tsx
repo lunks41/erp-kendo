@@ -115,9 +115,11 @@ export interface MasterDataGridProps<T = unknown> {
   onSearchSubmit?: () => void;
   /** Called when user clicks the clear (X) button. Use to clear filter and refetch (e.g. set filter to "", reset page). */
   onSearchClear?: () => void;
+  /** Override grid container height (e.g. "min(450px, 55vh)" for dialog use) */
+  tableHeight?: string;
 }
 /** Fixed grid height; data area scrolls inside. Pagination stays visible. */
-const TABLE_HEIGHT = "min(650px, 70vh)";
+const DEFAULT_TABLE_HEIGHT = "min(650px, 70vh)";
 
 function DefaultColumnMenu(props: GridColumnMenuProps) {
   return (
@@ -169,7 +171,9 @@ export function MasterDataGrid<T extends object>({
   onSearchChange,
   onSearchSubmit,
   onSearchClear,
+  tableHeight,
 }: MasterDataGridProps<T>) {
+  const effectiveTableHeight = tableHeight ?? DEFAULT_TABLE_HEIGHT;
   const t = useTranslations("grid");
   const tc = useTranslations("common");
   const { onView, onEdit, onDelete } = actions;
@@ -436,7 +440,7 @@ export function MasterDataGrid<T extends object>({
       : dataColumns;
 
   return (
-    <div className="flex min-w-0 flex-col gap-4">
+    <div className={`flex min-w-0 w-full max-w-full flex-col gap-4 ${className ?? ""}`.trim()}>
       {showToolbar && (
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex gap-2">
@@ -517,8 +521,8 @@ export function MasterDataGrid<T extends object>({
         </div>
       )}
       <div
-        className="k-grid-container min-w-0 shrink-0 overflow-hidden rounded border border-slate-500 bg-white dark:border-slate-700 dark:bg-slate-800/50"
-        style={{ height: TABLE_HEIGHT }}
+        className="k-grid-container min-w-0 w-full shrink-0 overflow-auto rounded border border-slate-500 bg-white dark:border-slate-700 dark:bg-slate-800/50"
+        style={{ height: effectiveTableHeight }}
       >
         <Grid
           data={data}

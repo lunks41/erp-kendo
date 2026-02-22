@@ -1,0 +1,33 @@
+---
+description: ERP UI components, Kendo React usage, and form layout
+globs: components/ui/**/*.tsx, app/**/*-form.tsx, app/**/components/*form*.tsx
+alwaysApply: false
+---
+
+# UI Rules
+
+## Component Location
+- All UI primitives live under `components/ui/`
+- Form: `@/components/ui/form` (FormField, FormInput, FormTextArea, FormSwitch, FormCheckbox)
+- Combobox: `@/components/ui/combobox/*` (e.g. PortRegionCombobox from `@/components/ui/combobox/port-region-combobox`)
+- Confirmation: `@/components/ui/confirmation` (ConfirmationDialog, DeleteConfirmation, etc.)
+- Autocomplete: `@/components/ui/autocomplete/*`
+
+## Kendo React UI
+- **Inputs**: TextBox, TextArea, Switch, Checkbox from `@progress/kendo-react-inputs`
+- **Dropdowns**: ComboBox, DropDownList from `@progress/kendo-react-dropdowns`
+- **Buttons**: Button from `@progress/kendo-react-buttons`
+- **Dialogs**: Dialog from `@progress/kendo-react-dialog`
+- **Grid**: MasterDataGrid (project wrapper); use `serverSidePagination` when needed
+- Always use `Controller` from react-hook-form with Kendo components
+- Use `fillMode="outline"`, `rounded="medium"` for inputs; `themeColor="primary"` for primary buttons
+
+## Forms
+- react-hook-form + zodResolver + zod schema; use Controller with Kendo components
+
+## Form Spacing (Tailwind)
+- Form rows / grid: `gap-3` (compact) or `gap-4` (medium)
+- Form container: `flex flex-col gap-3`
+- Footer: `border-t pt-3`, `flex justify-end gap-2` for actions
+- Layout: `grid grid-cols-1 sm:grid-cols-2 gap-3`; full-width: `sm:col-span-2`
+- FormField label: `mb-1.5`; error: `mt-1`

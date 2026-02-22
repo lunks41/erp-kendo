@@ -6,6 +6,10 @@ export interface IUser {
   userRoleId: number
   userGroupId: number
   employeeId: number
+  /** Display name from API (optional, for list views) */
+  userRoleName?: string
+  /** Display name from API (optional, for list views) */
+  userGroupName?: string
   remarks: string
   isActive: boolean
   isLocked: boolean

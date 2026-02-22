@@ -137,14 +137,19 @@ export const ArInvoiceHdSchema = (
 
     // Vessel Fields
     vesselId: z.number().optional(),
+    vesselCode: z.string().optional(),
+    vesselName: z.string().optional(),
 
     // Port Fields
     portId: z.number().optional(),
+    portCode: z.string().optional(),
+    portName: z.string().optional(),
 
     // Service Category Fields
     serviceCategoryId: visible?.m_ServiceCategoryId
       ? z.number().min(1, "Service Category is required")
       : z.number().optional(),
+    serviceCategoryName: z.string().optional(),
 
     // Other Remarks Fields
     otherRemarks: visible?.m_OtherRemarks

@@ -360,7 +360,11 @@ export function useUpdateGridLayout() {
       moduleId: number
       transactionId: number
     }) => await saveData("/setting/saveUserGrid", data),
-    onSuccess: () => toast.success("Layout saved successfully!"),
+    onSuccess: (response: { result?: number; message?: string }) => {
+      if (response?.result === 1) {
+        toast.success(response?.message || "Layout saved successfully!")
+      }
+    },
     onError: (error: AxiosError) => {
       console.error("Error saving grid layout:", error)
       toast.error("Failed to save layout")

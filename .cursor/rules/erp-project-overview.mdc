@@ -17,8 +17,16 @@ alwaysApply: true
 ## Folder Structure
 - app/[locale]/(auth): login, register, company-select, forgot-password
 - app/[locale]/(root)/[companyId]: master, reports, settings (navbar + sidebar)
+- components/ui: form, combobox, confirmation, autocomplete (Kendo-based primitives)
 - components/layout: navbar, sidebar, root-shell, notification-container
+- components/table: MasterDataGrid, table-account
 - hooks, lib, stores, interfaces, schemas, messages, i18n
+
+## React Patterns
+- Use `"use client"` for components using hooks, Zustand, or browser APIs
+- Navigation: Link, useRouter, usePathname from `@/i18n/navigation` (locale-aware)
+- Forms: react-hook-form + zodResolver + zod schema; schemas in `schemas/`, interfaces in `interfaces/`
+- Debug: `import { debug } from "@/lib/debug";` — debug.log (dev only), debug.error (always)
 
 ## Key Conventions
 1. Navigation: Link, useRouter, usePathname from @/i18n/navigation
@@ -26,6 +34,14 @@ alwaysApply: true
 3. Permissions: usePermissionStore().hasPermission(moduleId, transactionId, action)
 4. Module/Transaction IDs: enums from lib/utils (ModuleId, MasterTransactionId)
 5. Grid: MasterDataGrid with tableName, useGetGridLayout, useUpdateGridLayout
+6. Messages: useTranslations(namespace) in client components, getTranslations(namespace) in server; add keys to messages/en.json, ar.json, ja.json
+
+## Messages (i18n)
+- Files: messages/en.json, messages/ar.json, messages/ja.json
+- Client: `useTranslations("namespace")` from next-intl (e.g., `const t = useTranslations("portForm"); t("portCode")`)
+- Server: `getTranslations("namespace")` from next-intl/server
+- When adding new UI strings, add to all three locale files to keep them in sync
+- Common namespaces: common, ui, grid, auth, sidebar, sidebarMenu, plus page/form-specific (e.g., portForm, portTable)
 
 ## Dev
 - Port 4100 (npm run dev)

@@ -1,4 +1,13 @@
 {
+  "ui": {
+    "required": "مطلوب",
+    "optional": "اختياري",
+    "selectPlaceholder": "اختر...",
+    "noResults": "لا توجد نتائج",
+    "confirm": "تأكيد",
+    "update": "تحديث",
+    "create": "إنشاء"
+  },
   "common": {
     "save": "حفظ",
     "cancel": "إلغاء",
@@ -41,6 +50,59 @@
   "portPage": {
     "title": "الميناء الرئيسي",
     "description": "إدارة الموانئ ومناطق الموانئ."
+  },
+  "invoiceForm": {
+    "trnDate": "تاريخ المعاملة",
+    "accountDate": "تاريخ الحساب",
+    "customer": "العميل",
+    "currency": "العملة",
+    "creditTerm": "شروط الائتمان",
+    "bank": "البنك",
+    "exchangeRate": "سعر الصرف",
+    "invoiceNo": "رقم الفاتورة",
+    "referenceNo": "الرقم المرجعي",
+    "dueDate": "تاريخ الاستحقاق",
+    "deliveryDate": "تاريخ التسليم",
+    "gstClaimDate": "تاريخ مطالبة ض.ق.م",
+    "totAmt": "المبلغ الإجمالي",
+    "totLocalAmt": "المبلغ المحلي",
+    "remarks": "ملاحظات",
+    "billName": "اسم الفاتورة",
+    "address1": "العنوان 1",
+    "address2": "العنوان 2",
+    "country": "الدولة",
+    "pinCode": "الرمز البريدي",
+    "phone": "الهاتف",
+    "fax": "الفاكس",
+    "contactName": "اسم جهة الاتصال",
+    "email": "البريد الإلكتروني",
+    "mobile": "الجوال",
+    "otherRemarks": "ملاحظات أخرى",
+    "advanceReceived": "السلف المستلمة"
+  },
+  "invoicePage": {
+    "title": "فاتورة ذمم مدينة",
+    "main": "الرئيسي",
+    "other": "أخرى",
+    "history": "السجل",
+    "new": "جديد",
+    "load": "تحميل",
+    "save": "حفظ",
+    "delete": "حذف",
+    "cancel": "إلغاء",
+    "reset": "إعادة تعيين",
+    "clone": "نسخ",
+    "saving": "جاري الحفظ...",
+    "createInvoice": "إنشاء فاتورة",
+    "updateInvoice": "تحديث الفاتورة"
+  },
+  "invoiceTable": {
+    "searchPlaceholder": "البحث برقم الفاتورة...",
+    "documentNo": "رقم المستند",
+    "accountDate": "تاريخ الحساب",
+    "invoiceNo": "رقم الفاتورة",
+    "customer": "العميل",
+    "totAmt": "المبلغ الإجمالي"
   },
   "portTable": {
     "addPort": "إضافة ميناء",
@@ -149,7 +211,6 @@
     "auditlog": "سجل التدقيق",
     "errorlog": "سجل الأخطاء",
     "userlog": "سجل المستخدم",
-    "grid": "إعداد الشبكة",
     "document": "رقم المستند",
     "decimal": "إعداد العلامة العشرية",
     "finance": "الإعدادات المالية",
@@ -181,7 +242,6 @@
     "vatservicecategory": "فئة خدمة ض.ق.م",
     "documentno": "رقم المستند",
     "jobtransactions": "معاملات الوظائف",
-    "gridsetting": "إعداد الشبكة",
     "decimalsetting": "إعداد العلامة العشرية",
     "financesetting": "الإعدادات المالية"
   }

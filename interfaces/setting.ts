@@ -66,6 +66,7 @@ export interface IFinance {
   exhGain_GlId: number
   exhLoss_GlId: number
   bankCharge_GlId: number
+  adjCharge_GlId: number
   profitLoss_GlId: number
   retEarning_GlId: number
   saleGst_GlId: number
@@ -84,11 +85,6 @@ export interface IGridSetting {
   grdColSize: string
   grdSort: string
   grdString: string
-}
-
-export interface ICloneUserGridSetting {
-  fromUserId: number
-  toUserId: number
 }
 
 export interface IMandatoryFields {

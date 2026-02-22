@@ -49,6 +49,7 @@ export function PortTable(props: PortTableProps) {
 
   const columns: MasterDataGridColumn[] = useMemo(
     () => [
+      { field: "portId", title: "Port Id", width: 80, minWidth: 60 },
       { field: "portCode", title: t("code"), width: 100, minWidth: 80 },
       { field: "portName", title: t("name"), flex: true, minWidth: 150 },
       {
@@ -57,6 +58,7 @@ export function PortTable(props: PortTableProps) {
         width: 100,
         media: "(min-width: 768px)",
       },
+      { field: "portRegionCode", title: "Region Code", width: 100, minWidth: 80 },
       { field: "portRegionName", title: t("region"), width: 120, minWidth: 100 },
       { field: "isActive", title: t("active"), width: 80 },
       { field: "remarks", title: t("remarks"), flex: true, minWidth: 100 },

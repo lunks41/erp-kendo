@@ -15,7 +15,7 @@ import {
 import { Port } from "@/lib/api-routes";
 import type { IPort } from "@/interfaces/port";
 
-import { ConfirmationDialog } from "@/components/confirmation";
+import { ConfirmationDialog } from "@/components/ui/confirmation";
 import { TableSkeleton } from "@/components/skeleton";
 import { PortForm } from "./components/port-form";
 import { MasterTransactionId, ModuleId } from "@/lib/utils";

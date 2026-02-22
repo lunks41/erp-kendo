@@ -693,6 +693,17 @@ export const useAuthStore = create<AuthState>()(
             // })
             // debug.log("✅ STEP 6: Zustand store updated")
 
+            // Clear permissions immediately to avoid showing old company's permissions
+            usePermissionStore.getState().setPermissions([])
+
+            // Invalidate cache for old company so we always fetch fresh permissions
+            const userId = get().user?.userId
+            if (currentCompany && userId) {
+              cache.delete(
+                `user_transactions_${currentCompany.companyId}_${userId}`
+              )
+            }
+
             debug.log("🔄 PREPARING API CALLS:")
             const apiPromises = []
             debug.log("📋 API calls to execute:", {

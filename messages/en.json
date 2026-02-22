@@ -1,4 +1,13 @@
 {
+  "ui": {
+    "required": "Required",
+    "optional": "Optional",
+    "selectPlaceholder": "Select...",
+    "noResults": "No results found",
+    "confirm": "Confirm",
+    "update": "Update",
+    "create": "Create"
+  },
   "common": {
     "save": "Save",
     "cancel": "Cancel",
@@ -41,6 +50,59 @@
   "portPage": {
     "title": "Port Master",
     "description": "Manage ports and port regions."
+  },
+  "invoiceForm": {
+    "trnDate": "Transaction Date",
+    "accountDate": "Account Date",
+    "customer": "Customer",
+    "currency": "Currency",
+    "creditTerm": "Credit Term",
+    "bank": "Bank",
+    "exchangeRate": "Exchange Rate",
+    "invoiceNo": "Invoice No",
+    "referenceNo": "Reference No",
+    "dueDate": "Due Date",
+    "deliveryDate": "Delivery Date",
+    "gstClaimDate": "GST Claim Date",
+    "totAmt": "Total Amount",
+    "totLocalAmt": "Local Amount",
+    "remarks": "Remarks",
+    "billName": "Bill Name",
+    "address1": "Address 1",
+    "address2": "Address 2",
+    "country": "Country",
+    "pinCode": "Pin Code",
+    "phone": "Phone",
+    "fax": "Fax",
+    "contactName": "Contact Name",
+    "email": "Email",
+    "mobile": "Mobile",
+    "otherRemarks": "Other Remarks",
+    "advanceReceived": "Advance Received"
+  },
+  "invoicePage": {
+    "title": "AR Invoice",
+    "main": "Main",
+    "other": "Other",
+    "history": "History",
+    "new": "New",
+    "load": "Load",
+    "save": "Save",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "reset": "Reset",
+    "clone": "Clone",
+    "saving": "Saving...",
+    "createInvoice": "Create Invoice",
+    "updateInvoice": "Update Invoice"
+  },
+  "invoiceTable": {
+    "searchPlaceholder": "Search by invoice no...",
+    "documentNo": "Document No",
+    "accountDate": "Account Date",
+    "invoiceNo": "Invoice No",
+    "customer": "Customer",
+    "totAmt": "Total Amount"
   },
   "portTable": {
     "addPort": "Add Port",
@@ -149,7 +211,6 @@
     "auditlog": "Audit Log",
     "errorlog": "Error Log",
     "userlog": "User Log",
-    "grid": "Grid Setting",
     "document": "Document No",
     "decimal": "Decimal Setting",
     "finance": "Finance Setting",
@@ -181,7 +242,6 @@
     "vatservicecategory": "VAT Service Category",
     "documentno": "Document No",
     "jobtransactions": "Job Transactions",
-    "gridsetting": "Grid Setting",
     "decimalsetting": "Decimal Setting",
     "financesetting": "Finance Setting"
   }

@@ -1,4 +1,13 @@
 {
+  "ui": {
+    "required": "必須",
+    "optional": "任意",
+    "selectPlaceholder": "選択...",
+    "noResults": "結果がありません",
+    "confirm": "確認",
+    "update": "更新",
+    "create": "作成"
+  },
   "common": {
     "save": "保存",
     "cancel": "キャンセル",
@@ -41,6 +50,59 @@
   "portPage": {
     "title": "港マスタ",
     "description": "港と港地域を管理します。"
+  },
+  "invoiceForm": {
+    "trnDate": "取引日",
+    "accountDate": "計上日",
+    "customer": "顧客",
+    "currency": "通貨",
+    "creditTerm": "支払条件",
+    "bank": "銀行",
+    "exchangeRate": "為替レート",
+    "invoiceNo": "請求書番号",
+    "referenceNo": "参照番号",
+    "dueDate": "支払期日",
+    "deliveryDate": "配送日",
+    "gstClaimDate": "消費税請求日",
+    "totAmt": "合計金額",
+    "totLocalAmt": "現地通貨金額",
+    "remarks": "備考",
+    "billName": "請求名",
+    "address1": "住所1",
+    "address2": "住所2",
+    "country": "国",
+    "pinCode": "郵便番号",
+    "phone": "電話",
+    "fax": "FAX",
+    "contactName": "担当者名",
+    "email": "メール",
+    "mobile": "携帯",
+    "otherRemarks": "その他備考",
+    "advanceReceived": "前受金"
+  },
+  "invoicePage": {
+    "title": "売掛請求書",
+    "main": "メイン",
+    "other": "その他",
+    "history": "履歴",
+    "new": "新規",
+    "load": "読み込み",
+    "save": "保存",
+    "delete": "削除",
+    "cancel": "キャンセル",
+    "reset": "リセット",
+    "clone": "複製",
+    "saving": "保存中...",
+    "createInvoice": "請求書作成",
+    "updateInvoice": "請求書更新"
+  },
+  "invoiceTable": {
+    "searchPlaceholder": "請求書番号で検索...",
+    "documentNo": "伝票番号",
+    "accountDate": "計上日",
+    "invoiceNo": "請求書番号",
+    "customer": "顧客",
+    "totAmt": "合計金額"
   },
   "portTable": {
     "addPort": "港を追加",
@@ -149,7 +211,6 @@
     "auditlog": "監査ログ",
     "errorlog": "エラーログ",
     "userlog": "ユーザーログ",
-    "grid": "グリッド設定",
     "document": "伝票番号",
     "decimal": "小数点設定",
     "finance": "財務設定",
@@ -181,7 +242,6 @@
     "vatservicecategory": "VAT サービスカテゴリ",
     "documentno": "伝票番号",
     "jobtransactions": "ジョブ取引",
-    "gridsetting": "グリッド設定",
     "decimalsetting": "小数点設定",
     "financesetting": "財務設定"
   }

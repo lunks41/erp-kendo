@@ -1,12 +1,19 @@
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "@/i18n/navigation";
+import { useParams } from "next/navigation";
+
 export default function SettingsPage() {
-  return (
-    <div className="p-6">
-      <h1 className="text-lg font-semibold text-slate-900 dark:text-white">
-        Settings
-      </h1>
-      <p className="mt-2 text-slate-500 dark:text-slate-400">
-        Settings module – coming soon.
-      </p>
-    </div>
-  );
+  const params = useParams();
+  const companyId = (params?.companyId as string) ?? "";
+  const router = useRouter();
+
+  useEffect(() => {
+    if (companyId) {
+      router.replace(`/${companyId}/settings/default`);
+    }
+  }, [companyId, router]);
+
+  return null;
 }
