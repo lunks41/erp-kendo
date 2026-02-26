@@ -28,6 +28,7 @@ import {
   type GridLayoutLike,
 } from "@/lib/grid-layout-utils";
 import { createActionCell } from "./master-action-cell";
+import { GridTooltipCell } from "./grid-tooltip-cell";
 import { useCallback, useRef, useState } from "react";
 
 const TABLE_HEIGHT = "min(400px, 50vh)";
@@ -277,27 +278,31 @@ export function AccountBaseTable<T extends object>({
         width: col.width ?? 120,
         minWidth: 80,
         sortable: true,
+        cells:
+          col.cell && typeof col.cell === "function"
+            ? {
+                data: (props: {
+                  dataItem: T;
+                  field?: string;
+                  tdProps?: React.TdHTMLAttributes<HTMLTableCellElement> | null;
+                }) => {
+                  const content = col.cell!({
+                    dataItem: props.dataItem,
+                    field: props.field,
+                    tdProps: props.tdProps ?? null,
+                  });
+                  return (
+                    <td
+                      {...(props.tdProps ?? {})}
+                      className="k-table-td min-h-9 h-9 align-middle"
+                    >
+                      {content}
+                    </td>
+                  );
+                },
+              }
+            : { data: GridTooltipCell },
       };
-      if (col.cell && typeof col.cell === "function") {
-        columnProps.cells = {
-          data: (props: {
-            dataItem: T;
-            field?: string;
-            tdProps?: React.TdHTMLAttributes<HTMLTableCellElement> | null;
-          }) => {
-            const content = col.cell!({
-              dataItem: props.dataItem,
-              field: props.field,
-              tdProps: props.tdProps ?? null,
-            });
-            return (
-              <td {...(props.tdProps ?? {})} className="k-table-td">
-                {content}
-              </td>
-            );
-          },
-        };
-      }
       return <GridColumn key={col.field} {...columnProps} />;
     });
 

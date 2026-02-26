@@ -119,6 +119,107 @@
     "createdDate": "作成日",
     "editedDate": "編集日"
   },
+  "vesselPage": {
+    "title": "船舶マスタ",
+    "description": "船舶と船舶タイプを管理します。"
+  },
+  "vesselForm": {
+    "vesselCode": "船舶コード",
+    "vesselName": "船舶名",
+    "callSign": "コールサイン",
+    "imoCode": "IMOコード",
+    "vesselType": "船舶タイプ",
+    "selectVesselType": "船舶タイプを選択...",
+    "grt": "GRT",
+    "licenseNo": "免許番号",
+    "flag": "船籍",
+    "nrt": "NRT",
+    "loa": "LOA",
+    "dwt": "DWT",
+    "remarks": "備考",
+    "activeStatus": "有効状態",
+    "onLabel": "ON",
+    "offLabel": "OFF",
+    "saving": "保存中...",
+    "updateVessel": "船舶を更新",
+    "createVessel": "船舶を作成"
+  },
+  "vesselTable": {
+    "addVessel": "船舶を追加",
+    "searchVesselsPlaceholder": "船舶を検索...",
+    "code": "コード",
+    "name": "名前",
+    "type": "タイプ",
+    "callSign": "コールサイン",
+    "imoCode": "IMOコード",
+    "grt": "GRT",
+    "active": "有効",
+    "remarks": "備考",
+    "createdBy": "作成者",
+    "editedBy": "編集者",
+    "createdDate": "作成日",
+    "editedDate": "編集日"
+  },
+  "countryForm": {
+    "countryCode": "国コード",
+    "countryName": "国名",
+    "phoneCode": "電話コード",
+    "remarks": "備考",
+    "activeStatus": "有効状態",
+    "onLabel": "ON",
+    "offLabel": "OFF",
+    "saving": "保存中...",
+    "updateCountry": "国を更新",
+    "createCountry": "国を作成"
+  },
+  "countryPage": {
+    "title": "国マスタ",
+    "description": "国を管理します。"
+  },
+  "countryTable": {
+    "addCountry": "国を追加",
+    "searchCountriesPlaceholder": "国を検索...",
+    "code": "コード",
+    "name": "名前",
+    "phoneCode": "電話コード",
+    "active": "有効",
+    "remarks": "備考",
+    "createdBy": "作成者",
+    "editedBy": "編集者",
+    "createdDate": "作成日",
+    "editedDate": "編集日"
+  },
+  "portRegionPage": {
+    "title": "港地域マスタ",
+    "description": "港地域と国のマッピングを管理します。"
+  },
+  "portRegionForm": {
+    "portRegionCode": "港地域コード",
+    "portRegionName": "港地域名",
+    "country": "国",
+    "selectCountry": "国を選択...",
+    "remarks": "備考",
+    "activeStatus": "有効状態",
+    "onLabel": "ON",
+    "offLabel": "OFF",
+    "saving": "保存中...",
+    "updatePortRegion": "港地域を更新",
+    "createPortRegion": "港地域を作成"
+  },
+  "portRegionTable": {
+    "addPortRegion": "港地域を追加",
+    "searchPortRegionsPlaceholder": "港地域を検索...",
+    "code": "コード",
+    "name": "名前",
+    "countryCode": "国コード",
+    "country": "国",
+    "active": "有効",
+    "remarks": "備考",
+    "createdBy": "作成者",
+    "editedBy": "編集者",
+    "createdDate": "作成日",
+    "editedDate": "編集日"
+  },
   "grid": {
     "refresh": "更新",
     "saveLayout": "レイアウトを保存",

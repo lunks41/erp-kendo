@@ -329,12 +329,16 @@ export function getModuleAndTransactionId(pathname: string): {
   let transactionId = 0
 
   switch (moduleId) {
-    case ModuleId.master:
+    case ModuleId.master: {
+      // Map URL kebab-case (e.g. port-region) to enum key (portRegion)
+      const masterKey =
+        transactionName === "port-region"
+          ? "portRegion"
+          : (transactionName as keyof typeof MasterTransactionId)
       transactionId =
-        MasterTransactionId[
-          transactionName as keyof typeof MasterTransactionId
-        ] || 0
+        MasterTransactionId[masterKey] ?? 0
       break
+    }
     case ModuleId.operations:
       transactionId =
         OperationsTransactionId[

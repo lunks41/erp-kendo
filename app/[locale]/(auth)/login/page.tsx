@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@progress/kendo-react-buttons";
+import Cookies from "js-cookie";
 import { useAuthStore } from "@/stores/auth-store";
 
 const inputClassName =
@@ -30,12 +31,15 @@ export default function LoginPage() {
   };
 
   useEffect(() => {
+    const token = Cookies.get("auth-token");
+    if (!token) {
+      useAuthStore.getState().logOutSuccess();
+      return;
+    }
     if (isAuthenticated) {
       router.replace("/company-select");
     }
   }, [isAuthenticated, router]);
-
-  if (isAuthenticated) return null;
 
   return (
     <>

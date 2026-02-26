@@ -333,8 +333,8 @@ export const useAuthStore = create<AuthState>()(
             if (data.result !== 1) {
               get().setAppLocked(true)
               if (data.user.isLocked === true) {
-                Cookies.remove(AUTH_TOKEN_COOKIE_NAME)
-                Cookies.remove("auth-token")
+                Cookies.remove(AUTH_TOKEN_COOKIE_NAME, { path: "/" })
+                Cookies.remove("auth-token", { path: "/" })
 
                 set({
                   isAuthenticated: false,
@@ -416,8 +416,8 @@ export const useAuthStore = create<AuthState>()(
          * Clears authentication state and tokens
          */
         logInFailed: (error: string) => {
-          Cookies.remove(AUTH_TOKEN_COOKIE_NAME)
-          Cookies.remove("auth-token")
+          Cookies.remove(AUTH_TOKEN_COOKIE_NAME, { path: "/" })
+          Cookies.remove("auth-token", { path: "/" })
 
           set({
             isAuthenticated: false,
@@ -512,8 +512,8 @@ export const useAuthStore = create<AuthState>()(
         },
 
         logOutSuccess: () => {
-          Cookies.remove(AUTH_TOKEN_COOKIE_NAME)
-          Cookies.remove("auth-token")
+          Cookies.remove(AUTH_TOKEN_COOKIE_NAME, { path: "/" })
+          Cookies.remove("auth-token", { path: "/" })
           get().clearCurrentTabCompanyId()
 
           // Clear both storages from localStorage
@@ -1175,6 +1175,12 @@ export const useAuthStore = create<AuthState>()(
           tokenStoredAt: state.tokenStoredAt,
           sessionAnalytics: state.sessionAnalytics,
         }),
+        onRehydrateStorage: () => (state) => {
+          if (typeof window === "undefined" || !state?.isAuthenticated) return
+          if (!Cookies.get(AUTH_TOKEN_COOKIE_NAME)) {
+            useAuthStore.getState().logOutSuccess()
+          }
+        },
       }
     )
   )

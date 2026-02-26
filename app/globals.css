@@ -60,3 +60,10 @@ body {
   overflow: hidden;
   position: relative;
 }
+
+/* Uniform row height for grid tables (tooltip + same row height) */
+.k-grid-container .k-table-td {
+  min-height: 2.25rem; /* 36px / h-9 */
+  height: 2.25rem;
+  vertical-align: middle;
+}

@@ -6,27 +6,28 @@ import { useTranslations } from "next-intl";
 import { Button } from "@progress/kendo-react-buttons";
 import { Dialog, DialogActionsBar } from "@progress/kendo-react-dialogs";
 import { useQueryClient } from "@tanstack/react-query";
-import { MapPin } from "lucide-react";
+import { Globe } from "lucide-react";
 import {
   usePersist,
   useDelete,
   useGetWithPagination,
 } from "@/hooks/use-common";
-import { Port } from "@/lib/api-routes";
-import type { IPort } from "@/interfaces/port";
-
+import { Country } from "@/lib/api-routes";
+import type { ICountry } from "@/interfaces/country";
+import type { State } from "@progress/kendo-data-query";
+import type { GridDataStateChangeEvent } from "@progress/kendo-react-grid";
 import { ConfirmationDialog } from "@/components/ui/confirmation";
 import { TableSkeleton } from "@/components/skeleton";
-import { PortForm } from "./components/port-form";
+import { CountryForm } from "./components/country-form";
+import { CountryTable } from "./components/country-table";
 import { MasterTransactionId, ModuleId } from "@/lib/utils";
 import { usePermissionStore } from "@/stores/permission-store";
 import { useUserSettingDefaults } from "@/hooks/use-settings";
-import { PortTable } from "./components/port-table";
 
-export default function PortMasterPage() {
-  const t = useTranslations("portPage");
+export default function CountryMasterPage() {
+  const tPage = useTranslations("countryPage");
   const moduleId = ModuleId.master;
-  const transactionId = MasterTransactionId.port;
+  const transactionId = MasterTransactionId.country;
 
   const queryClient = useQueryClient();
   const { hasPermission, getPermissions, permissions } = usePermissionStore();
@@ -41,105 +42,86 @@ export default function PortMasterPage() {
   const [mounted, setMounted] = useState(false);
 
   const permissionsLoaded = Object.keys(permissions).length > 0;
-  const portPermission = getPermissions(moduleId, transactionId);
-  const hasNoPortRights =
-    mounted && permissionsLoaded && portPermission === undefined;
+  const countryPermission = getPermissions(moduleId, transactionId);
+  const hasNoCountryRights =
+    mounted && permissionsLoaded && countryPermission === undefined;
+
   const [searchFilter, setSearchFilter] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [portToDelete, setPortToDelete] = useState<IPort | null>(null);
+  const [countryToDelete, setCountryToDelete] = useState<ICountry | null>(null);
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
-  const [pendingSaveData, setPendingSaveData] = useState<Partial<IPort> | null>(
-    null,
-  );
-  const [selectedPort, setSelectedPort] = useState<IPort | null>(null);
+  const [pendingSaveData, setPendingSaveData] = useState<Partial<ICountry> | null>(null);
+  const [selectedCountry, setSelectedCountry] = useState<ICountry | null>(null);
   const [viewMode, setViewMode] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
+
   const preferredPageSize = defaults?.common?.masterGridTotalRecords || 50;
-  const [pageSize, setPageSize] = useState<number | null>(null);
-  const effectivePageSize = pageSize ?? preferredPageSize;
+  const [dataState, setDataState] = useState<State>({
+    skip: 0,
+    take: preferredPageSize,
+  });
+  const take = dataState.take ?? preferredPageSize;
+  const skip = dataState.skip ?? 0;
+  const currentPage = Math.floor(skip / take) + 1;
 
   useEffect(() => {
-    setMounted(true);
+    const id = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(id);
   }, []);
 
-  useEffect(() => {
-    if (!mounted || !permissionsLoaded) return;
-    const portPerm = getPermissions(moduleId, transactionId);
-    if (portPerm) {
-      console.debug("[Port Master] Permission (1-37):", {
-        isRead: portPerm.isRead,
-        isCreate: portPerm.isCreate,
-        isEdit: portPerm.isEdit,
-        isDelete: portPerm.isDelete,
-      });
-    } else {
-      console.debug(
-        "[Port Master] No permission entry for moduleId=1, transactionId=37 (Port).",
-      );
-    }
-  }, [
-    mounted,
-    permissionsLoaded,
-    permissions,
-    moduleId,
-    transactionId,
-    getPermissions,
-  ]);
-
-  const { data: portsResponse, isLoading } = useGetWithPagination<IPort>(
-    `${Port.get}`,
-    "ports",
+  const { data: countriesResponse, isLoading } = useGetWithPagination<ICountry>(
+    Country.get,
+    "countries",
     searchFilter,
     currentPage,
-    effectivePageSize,
+    take,
     { enabled: !defaultsLoading },
   );
 
-  const ports = portsResponse?.data ?? [];
-  const totalRecords = portsResponse?.totalRecords ?? 0;
-  const saveMutation = usePersist<IPort>(Port.add);
-  const deleteMutation = useDelete(Port.delete);
+  const countries = countriesResponse?.data ?? [];
+  const totalRecords = countriesResponse?.totalRecords ?? 0;
+  const saveMutation = usePersist<ICountry>(Country.add);
+  const deleteMutation = useDelete(Country.delete);
 
   const handleAdd = () => {
-    setSelectedPort(null);
+    setSelectedCountry(null);
     setViewMode(false);
     setDialogOpen(true);
   };
 
-  const handleView = (item: IPort) => {
-    setSelectedPort(item);
+  const handleView = (item: ICountry) => {
+    setSelectedCountry(item);
     setViewMode(true);
     setDialogOpen(true);
   };
 
-  const handleEdit = (item: IPort) => {
-    setSelectedPort(item);
+  const handleEdit = (item: ICountry) => {
+    setSelectedCountry(item);
     setViewMode(false);
     setDialogOpen(true);
   };
 
-  const handleDelete = (item: IPort) => {
-    setPortToDelete(item);
+  const handleDelete = (item: ICountry) => {
+    setCountryToDelete(item);
     setDeleteDialogOpen(true);
   };
 
-  const portsQueryKey = ["ports", searchFilter, currentPage, effectivePageSize];
+  const countriesQueryKey = ["countries", searchFilter, currentPage, take];
 
   const handleDeleteConfirm = async () => {
-    if (!portToDelete) return;
+    if (!countryToDelete) return;
     try {
-      await deleteMutation.mutateAsync(String(portToDelete.portId));
-      await queryClient.refetchQueries({ queryKey: portsQueryKey });
+      await deleteMutation.mutateAsync(String(countryToDelete.countryId));
+      await queryClient.refetchQueries({ queryKey: countriesQueryKey });
       setDeleteDialogOpen(false);
-      setPortToDelete(null);
+      setCountryToDelete(null);
     } catch {
       // Error handled by mutation
     }
   };
 
-  const handleFormSubmit = (data: Partial<IPort>) => {
+  const handleFormSubmit = (data: Partial<ICountry>) => {
     setPendingSaveData(data);
     setSaveDialogOpen(true);
   };
@@ -148,9 +130,9 @@ export default function PortMasterPage() {
     if (!pendingSaveData) return;
     try {
       await saveMutation.mutateAsync(pendingSaveData);
-      await queryClient.refetchQueries({ queryKey: portsQueryKey });
+      await queryClient.refetchQueries({ queryKey: countriesQueryKey });
       setDialogOpen(false);
-      setSelectedPort(null);
+      setSelectedCountry(null);
       setSaveDialogOpen(false);
       setPendingSaveData(null);
     } catch {
@@ -160,43 +142,47 @@ export default function PortMasterPage() {
 
   const handleCloseDialog = () => {
     setDialogOpen(false);
-    setSelectedPort(null);
-  };
-
-  const handlePageChange = (page: number) => setCurrentPage(page);
-
-  const handlePageSizeChange = (size: number) => {
-    setPageSize(size);
-    setCurrentPage(1);
+    setSelectedCountry(null);
   };
 
   const handleRefresh = () => {
-    queryClient.refetchQueries({ queryKey: portsQueryKey });
+    queryClient.refetchQueries({ queryKey: countriesQueryKey });
   };
+
+  const handleDataStateChange = async (e: GridDataStateChangeEvent) => {
+    setDataState((prev) => ({ ...prev, ...e.dataState }));
+  };
+
+  const pageSizes =
+    preferredPageSize && ![50, 100, 200, 500].includes(preferredPageSize)
+      ? [50, preferredPageSize, 100, 200, 500].sort((a, b) => a - b)
+      : [50, 100, 200, 500];
 
   return (
     <div className="flex flex-col gap-4 p-4">
       <div>
         <h1 className="flex items-center gap-1.5 text-lg font-semibold text-slate-900 dark:text-white">
-          <MapPin className="h-5 w-5 text-rose-500" />
-          {t("title")}
+          <Globe className="h-5 w-5 text-rose-500" />
+          {tPage("title")}
         </h1>
         <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
-          {t("description")}
+          {tPage("description")}
         </p>
       </div>
 
       <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-700 dark:bg-slate-800/50">
-        {hasNoPortRights ? (
+        {hasNoCountryRights ? (
           <TableSkeleton showLock rowCount={10} columnCount={6} />
         ) : isLoading ? (
           <div className="flex items-center justify-center py-16">
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent" />
           </div>
         ) : (
-          <PortTable
-            data={ports}
+          <CountryTable
+            data={countries}
             totalRecords={totalRecords}
+            dataState={dataState}
+            onDataStateChange={handleDataStateChange}
             onView={handleView}
             onEdit={handleEdit}
             onDelete={handleDelete}
@@ -206,28 +192,20 @@ export default function PortMasterPage() {
             onSearchChange={setSearchInput}
             onSearchSubmit={() => {
               setSearchFilter(searchInput);
-              setCurrentPage(1);
+              setDataState((prev) => ({ ...prev, skip: 0 }));
             }}
             onSearchClear={() => {
               setSearchInput("");
               setSearchFilter("");
-              setCurrentPage(1);
+              setDataState((prev) => ({ ...prev, skip: 0 }));
             }}
-            onPageChange={handlePageChange}
-            onPageSizeChange={handlePageSizeChange}
-            currentPage={currentPage}
-            pageSize={effectivePageSize}
-            pageSizes={
-              preferredPageSize && ![50, 100, 200].includes(preferredPageSize)
-                ? [50, preferredPageSize, 100, 200].sort((a, b) => a - b)
-                : undefined
-            }
-            serverSidePagination
+            pageSize={take}
+            pageSizes={pageSizes}
             moduleId={moduleId}
             transactionId={transactionId}
+            canView={mounted ? canView : false}
             canEdit={mounted ? canEdit : false}
             canDelete={mounted ? canDelete : false}
-            canView={mounted ? canView : false}
             canCreate={mounted ? canCreate : false}
           />
         )}
@@ -236,57 +214,37 @@ export default function PortMasterPage() {
       {dialogOpen && (
         <Dialog
           title={
-            selectedPort
+            selectedCountry
               ? viewMode
-                ? "View Port"
-                : "Edit Port"
-              : "Create Port"
+                ? "View Country"
+                : "Edit Country"
+              : "Create Country"
           }
           onClose={handleCloseDialog}
-          width={560}
+          width={640}
         >
-          {viewMode && selectedPort ? (
+          {viewMode && selectedCountry ? (
             <div className="space-y-4 py-2">
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="text-slate-500 dark:text-slate-400">
-                    Code
-                  </span>
-                  <p className="font-medium">{selectedPort.portCode}</p>
+                  <span className="text-slate-500 dark:text-slate-400">Code</span>
+                  <p className="font-medium">{selectedCountry.countryCode}</p>
                 </div>
                 <div>
-                  <span className="text-slate-500 dark:text-slate-400">
-                    Name
-                  </span>
-                  <p className="font-medium">{selectedPort.portName}</p>
+                  <span className="text-slate-500 dark:text-slate-400">Name</span>
+                  <p className="font-medium">{selectedCountry.countryName}</p>
                 </div>
                 <div>
-                  <span className="text-slate-500 dark:text-slate-400">
-                    Short Name
-                  </span>
-                  <p className="font-medium">
-                    {selectedPort.portShortName || "—"}
-                  </p>
+                  <span className="text-slate-500 dark:text-slate-400">Phone Code</span>
+                  <p className="font-medium">{selectedCountry.phoneCode || "—"}</p>
                 </div>
                 <div>
-                  <span className="text-slate-500 dark:text-slate-400">
-                    Region
-                  </span>
-                  <p className="font-medium">{selectedPort.portRegionName}</p>
+                  <span className="text-slate-500 dark:text-slate-400">Active</span>
+                  <p className="font-medium">{selectedCountry.isActive ? "Yes" : "No"}</p>
                 </div>
                 <div className="col-span-2">
-                  <span className="text-slate-500 dark:text-slate-400">
-                    Remarks
-                  </span>
-                  <p className="font-medium">{selectedPort.remarks || "—"}</p>
-                </div>
-                <div>
-                  <span className="text-slate-500 dark:text-slate-400">
-                    Active
-                  </span>
-                  <p className="font-medium">
-                    {selectedPort.isActive ? "Yes" : "No"}
-                  </p>
+                  <span className="text-slate-500 dark:text-slate-400">Remarks</span>
+                  <p className="font-medium">{selectedCountry.remarks || "—"}</p>
                 </div>
               </div>
               <DialogActionsBar>
@@ -297,14 +255,14 @@ export default function PortMasterPage() {
             </div>
           ) : (
             <>
-              {!selectedPort && (
+              {!selectedCountry && (
                 <p className="mb-4 text-sm text-slate-500 dark:text-slate-400">
-                  Add a new port to the system database.
+                  Add a new country to the system database.
                 </p>
               )}
-              <PortForm
-                key={selectedPort?.portId ?? "new"}
-                initialData={selectedPort}
+              <CountryForm
+                key={selectedCountry?.countryId ?? "new"}
+                initialData={selectedCountry}
                 companyId={companyId}
                 onSubmitAction={handleFormSubmit}
                 onCancelAction={handleCloseDialog}
@@ -324,13 +282,13 @@ export default function PortMasterPage() {
         }}
         onConfirm={handleSaveConfirm}
         type="save"
-        title={selectedPort ? "Update Port" : "Create Port"}
+        title={selectedCountry ? "Update Country" : "Create Country"}
         message={
-          selectedPort
-            ? `Are you sure you want to update port "${selectedPort.portName}"?`
-            : "Are you sure you want to create this port?"
+          selectedCountry
+            ? `Are you sure you want to update country "${selectedCountry.countryName}"?`
+            : "Are you sure you want to create this country?"
         }
-        confirmLabel={selectedPort ? "Update" : "Save"}
+        confirmLabel={selectedCountry ? "Update" : "Save"}
         loading={saveMutation.isPending}
       />
 
@@ -338,14 +296,14 @@ export default function PortMasterPage() {
         open={deleteDialogOpen}
         onClose={() => {
           setDeleteDialogOpen(false);
-          setPortToDelete(null);
+          setCountryToDelete(null);
         }}
         onConfirm={handleDeleteConfirm}
         type="delete"
-        title="Delete Port"
+        title="Delete Country"
         message={
-          portToDelete
-            ? `Are you sure you want to delete port "${portToDelete.portName}"? This action cannot be undone.`
+          countryToDelete
+            ? `Are you sure you want to delete country "${countryToDelete.countryName}"? This action cannot be undone.`
             : "Are you sure you want to delete this item?"
         }
         loading={deleteMutation.isPending}

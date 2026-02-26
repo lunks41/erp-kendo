@@ -12,21 +12,21 @@ import {
   useDelete,
   useGetWithPagination,
 } from "@/hooks/use-common";
-import { Port } from "@/lib/api-routes";
-import type { IPort } from "@/interfaces/port";
+import { PortRegion } from "@/lib/api-routes";
+import type { IPortRegion } from "@/interfaces/portregion";
 
 import { ConfirmationDialog } from "@/components/ui/confirmation";
 import { TableSkeleton } from "@/components/skeleton";
-import { PortForm } from "./components/port-form";
+import { PortRegionForm } from "./components/port-region-form";
 import { MasterTransactionId, ModuleId } from "@/lib/utils";
 import { usePermissionStore } from "@/stores/permission-store";
 import { useUserSettingDefaults } from "@/hooks/use-settings";
-import { PortTable } from "./components/port-table";
+import { PortRegionTable } from "./components/port-region-table";
 
-export default function PortMasterPage() {
-  const t = useTranslations("portPage");
+export default function PortRegionMasterPage() {
+  const t = useTranslations("portRegionPage");
   const moduleId = ModuleId.master;
-  const transactionId = MasterTransactionId.port;
+  const transactionId = MasterTransactionId.portRegion;
 
   const queryClient = useQueryClient();
   const { hasPermission, getPermissions, permissions } = usePermissionStore();
@@ -41,105 +41,87 @@ export default function PortMasterPage() {
   const [mounted, setMounted] = useState(false);
 
   const permissionsLoaded = Object.keys(permissions).length > 0;
-  const portPermission = getPermissions(moduleId, transactionId);
-  const hasNoPortRights =
-    mounted && permissionsLoaded && portPermission === undefined;
+  const portRegionPermission = getPermissions(moduleId, transactionId);
+  const hasNoPortRegionRights =
+    mounted && permissionsLoaded && portRegionPermission === undefined;
+
   const [searchFilter, setSearchFilter] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [portToDelete, setPortToDelete] = useState<IPort | null>(null);
+  const [portRegionToDelete, setPortRegionToDelete] =
+    useState<IPortRegion | null>(null);
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
-  const [pendingSaveData, setPendingSaveData] = useState<Partial<IPort> | null>(
-    null,
-  );
-  const [selectedPort, setSelectedPort] = useState<IPort | null>(null);
+  const [pendingSaveData, setPendingSaveData] =
+    useState<Partial<IPortRegion> | null>(null);
+  const [selectedPortRegion, setSelectedPortRegion] =
+    useState<IPortRegion | null>(null);
   const [viewMode, setViewMode] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const preferredPageSize = defaults?.common?.masterGridTotalRecords || 50;
   const [pageSize, setPageSize] = useState<number | null>(null);
   const effectivePageSize = pageSize ?? preferredPageSize;
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  useEffect(() => setMounted(true), []);
 
-  useEffect(() => {
-    if (!mounted || !permissionsLoaded) return;
-    const portPerm = getPermissions(moduleId, transactionId);
-    if (portPerm) {
-      console.debug("[Port Master] Permission (1-37):", {
-        isRead: portPerm.isRead,
-        isCreate: portPerm.isCreate,
-        isEdit: portPerm.isEdit,
-        isDelete: portPerm.isDelete,
-      });
-    } else {
-      console.debug(
-        "[Port Master] No permission entry for moduleId=1, transactionId=37 (Port).",
-      );
-    }
-  }, [
-    mounted,
-    permissionsLoaded,
-    permissions,
-    moduleId,
-    transactionId,
-    getPermissions,
-  ]);
+  const { data: portRegionsResponse, isLoading } =
+    useGetWithPagination<IPortRegion>(
+      `${PortRegion.get}`,
+      "portregions",
+      searchFilter,
+      currentPage,
+      effectivePageSize,
+      { enabled: !defaultsLoading },
+    );
 
-  const { data: portsResponse, isLoading } = useGetWithPagination<IPort>(
-    `${Port.get}`,
-    "ports",
-    searchFilter,
-    currentPage,
-    effectivePageSize,
-    { enabled: !defaultsLoading },
-  );
-
-  const ports = portsResponse?.data ?? [];
-  const totalRecords = portsResponse?.totalRecords ?? 0;
-  const saveMutation = usePersist<IPort>(Port.add);
-  const deleteMutation = useDelete(Port.delete);
+  const portRegions = portRegionsResponse?.data ?? [];
+  const totalRecords = portRegionsResponse?.totalRecords ?? 0;
+  const saveMutation = usePersist<IPortRegion>(PortRegion.add);
+  const deleteMutation = useDelete(PortRegion.delete);
 
   const handleAdd = () => {
-    setSelectedPort(null);
+    setSelectedPortRegion(null);
     setViewMode(false);
     setDialogOpen(true);
   };
 
-  const handleView = (item: IPort) => {
-    setSelectedPort(item);
+  const handleView = (item: IPortRegion) => {
+    setSelectedPortRegion(item);
     setViewMode(true);
     setDialogOpen(true);
   };
 
-  const handleEdit = (item: IPort) => {
-    setSelectedPort(item);
+  const handleEdit = (item: IPortRegion) => {
+    setSelectedPortRegion(item);
     setViewMode(false);
     setDialogOpen(true);
   };
 
-  const handleDelete = (item: IPort) => {
-    setPortToDelete(item);
+  const handleDelete = (item: IPortRegion) => {
+    setPortRegionToDelete(item);
     setDeleteDialogOpen(true);
   };
 
-  const portsQueryKey = ["ports", searchFilter, currentPage, effectivePageSize];
+  const portRegionsQueryKey = [
+    "portregions",
+    searchFilter,
+    currentPage,
+    effectivePageSize,
+  ];
 
   const handleDeleteConfirm = async () => {
-    if (!portToDelete) return;
+    if (!portRegionToDelete) return;
     try {
-      await deleteMutation.mutateAsync(String(portToDelete.portId));
-      await queryClient.refetchQueries({ queryKey: portsQueryKey });
+      await deleteMutation.mutateAsync(String(portRegionToDelete.portRegionId));
+      await queryClient.refetchQueries({ queryKey: portRegionsQueryKey });
       setDeleteDialogOpen(false);
-      setPortToDelete(null);
+      setPortRegionToDelete(null);
     } catch {
       // Error handled by mutation
     }
   };
 
-  const handleFormSubmit = (data: Partial<IPort>) => {
+  const handleFormSubmit = (data: Partial<IPortRegion>) => {
     setPendingSaveData(data);
     setSaveDialogOpen(true);
   };
@@ -148,9 +130,9 @@ export default function PortMasterPage() {
     if (!pendingSaveData) return;
     try {
       await saveMutation.mutateAsync(pendingSaveData);
-      await queryClient.refetchQueries({ queryKey: portsQueryKey });
+      await queryClient.refetchQueries({ queryKey: portRegionsQueryKey });
       setDialogOpen(false);
-      setSelectedPort(null);
+      setSelectedPortRegion(null);
       setSaveDialogOpen(false);
       setPendingSaveData(null);
     } catch {
@@ -160,7 +142,7 @@ export default function PortMasterPage() {
 
   const handleCloseDialog = () => {
     setDialogOpen(false);
-    setSelectedPort(null);
+    setSelectedPortRegion(null);
   };
 
   const handlePageChange = (page: number) => setCurrentPage(page);
@@ -171,7 +153,7 @@ export default function PortMasterPage() {
   };
 
   const handleRefresh = () => {
-    queryClient.refetchQueries({ queryKey: portsQueryKey });
+    queryClient.refetchQueries({ queryKey: portRegionsQueryKey });
   };
 
   return (
@@ -187,15 +169,15 @@ export default function PortMasterPage() {
       </div>
 
       <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-700 dark:bg-slate-800/50">
-        {hasNoPortRights ? (
+        {hasNoPortRegionRights ? (
           <TableSkeleton showLock rowCount={10} columnCount={6} />
         ) : isLoading ? (
           <div className="flex items-center justify-center py-16">
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent" />
           </div>
         ) : (
-          <PortTable
-            data={ports}
+          <PortRegionTable
+            data={portRegions}
             totalRecords={totalRecords}
             onView={handleView}
             onEdit={handleEdit}
@@ -236,56 +218,56 @@ export default function PortMasterPage() {
       {dialogOpen && (
         <Dialog
           title={
-            selectedPort
+            selectedPortRegion
               ? viewMode
-                ? "View Port"
-                : "Edit Port"
-              : "Create Port"
+                ? "View Port Region"
+                : "Edit Port Region"
+              : "Create Port Region"
           }
           onClose={handleCloseDialog}
           width={560}
         >
-          {viewMode && selectedPort ? (
+          {viewMode && selectedPortRegion ? (
             <div className="space-y-4 py-2">
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <span className="text-slate-500 dark:text-slate-400">
                     Code
                   </span>
-                  <p className="font-medium">{selectedPort.portCode}</p>
+                  <p className="font-medium">
+                    {selectedPortRegion.portRegionCode}
+                  </p>
                 </div>
                 <div>
                   <span className="text-slate-500 dark:text-slate-400">
                     Name
                   </span>
-                  <p className="font-medium">{selectedPort.portName}</p>
-                </div>
-                <div>
-                  <span className="text-slate-500 dark:text-slate-400">
-                    Short Name
-                  </span>
                   <p className="font-medium">
-                    {selectedPort.portShortName || "—"}
+                    {selectedPortRegion.portRegionName}
                   </p>
                 </div>
                 <div>
                   <span className="text-slate-500 dark:text-slate-400">
-                    Region
+                    Country
                   </span>
-                  <p className="font-medium">{selectedPort.portRegionName}</p>
-                </div>
-                <div className="col-span-2">
-                  <span className="text-slate-500 dark:text-slate-400">
-                    Remarks
-                  </span>
-                  <p className="font-medium">{selectedPort.remarks || "—"}</p>
+                  <p className="font-medium">
+                    {selectedPortRegion.countryName || "—"}
+                  </p>
                 </div>
                 <div>
                   <span className="text-slate-500 dark:text-slate-400">
                     Active
                   </span>
                   <p className="font-medium">
-                    {selectedPort.isActive ? "Yes" : "No"}
+                    {selectedPortRegion.isActive ? "Yes" : "No"}
+                  </p>
+                </div>
+                <div className="col-span-2">
+                  <span className="text-slate-500 dark:text-slate-400">
+                    Remarks
+                  </span>
+                  <p className="font-medium">
+                    {selectedPortRegion.remarks || "—"}
                   </p>
                 </div>
               </div>
@@ -297,14 +279,14 @@ export default function PortMasterPage() {
             </div>
           ) : (
             <>
-              {!selectedPort && (
+              {!selectedPortRegion && (
                 <p className="mb-4 text-sm text-slate-500 dark:text-slate-400">
-                  Add a new port to the system database.
+                  Add a new port region to the system database.
                 </p>
               )}
-              <PortForm
-                key={selectedPort?.portId ?? "new"}
-                initialData={selectedPort}
+              <PortRegionForm
+                key={selectedPortRegion?.portRegionId ?? "new"}
+                initialData={selectedPortRegion}
                 companyId={companyId}
                 onSubmitAction={handleFormSubmit}
                 onCancelAction={handleCloseDialog}
@@ -324,13 +306,15 @@ export default function PortMasterPage() {
         }}
         onConfirm={handleSaveConfirm}
         type="save"
-        title={selectedPort ? "Update Port" : "Create Port"}
-        message={
-          selectedPort
-            ? `Are you sure you want to update port "${selectedPort.portName}"?`
-            : "Are you sure you want to create this port?"
+        title={
+          selectedPortRegion ? "Update Port Region" : "Create Port Region"
         }
-        confirmLabel={selectedPort ? "Update" : "Save"}
+        message={
+          selectedPortRegion
+            ? `Are you sure you want to update port region "${selectedPortRegion.portRegionName}"?`
+            : "Are you sure you want to create this port region?"
+        }
+        confirmLabel={selectedPortRegion ? "Update" : "Save"}
         loading={saveMutation.isPending}
       />
 
@@ -338,14 +322,14 @@ export default function PortMasterPage() {
         open={deleteDialogOpen}
         onClose={() => {
           setDeleteDialogOpen(false);
-          setPortToDelete(null);
+          setPortRegionToDelete(null);
         }}
         onConfirm={handleDeleteConfirm}
         type="delete"
-        title="Delete Port"
+        title="Delete Port Region"
         message={
-          portToDelete
-            ? `Are you sure you want to delete port "${portToDelete.portName}"? This action cannot be undone.`
+          portRegionToDelete
+            ? `Are you sure you want to delete port region "${portRegionToDelete.portRegionName}"? This action cannot be undone.`
             : "Are you sure you want to delete this item?"
         }
         loading={deleteMutation.isPending}

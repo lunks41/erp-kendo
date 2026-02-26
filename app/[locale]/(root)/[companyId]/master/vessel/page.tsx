@@ -1,32 +1,34 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
+import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { Button } from "@progress/kendo-react-buttons";
 import { Dialog, DialogActionsBar } from "@progress/kendo-react-dialogs";
 import { useQueryClient } from "@tanstack/react-query";
-import { MapPin } from "lucide-react";
+import { Ship } from "lucide-react";
 import {
   usePersist,
   useDelete,
   useGetWithPagination,
 } from "@/hooks/use-common";
-import { Port } from "@/lib/api-routes";
-import type { IPort } from "@/interfaces/port";
+import { Vessel } from "@/lib/api-routes";
+import type { IVessel } from "@/interfaces/vessel";
 
 import { ConfirmationDialog } from "@/components/ui/confirmation";
 import { TableSkeleton } from "@/components/skeleton";
-import { PortForm } from "./components/port-form";
+
 import { MasterTransactionId, ModuleId } from "@/lib/utils";
 import { usePermissionStore } from "@/stores/permission-store";
 import { useUserSettingDefaults } from "@/hooks/use-settings";
-import { PortTable } from "./components/port-table";
+import { VesselTable } from "./components/vessel-table";
+import { VesselForm } from "./components/vessel-form";
 
-export default function PortMasterPage() {
-  const t = useTranslations("portPage");
+export default function VesselMasterPage() {
+  const t = useTranslations("vesselPage");
   const moduleId = ModuleId.master;
-  const transactionId = MasterTransactionId.port;
+  const transactionId = MasterTransactionId.vessel;
 
   const queryClient = useQueryClient();
   const { hasPermission, getPermissions, permissions } = usePermissionStore();
@@ -41,105 +43,102 @@ export default function PortMasterPage() {
   const [mounted, setMounted] = useState(false);
 
   const permissionsLoaded = Object.keys(permissions).length > 0;
-  const portPermission = getPermissions(moduleId, transactionId);
-  const hasNoPortRights =
-    mounted && permissionsLoaded && portPermission === undefined;
+  const vesselPermission = getPermissions(moduleId, transactionId);
+  const hasNoVesselRights =
+    mounted && permissionsLoaded && vesselPermission === undefined;
+
   const [searchFilter, setSearchFilter] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [portToDelete, setPortToDelete] = useState<IPort | null>(null);
+  const [vesselToDelete, setVesselToDelete] = useState<IVessel | null>(null);
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
-  const [pendingSaveData, setPendingSaveData] = useState<Partial<IPort> | null>(
-    null,
-  );
-  const [selectedPort, setSelectedPort] = useState<IPort | null>(null);
+  const [pendingSaveData, setPendingSaveData] =
+    useState<Partial<IVessel> | null>(null);
+  const [selectedVessel, setSelectedVessel] = useState<IVessel | null>(null);
   const [viewMode, setViewMode] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const preferredPageSize = defaults?.common?.masterGridTotalRecords || 50;
   const [pageSize, setPageSize] = useState<number | null>(null);
   const effectivePageSize = pageSize ?? preferredPageSize;
 
+  const mountTimeRef = useRef<number>(0);
+  const [timeToDataMs, setTimeToDataMs] = useState<number | null>(null);
+  const reportedRef = useRef(false);
+
   useEffect(() => {
-    setMounted(true);
+    const t = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(t);
   }, []);
 
   useEffect(() => {
-    if (!mounted || !permissionsLoaded) return;
-    const portPerm = getPermissions(moduleId, transactionId);
-    if (portPerm) {
-      console.debug("[Port Master] Permission (1-37):", {
-        isRead: portPerm.isRead,
-        isCreate: portPerm.isCreate,
-        isEdit: portPerm.isEdit,
-        isDelete: portPerm.isDelete,
-      });
-    } else {
-      console.debug(
-        "[Port Master] No permission entry for moduleId=1, transactionId=37 (Port).",
-      );
-    }
-  }, [
-    mounted,
-    permissionsLoaded,
-    permissions,
-    moduleId,
-    transactionId,
-    getPermissions,
-  ]);
+    if (mountTimeRef.current === 0) mountTimeRef.current = performance.now();
+  }, []);
 
-  const { data: portsResponse, isLoading } = useGetWithPagination<IPort>(
-    `${Port.get}`,
-    "ports",
+  const { data: vesselsResponse, isLoading } = useGetWithPagination<IVessel>(
+    `${Vessel.get}`,
+    "vessels",
     searchFilter,
     currentPage,
     effectivePageSize,
     { enabled: !defaultsLoading },
   );
 
-  const ports = portsResponse?.data ?? [];
-  const totalRecords = portsResponse?.totalRecords ?? 0;
-  const saveMutation = usePersist<IPort>(Port.add);
-  const deleteMutation = useDelete(Port.delete);
+  const vessels = vesselsResponse?.data ?? [];
+  const totalRecords = vesselsResponse?.totalRecords ?? 0;
+
+  useEffect(() => {
+    if (reportedRef.current || defaultsLoading || isLoading) return;
+    reportedRef.current = true;
+    setTimeToDataMs(Math.round(performance.now() - mountTimeRef.current));
+  }, [defaultsLoading, isLoading]);
+
+  const saveMutation = usePersist<IVessel>(Vessel.add);
+  const deleteMutation = useDelete(Vessel.delete);
 
   const handleAdd = () => {
-    setSelectedPort(null);
+    setSelectedVessel(null);
     setViewMode(false);
     setDialogOpen(true);
   };
 
-  const handleView = (item: IPort) => {
-    setSelectedPort(item);
+  const handleView = (item: IVessel) => {
+    setSelectedVessel(item);
     setViewMode(true);
     setDialogOpen(true);
   };
 
-  const handleEdit = (item: IPort) => {
-    setSelectedPort(item);
+  const handleEdit = (item: IVessel) => {
+    setSelectedVessel(item);
     setViewMode(false);
     setDialogOpen(true);
   };
 
-  const handleDelete = (item: IPort) => {
-    setPortToDelete(item);
+  const handleDelete = (item: IVessel) => {
+    setVesselToDelete(item);
     setDeleteDialogOpen(true);
   };
 
-  const portsQueryKey = ["ports", searchFilter, currentPage, effectivePageSize];
+  const vesselsQueryKey = [
+    "vessels",
+    searchFilter,
+    currentPage,
+    effectivePageSize,
+  ];
 
   const handleDeleteConfirm = async () => {
-    if (!portToDelete) return;
+    if (!vesselToDelete) return;
     try {
-      await deleteMutation.mutateAsync(String(portToDelete.portId));
-      await queryClient.refetchQueries({ queryKey: portsQueryKey });
+      await deleteMutation.mutateAsync(String(vesselToDelete.vesselId));
+      await queryClient.refetchQueries({ queryKey: vesselsQueryKey });
       setDeleteDialogOpen(false);
-      setPortToDelete(null);
+      setVesselToDelete(null);
     } catch {
       // Error handled by mutation
     }
   };
 
-  const handleFormSubmit = (data: Partial<IPort>) => {
+  const handleFormSubmit = (data: Partial<IVessel>) => {
     setPendingSaveData(data);
     setSaveDialogOpen(true);
   };
@@ -148,9 +147,9 @@ export default function PortMasterPage() {
     if (!pendingSaveData) return;
     try {
       await saveMutation.mutateAsync(pendingSaveData);
-      await queryClient.refetchQueries({ queryKey: portsQueryKey });
+      await queryClient.refetchQueries({ queryKey: vesselsQueryKey });
       setDialogOpen(false);
-      setSelectedPort(null);
+      setSelectedVessel(null);
       setSaveDialogOpen(false);
       setPendingSaveData(null);
     } catch {
@@ -160,7 +159,7 @@ export default function PortMasterPage() {
 
   const handleCloseDialog = () => {
     setDialogOpen(false);
-    setSelectedPort(null);
+    setSelectedVessel(null);
   };
 
   const handlePageChange = (page: number) => setCurrentPage(page);
@@ -171,31 +170,47 @@ export default function PortMasterPage() {
   };
 
   const handleRefresh = () => {
-    queryClient.refetchQueries({ queryKey: portsQueryKey });
+    queryClient.refetchQueries({ queryKey: vesselsQueryKey });
   };
 
   return (
     <div className="flex flex-col gap-4 p-4">
-      <div>
-        <h1 className="flex items-center gap-1.5 text-lg font-semibold text-slate-900 dark:text-white">
-          <MapPin className="h-5 w-5 text-rose-500" />
-          {t("title")}
-        </h1>
-        <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
-          {t("description")}
-        </p>
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <h1 className="flex items-center gap-1.5 text-lg font-semibold text-slate-900 dark:text-white">
+              <Ship className="h-5 w-5 text-rose-500" />
+              {t("title")}
+            </h1>
+            {timeToDataMs !== null && (
+              <span
+                className="rounded bg-sky-100 px-2 py-0.5 text-xs font-medium text-sky-800 dark:bg-sky-900/40 dark:text-sky-300"
+                title="Client: time from mount until vessel data loaded"
+              >
+                Client: {timeToDataMs} ms
+              </span>
+            )}
+          </div>
+          <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+            {t("description")}
+          </p>
+        </div>
+        <Link
+          href="vessel/rsc"
+          className="rounded border border-slate-300 bg-white px-2.5 py-1 text-xs text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700"
+        >
+          Try RSC grid
+        </Link>
       </div>
 
       <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-700 dark:bg-slate-800/50">
-        {hasNoPortRights ? (
+        {hasNoVesselRights ? (
           <TableSkeleton showLock rowCount={10} columnCount={6} />
         ) : isLoading ? (
-          <div className="flex items-center justify-center py-16">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent" />
-          </div>
+          <TableSkeleton />
         ) : (
-          <PortTable
-            data={ports}
+          <VesselTable
+            data={vessels}
             totalRecords={totalRecords}
             onView={handleView}
             onEdit={handleEdit}
@@ -236,57 +251,71 @@ export default function PortMasterPage() {
       {dialogOpen && (
         <Dialog
           title={
-            selectedPort
+            selectedVessel
               ? viewMode
-                ? "View Port"
-                : "Edit Port"
-              : "Create Port"
+                ? "View Vessel"
+                : "Edit Vessel"
+              : "Create Vessel"
           }
           onClose={handleCloseDialog}
-          width={560}
+          width={640}
         >
-          {viewMode && selectedPort ? (
+          {viewMode && selectedVessel ? (
             <div className="space-y-4 py-2">
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <span className="text-slate-500 dark:text-slate-400">
                     Code
                   </span>
-                  <p className="font-medium">{selectedPort.portCode}</p>
+                  <p className="font-medium">{selectedVessel.vesselCode}</p>
                 </div>
                 <div>
                   <span className="text-slate-500 dark:text-slate-400">
                     Name
                   </span>
-                  <p className="font-medium">{selectedPort.portName}</p>
+                  <p className="font-medium">{selectedVessel.vesselName}</p>
                 </div>
                 <div>
                   <span className="text-slate-500 dark:text-slate-400">
-                    Short Name
+                    Call Sign
                   </span>
                   <p className="font-medium">
-                    {selectedPort.portShortName || "—"}
+                    {selectedVessel.callSign || "—"}
                   </p>
                 </div>
                 <div>
                   <span className="text-slate-500 dark:text-slate-400">
-                    Region
+                    IMO Code
                   </span>
-                  <p className="font-medium">{selectedPort.portRegionName}</p>
+                  <p className="font-medium">{selectedVessel.imoCode || "—"}</p>
                 </div>
-                <div className="col-span-2">
+                <div>
                   <span className="text-slate-500 dark:text-slate-400">
-                    Remarks
+                    Vessel Type
                   </span>
-                  <p className="font-medium">{selectedPort.remarks || "—"}</p>
+                  <p className="font-medium">
+                    {selectedVessel.vesselTypeName || "—"}
+                  </p>
+                </div>
+                <div>
+                  <span className="text-slate-500 dark:text-slate-400">
+                    GRT
+                  </span>
+                  <p className="font-medium">{selectedVessel.grt || "—"}</p>
                 </div>
                 <div>
                   <span className="text-slate-500 dark:text-slate-400">
                     Active
                   </span>
                   <p className="font-medium">
-                    {selectedPort.isActive ? "Yes" : "No"}
+                    {selectedVessel.isActive ? "Yes" : "No"}
                   </p>
+                </div>
+                <div className="col-span-2">
+                  <span className="text-slate-500 dark:text-slate-400">
+                    Remarks
+                  </span>
+                  <p className="font-medium">{selectedVessel.remarks || "—"}</p>
                 </div>
               </div>
               <DialogActionsBar>
@@ -297,14 +326,14 @@ export default function PortMasterPage() {
             </div>
           ) : (
             <>
-              {!selectedPort && (
+              {!selectedVessel && (
                 <p className="mb-4 text-sm text-slate-500 dark:text-slate-400">
-                  Add a new port to the system database.
+                  Add a new vessel to the system database.
                 </p>
               )}
-              <PortForm
-                key={selectedPort?.portId ?? "new"}
-                initialData={selectedPort}
+              <VesselForm
+                key={selectedVessel?.vesselId ?? "new"}
+                initialData={selectedVessel}
                 companyId={companyId}
                 onSubmitAction={handleFormSubmit}
                 onCancelAction={handleCloseDialog}
@@ -324,13 +353,13 @@ export default function PortMasterPage() {
         }}
         onConfirm={handleSaveConfirm}
         type="save"
-        title={selectedPort ? "Update Port" : "Create Port"}
+        title={selectedVessel ? "Update Vessel" : "Create Vessel"}
         message={
-          selectedPort
-            ? `Are you sure you want to update port "${selectedPort.portName}"?`
-            : "Are you sure you want to create this port?"
+          selectedVessel
+            ? `Are you sure you want to update vessel "${selectedVessel.vesselName}"?`
+            : "Are you sure you want to create this vessel?"
         }
-        confirmLabel={selectedPort ? "Update" : "Save"}
+        confirmLabel={selectedVessel ? "Update" : "Save"}
         loading={saveMutation.isPending}
       />
 
@@ -338,14 +367,14 @@ export default function PortMasterPage() {
         open={deleteDialogOpen}
         onClose={() => {
           setDeleteDialogOpen(false);
-          setPortToDelete(null);
+          setVesselToDelete(null);
         }}
         onConfirm={handleDeleteConfirm}
         type="delete"
-        title="Delete Port"
+        title="Delete Vessel"
         message={
-          portToDelete
-            ? `Are you sure you want to delete port "${portToDelete.portName}"? This action cannot be undone.`
+          vesselToDelete
+            ? `Are you sure you want to delete vessel "${vesselToDelete.vesselName}"? This action cannot be undone.`
             : "Are you sure you want to delete this item?"
         }
         loading={deleteMutation.isPending}

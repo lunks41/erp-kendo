@@ -20,7 +20,10 @@ import type {
   GridColumnsStateChangeEvent,
   GridColumnProps,
   GridColumnMenuProps,
+  GridDataStateChangeEvent,
 } from "@progress/kendo-react-grid";
+import { process } from "@progress/kendo-data-query";
+import type { State } from "@progress/kendo-data-query";
 import { Button } from "@progress/kendo-react-buttons";
 import { Plus, RotateCcw, Save, LayoutGrid, Search, X } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -34,6 +37,7 @@ import {
 } from "@/lib/grid-layout-utils";
 import { getCompanyIdFromSession } from "@/lib/api-client";
 import { createActionCell } from "./master-action-cell";
+import { GridTooltipCell } from "./grid-tooltip-cell";
 
 export interface MasterDataGridActionHandlers<T = unknown> {
   onView?: (dataItem: T) => void;
@@ -117,6 +121,8 @@ export interface MasterDataGridProps<T = unknown> {
   onSearchClear?: () => void;
   /** Override grid container height (e.g. "min(450px, 55vh)" for dialog use) */
   tableHeight?: string;
+  /** Enable grouping (group panel + column menu "Group by this column"). Default true. */
+  groupable?: boolean;
 }
 /** Fixed grid height; data area scrolls inside. Pagination stays visible. */
 const DEFAULT_TABLE_HEIGHT = "min(650px, 70vh)";
@@ -140,7 +146,7 @@ export function MasterDataGrid<T extends object>({
   showView = true,
   showEdit = true,
   showDelete = true,
-  showAdd: _showAdd = true,
+  showAdd = true,
   pageable = true,
   pageSize = 100,
   sortable = true,
@@ -151,7 +157,7 @@ export function MasterDataGrid<T extends object>({
   total,
   onPageChange,
   onPageSizeChange,
-  currentPage: _currentPage = 1,
+  currentPage = 1,
   serverSidePagination,
   moduleId,
   transactionId,
@@ -172,6 +178,7 @@ export function MasterDataGrid<T extends object>({
   onSearchSubmit,
   onSearchClear,
   tableHeight,
+  groupable = true,
 }: MasterDataGridProps<T>) {
   const effectiveTableHeight = tableHeight ?? DEFAULT_TABLE_HEIGHT;
   const t = useTranslations("grid");
@@ -246,14 +253,110 @@ export function MasterDataGrid<T extends object>({
     GridColumnsStateChangeEvent["columnsState"] | undefined
   >(undefined);
 
+  // Parse saved sort/group from layout (e.g. grdSort: '[{"field":"ProductName","dir":"asc"}]', grdGroup: '[{"field":"Category.CategoryName"}]')
+  const initialSortGroup = useMemo(() => {
+    const layoutRecord =
+      rawLayout && Array.isArray(rawLayout)
+        ? ((rawLayout as Record<string, unknown>[]).find(
+            (item) => item?.grdName === tableName || item?.grdKey === tableName,
+          ) ?? (rawLayout as Record<string, unknown>[])[0])
+        : (rawLayout as Record<string, unknown> | null);
+    const grdSortStr =
+      typeof layoutRecord?.grdSort === "string" ? layoutRecord.grdSort : "";
+    const grdGroupStr =
+      typeof layoutRecord?.grdGroup === "string" ? layoutRecord.grdGroup : "";
+    const parseSort = (): State["sort"] => {
+      if (!grdSortStr?.trim()) return undefined;
+      try {
+        const parsed = JSON.parse(grdSortStr) as unknown;
+        return Array.isArray(parsed) ? (parsed as State["sort"]) : undefined;
+      } catch {
+        return undefined;
+      }
+    };
+    const parseGroup = (): State["group"] => {
+      if (!grdGroupStr?.trim()) return undefined;
+      try {
+        const parsed = JSON.parse(grdGroupStr) as unknown;
+        return Array.isArray(parsed) ? (parsed as State["group"]) : undefined;
+      } catch {
+        return undefined;
+      }
+    };
+    return { sort: parseSort(), group: parseGroup() };
+  }, [rawLayout, tableName]);
+
+  const [sortState, setSortState] = useState<State["sort"]>(
+    initialSortGroup.sort,
+  );
+  const [groupState, setGroupState] = useState<State["group"]>(
+    initialSortGroup.group,
+  );
+  const sortGroupRef = useRef<{ sort?: State["sort"]; group?: State["group"] }>(
+    {
+      sort: initialSortGroup.sort,
+      group: initialSortGroup.group,
+    },
+  );
+
+  const [clientSkipTake, setClientSkipTake] = useState({ skip: 0, take: pageSize });
+
   const prevLayoutIdsRef = useRef<string>("");
   useEffect(() => {
     const key = [moduleId, transactionId, tableName].join("|");
     if (prevLayoutIdsRef.current && prevLayoutIdsRef.current !== key) {
-      setColumnsState(undefined);
+      queueMicrotask(() => {
+        setColumnsState(undefined);
+        setSortState(undefined);
+        setGroupState(undefined);
+        setClientSkipTake({ skip: 0, take: pageSize });
+        sortGroupRef.current = { sort: undefined, group: undefined };
+      });
     }
     prevLayoutIdsRef.current = key;
-  }, [moduleId, transactionId, tableName]);
+  }, [moduleId, transactionId, tableName, pageSize]);
+
+  useEffect(() => {
+    const sort = initialSortGroup.sort;
+    const group = initialSortGroup.group;
+    queueMicrotask(() => {
+      setSortState(sort);
+      setGroupState(group);
+    });
+  }, [initialSortGroup.sort, initialSortGroup.group]);
+
+  const handleDataStateChange = useCallback((e: GridDataStateChangeEvent) => {
+    const ds = e.dataState;
+    const isPagingChange =
+      ds.skip !== undefined || ds.take !== undefined;
+
+    if (ds.sort !== undefined) {
+      if (
+        !serverSidePagination ||
+        ds.sort.length > 0 ||
+        !isPagingChange
+      ) {
+        setSortState(ds.sort);
+        sortGroupRef.current = { ...sortGroupRef.current, sort: ds.sort };
+      }
+    }
+    if (ds.group !== undefined) {
+      if (
+        !serverSidePagination ||
+        ds.group.length > 0 ||
+        !isPagingChange
+      ) {
+        setGroupState(ds.group);
+        sortGroupRef.current = { ...sortGroupRef.current, group: ds.group };
+      }
+    }
+    if (!serverSidePagination && (ds.skip !== undefined || ds.take !== undefined)) {
+      setClientSkipTake((prev) => ({
+        skip: ds.skip !== undefined ? ds.skip : prev.skip,
+        take: ds.take !== undefined ? ds.take : prev.take,
+      }));
+    }
+  }, [serverSidePagination]);
 
   const handleColumnsStateChange = useCallback(
     (e: GridColumnsStateChangeEvent) => {
@@ -264,16 +367,20 @@ export function MasterDataGrid<T extends object>({
     [],
   );
 
-  const ActionCellComponent = hasActions
-    ? createActionCell<T>(
-        onView,
-        onEdit,
-        onDelete,
-        showView && !!onView,
-        showEdit && !!onEdit,
-        showDelete && !!onDelete,
-      )
-    : null;
+  const ActionCellComponent = useMemo(
+    () =>
+      hasActions
+        ? createActionCell<T>(
+            onView,
+            onEdit,
+            onDelete,
+            showView && !!onView,
+            showEdit && !!onEdit,
+            showDelete && !!onDelete,
+          )
+        : null,
+    [hasActions, onView, onEdit, onDelete, showView, showEdit, showDelete],
+  );
 
   const handlePageChange = (e: GridPageChangeEvent) => {
     const { skip: newSkip, take: newTake } = e.page;
@@ -284,10 +391,45 @@ export function MasterDataGrid<T extends object>({
     }
   };
 
-  const gridSkip =
-    serverSidePagination && typeof skip === "number" ? skip : undefined;
-  const gridTotal =
-    serverSidePagination && typeof total === "number" ? total : undefined;
+  const gridSkip = serverSidePagination
+    ? typeof skip === "number"
+      ? skip
+      : (currentPage - 1) * pageSize
+    : undefined;
+
+  const processedResult = useMemo(() => {
+    if (serverSidePagination) {
+      if (groupState?.length || sortState?.length) {
+        return process(data, {
+          sort: sortState,
+          group: groupState,
+        });
+      }
+      return null;
+    }
+    return process(data, {
+      sort: sortState,
+      group: groupState,
+      skip: clientSkipTake.skip,
+      take: clientSkipTake.take,
+    });
+  }, [data, serverSidePagination, sortState, groupState, clientSkipTake]);
+
+  const gridData =
+    serverSidePagination && !processedResult
+      ? data
+      : (processedResult?.data ?? data);
+  const gridTotalResolved = serverSidePagination
+    ? typeof total === "number"
+      ? total
+      : undefined
+    : (processedResult?.total ?? data.length);
+  const gridSkipResolved = serverSidePagination
+    ? gridSkip
+    : (pageable ? clientSkipTake.skip : undefined);
+  const gridTakeResolved = serverSidePagination
+    ? undefined
+    : (pageable ? clientSkipTake.take : undefined);
 
   const handleDefaultLayout = useCallback(() => {
     if (!moduleId || !transactionId || !tableName) return;
@@ -302,9 +444,12 @@ export function MasterDataGrid<T extends object>({
     const defaultState = buildDefaultColumnsState(fields, hiddenFields);
     setColumnsState(defaultState);
     columnsStateRef.current = defaultState;
+    setSortState(undefined);
+    setGroupState(undefined);
+    sortGroupRef.current = { sort: undefined, group: undefined };
     const { grdColOrder, grdColVisible, grdColSize } =
       serializeColumnsStateToLayout(defaultState);
-    const layoutData = layout as { grdSort?: string; grdString?: string };
+    const layoutData = layout as { grdString?: string };
     updateLayoutMutation.mutate(
       {
         companyId: Number(companyId),
@@ -315,7 +460,8 @@ export function MasterDataGrid<T extends object>({
         grdColOrder,
         grdColVisible,
         grdColSize,
-        grdSort: layoutData?.grdSort ?? "",
+        grdSort: "",
+        grdGroup: "",
         grdString: layoutData?.grdString ?? "",
       },
       {
@@ -347,6 +493,7 @@ export function MasterDataGrid<T extends object>({
       grdColVisible?: string;
       grdColSize?: string;
       grdSort?: string;
+      grdGroup?: string;
       grdString?: string;
     };
     const { grdColOrder, grdColVisible, grdColSize } = columnsStateRef.current
@@ -356,6 +503,17 @@ export function MasterDataGrid<T extends object>({
           grdColVisible: layoutData?.grdColVisible ?? "",
           grdColSize: layoutData?.grdColSize ?? "",
         };
+    // Serialize current sort and group like: sort: [{ field: 'ProductName', dir: 'asc' }], group: [{ field: 'Category.CategoryName' }]
+    const currentSort = sortGroupRef.current?.sort;
+    const currentGroup = sortGroupRef.current?.group;
+    const grdSort =
+      currentSort && currentSort.length > 0
+        ? JSON.stringify(currentSort)
+        : (layoutData?.grdSort ?? "");
+    const grdGroup =
+      currentGroup && currentGroup.length > 0
+        ? JSON.stringify(currentGroup)
+        : (layoutData?.grdGroup ?? "");
     updateLayoutMutation.mutate({
       companyId: Number(companyId),
       moduleId: Number(moduleId),
@@ -365,7 +523,8 @@ export function MasterDataGrid<T extends object>({
       grdColOrder,
       grdColVisible,
       grdColSize,
-      grdSort: layoutData?.grdSort ?? "",
+      grdSort,
+      grdGroup,
       grdString: layoutData?.grdString ?? "",
     });
   }, [moduleId, transactionId, tableName, layout, updateLayoutMutation]);
@@ -411,9 +570,10 @@ export function MasterDataGrid<T extends object>({
       minWidth,
       flex,
       locked,
-      hidden: _hidden,
+      hidden,
       sortable: colSortable,
       filterable: colFilterable,
+      cells: colCells,
       ...rest
     } = col;
     return (
@@ -425,8 +585,10 @@ export function MasterDataGrid<T extends object>({
         width={flex ? undefined : width}
         minWidth={(minWidth ?? (flex ? 120 : undefined)) as number | undefined}
         locked={locked}
+        hidden={hidden}
         sortable={colSortable ?? sortable}
         filterable={false}
+        cells={colCells ?? { data: GridTooltipCell }}
         {...rest}
       />
     );
@@ -440,11 +602,13 @@ export function MasterDataGrid<T extends object>({
       : dataColumns;
 
   return (
-    <div className={`flex min-w-0 w-full max-w-full flex-col gap-4 ${className ?? ""}`.trim()}>
+    <div
+      className={`flex min-w-0 w-full max-w-full flex-col gap-4 ${className ?? ""}`.trim()}
+    >
       {showToolbar && (
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex gap-2">
-            {onAdd && (
+            {showAdd && onAdd && (
               <Button themeColor="primary" onClick={onAdd}>
                 <Plus size={18} className="mr-1.5 inline" />
                 {addButtonLabel}
@@ -491,7 +655,7 @@ export function MasterDataGrid<T extends object>({
                     }
                   }}
                   placeholder={searchPlaceholder ?? tc("search")}
-                  className="rounded border border-slate-300 bg-white py-1.5 pl-3 pr-8 text-sm text-slate-900 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400"
+                  className="min-w-[320px] rounded border border-slate-300 bg-white py-1.5 pl-3 pr-8 text-sm text-slate-900 placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400"
                 />
                 {(searchValueProp ?? "").length > 0 && (
                   <button
@@ -500,7 +664,7 @@ export function MasterDataGrid<T extends object>({
                       onSearchChange?.("");
                       onSearchClear?.();
                     }}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-slate-500 hover:bg-slate-200 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-600 dark:hover:text-slate-200"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 rounded p-1 text-slate-500 hover:bg-slate-200 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-600 dark:hover:text-slate-200"
                     title={t("clearSearch")}
                   >
                     <X className="h-4 w-4" />
@@ -525,8 +689,11 @@ export function MasterDataGrid<T extends object>({
         style={{ height: effectiveTableHeight }}
       >
         <Grid
-          data={data}
+          data={gridData}
           dataItemKey={dataItemKey}
+          sort={sortState}
+          group={groupState}
+          onDataStateChange={handleDataStateChange}
           pageable={
             pageable
               ? {
@@ -537,11 +704,12 @@ export function MasterDataGrid<T extends object>({
                 }
               : false
           }
-          pageSize={gridPageSize}
-          skip={gridSkip}
-          total={gridTotal}
+          pageSize={gridTakeResolved ?? gridPageSize}
+          skip={gridSkipResolved}
+          total={gridTotalResolved}
           sortable={sortable}
           filterable={false}
+          groupable={groupable}
           resizable
           reorderable
           columnMenu={columnMenu ? DefaultColumnMenu : undefined}
@@ -556,9 +724,9 @@ export function MasterDataGrid<T extends object>({
           }
           autoProcessData={{
             search: true,
-            sort: true,
+            sort: serverSidePagination,
             filter: false,
-            page: pageable && !serverSidePagination,
+            page: false,
           }}
           searchFields={gridSearchFields}
           csv={{ fileName: csvFileName, allPages: true }}
@@ -570,7 +738,10 @@ export function MasterDataGrid<T extends object>({
             <GridCsvExportButton>{t("excel")}</GridCsvExportButton>
             <GridPdfExportButton>{t("pdf")}</GridPdfExportButton>
             <GridToolbarSpacer />
-            <GridSearchBox placeholder={searchPlaceholder ?? tc("search")} />
+            <GridSearchBox
+              placeholder={searchPlaceholder ?? tc("search")}
+              className="min-w-[320px]"
+            />
           </GridToolbar>
         </Grid>
       </div>

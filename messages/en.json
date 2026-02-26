@@ -119,6 +119,107 @@
     "createdDate": "Created Date",
     "editedDate": "Edited Date"
   },
+  "vesselPage": {
+    "title": "Vessel Master",
+    "description": "Manage vessels and vessel types."
+  },
+  "vesselForm": {
+    "vesselCode": "Vessel Code",
+    "vesselName": "Vessel Name",
+    "callSign": "Call Sign",
+    "imoCode": "IMO Code",
+    "vesselType": "Vessel Type",
+    "selectVesselType": "Select vessel type...",
+    "grt": "GRT",
+    "licenseNo": "License No",
+    "flag": "Flag",
+    "nrt": "NRT",
+    "loa": "LOA",
+    "dwt": "DWT",
+    "remarks": "Remarks",
+    "activeStatus": "Active Status",
+    "onLabel": "ON",
+    "offLabel": "OFF",
+    "saving": "Saving...",
+    "updateVessel": "Update Vessel",
+    "createVessel": "Create Vessel"
+  },
+  "vesselTable": {
+    "addVessel": "Add Vessel",
+    "searchVesselsPlaceholder": "Search vessels...",
+    "code": "Code",
+    "name": "Name",
+    "type": "Type",
+    "callSign": "Call Sign",
+    "imoCode": "IMO Code",
+    "grt": "GRT",
+    "active": "Active",
+    "remarks": "Remarks",
+    "createdBy": "Created By",
+    "editedBy": "Edited By",
+    "createdDate": "Created Date",
+    "editedDate": "Edited Date"
+  },
+  "countryForm": {
+    "countryCode": "Country Code",
+    "countryName": "Country Name",
+    "phoneCode": "Phone Code",
+    "remarks": "Remarks",
+    "activeStatus": "Active Status",
+    "onLabel": "ON",
+    "offLabel": "OFF",
+    "saving": "Saving...",
+    "updateCountry": "Update Country",
+    "createCountry": "Create Country"
+  },
+  "countryPage": {
+    "title": "Country Master",
+    "description": "Manage countries."
+  },
+  "countryTable": {
+    "addCountry": "Add Country",
+    "searchCountriesPlaceholder": "Search countries...",
+    "code": "Code",
+    "name": "Name",
+    "phoneCode": "Phone Code",
+    "active": "Active",
+    "remarks": "Remarks",
+    "createdBy": "Created By",
+    "editedBy": "Edited By",
+    "createdDate": "Created Date",
+    "editedDate": "Edited Date"
+  },
+  "portRegionPage": {
+    "title": "Port Region Master",
+    "description": "Manage port regions and country mapping."
+  },
+  "portRegionForm": {
+    "portRegionCode": "Port Region Code",
+    "portRegionName": "Port Region Name",
+    "country": "Country",
+    "selectCountry": "Select country...",
+    "remarks": "Remarks",
+    "activeStatus": "Active Status",
+    "onLabel": "ON",
+    "offLabel": "OFF",
+    "saving": "Saving...",
+    "updatePortRegion": "Update Port Region",
+    "createPortRegion": "Create Port Region"
+  },
+  "portRegionTable": {
+    "addPortRegion": "Add Port Region",
+    "searchPortRegionsPlaceholder": "Search port regions...",
+    "code": "Code",
+    "name": "Name",
+    "countryCode": "Country Code",
+    "country": "Country",
+    "active": "Active",
+    "remarks": "Remarks",
+    "createdBy": "Created By",
+    "editedBy": "Edited By",
+    "createdDate": "Created Date",
+    "editedDate": "Edited Date"
+  },
   "grid": {
     "refresh": "Refresh",
     "saveLayout": "Save layout",

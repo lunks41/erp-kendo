@@ -119,6 +119,107 @@
     "createdDate": "تاريخ الإنشاء",
     "editedDate": "تاريخ التعديل"
   },
+  "vesselPage": {
+    "title": "سفينة رئيسي",
+    "description": "إدارة السفن وأنواع السفن."
+  },
+  "vesselForm": {
+    "vesselCode": "رمز السفينة",
+    "vesselName": "اسم السفينة",
+    "callSign": "نداء",
+    "imoCode": "رمز IMO",
+    "vesselType": "نوع السفينة",
+    "selectVesselType": "اختر نوع السفينة...",
+    "grt": "GRT",
+    "licenseNo": "رقم الترخيص",
+    "flag": "العلم",
+    "nrt": "NRT",
+    "loa": "LOA",
+    "dwt": "DWT",
+    "remarks": "ملاحظات",
+    "activeStatus": "الحالة",
+    "onLabel": "تشغيل",
+    "offLabel": "إيقاف",
+    "saving": "جاري الحفظ...",
+    "updateVessel": "تحديث السفينة",
+    "createVessel": "إنشاء سفينة"
+  },
+  "vesselTable": {
+    "addVessel": "إضافة سفينة",
+    "searchVesselsPlaceholder": "البحث في السفن...",
+    "code": "الرمز",
+    "name": "الاسم",
+    "type": "النوع",
+    "callSign": "نداء",
+    "imoCode": "رمز IMO",
+    "grt": "GRT",
+    "active": "نشط",
+    "remarks": "ملاحظات",
+    "createdBy": "أنشئ بواسطة",
+    "editedBy": "عدّل بواسطة",
+    "createdDate": "تاريخ الإنشاء",
+    "editedDate": "تاريخ التعديل"
+  },
+  "countryForm": {
+    "countryCode": "رمز الدولة",
+    "countryName": "اسم الدولة",
+    "phoneCode": "رمز الهاتف",
+    "remarks": "ملاحظات",
+    "activeStatus": "الحالة",
+    "onLabel": "تشغيل",
+    "offLabel": "إيقاف",
+    "saving": "جاري الحفظ...",
+    "updateCountry": "تحديث الدولة",
+    "createCountry": "إنشاء دولة"
+  },
+  "countryPage": {
+    "title": "دولة رئيسي",
+    "description": "إدارة الدول."
+  },
+  "countryTable": {
+    "addCountry": "إضافة دولة",
+    "searchCountriesPlaceholder": "البحث في الدول...",
+    "code": "الرمز",
+    "name": "الاسم",
+    "phoneCode": "رمز الهاتف",
+    "active": "نشط",
+    "remarks": "ملاحظات",
+    "createdBy": "أنشئ بواسطة",
+    "editedBy": "عدّل بواسطة",
+    "createdDate": "تاريخ الإنشاء",
+    "editedDate": "تاريخ التعديل"
+  },
+  "portRegionPage": {
+    "title": "منطقة الميناء الرئيسي",
+    "description": "إدارة مناطق الموانئ وربط الدول."
+  },
+  "portRegionForm": {
+    "portRegionCode": "رمز منطقة الميناء",
+    "portRegionName": "اسم منطقة الميناء",
+    "country": "الدولة",
+    "selectCountry": "اختر الدولة...",
+    "remarks": "ملاحظات",
+    "activeStatus": "الحالة",
+    "onLabel": "تشغيل",
+    "offLabel": "إيقاف",
+    "saving": "جاري الحفظ...",
+    "updatePortRegion": "تحديث منطقة الميناء",
+    "createPortRegion": "إنشاء منطقة ميناء"
+  },
+  "portRegionTable": {
+    "addPortRegion": "إضافة منطقة ميناء",
+    "searchPortRegionsPlaceholder": "البحث في مناطق الموانئ...",
+    "code": "الرمز",
+    "name": "الاسم",
+    "countryCode": "رمز الدولة",
+    "country": "الدولة",
+    "active": "نشط",
+    "remarks": "ملاحظات",
+    "createdBy": "أنشئ بواسطة",
+    "editedBy": "عدّل بواسطة",
+    "createdDate": "تاريخ الإنشاء",
+    "editedDate": "تاريخ التعديل"
+  },
   "grid": {
     "refresh": "تحديث",
     "saveLayout": "حفظ التخطيط",
