@@ -50,6 +50,25 @@ export async function getServerData<T>(
 type UserSettingData = { m_Grd_TotRec?: number };
 
 /**
+ * Cached fetch for country list. Deduplicates within the same request so when
+ * the Server Component runs twice (e.g. RSC double render), only one API call is made.
+ */
+export const getCachedCountryPage = cache(
+  async <T>(
+    pageNumber: number,
+    pageSize: number,
+    searchString: string,
+    companyId: string | undefined,
+  ): Promise<ApiResponse<T> | null> => {
+    return getServerData<T>("master/getcountry", {
+      pageNumber: String(pageNumber),
+      pageSize: String(pageSize),
+      searchString: searchString || "null",
+    }, companyId).catch(() => null);
+  },
+);
+
+/**
  * Cached fetch of user setting default page size (masterGridTotalRecords).
  * Deduplicates calls within the same request so setting/getusersetting is only called once.
  */

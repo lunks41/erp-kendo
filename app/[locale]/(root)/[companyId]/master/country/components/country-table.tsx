@@ -7,6 +7,7 @@ import { MasterDataGridRSC } from "@/components/table";
 import type { ICountry } from "@/interfaces/country";
 import type { State } from "@progress/kendo-data-query";
 import type { GridDataStateChangeEvent } from "@progress/kendo-react-grid";
+import { MasterTransactionId, ModuleId } from "@/lib/utils";
 
 export interface CountryTableProps {
   data: ICountry[];
@@ -33,6 +34,10 @@ export interface CountryTableProps {
   canEdit?: boolean;
   canDelete?: boolean;
   canCreate?: boolean;
+  /** When false, grid calls router.refresh() after onDataStateChange (for RSC/server-side table). Default true for client-only state. */
+  skipRefreshOnStateChange?: boolean;
+  /** Table name for grid layout (e.g. TableName.country). When set with moduleId/transactionId, grid shows Save/Default layout buttons. */
+  tableName?: string;
 }
 
 export function CountryTable(props: CountryTableProps) {
@@ -79,6 +84,8 @@ export function CountryTable(props: CountryTableProps) {
     canEdit = true,
     canDelete = true,
     canCreate = true,
+    skipRefreshOnStateChange = true,
+    tableName,
   } = props;
 
   return (
@@ -94,7 +101,7 @@ export function CountryTable(props: CountryTableProps) {
       pageSizes={pageSizes}
       sortable
       csvFileName="countries"
-      skipRefreshOnStateChange
+      skipRefreshOnStateChange={skipRefreshOnStateChange}
       actions={{
         onView: (item) => onView(item as ICountry),
         onEdit: (item) => onEdit(item as ICountry),
@@ -111,6 +118,9 @@ export function CountryTable(props: CountryTableProps) {
       onSearchChange={onSearchChange}
       onSearchSubmit={onSearchSubmit}
       onSearchClear={onSearchClear}
+      moduleId={ModuleId.master}
+      transactionId={MasterTransactionId.country}
+      tableName={tableName}
     />
   );
 }

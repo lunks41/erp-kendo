@@ -16,9 +16,10 @@
  */
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useMemo, useRef, useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@progress/kendo-react-buttons";
 import {
   Grid,
@@ -33,11 +34,21 @@ import { LayoutGrid, Plus, RotateCcw, Save, Search, X } from "lucide-react";
 import { createActionCell } from "./master-action-cell";
 import type {
   GridColumnProps,
+  GridColumnsStateChangeEvent,
   GridDataStateChangeEvent,
   GridGroupExpandChangeEvent,
 } from "@progress/kendo-react-grid";
 import type { State } from "@progress/kendo-data-query";
 import { GridTooltipCell } from "./grid-tooltip-cell";
+import { useGetGridLayout, useUpdateGridLayout } from "@/hooks/use-settings";
+import { getCompanyIdFromSession } from "@/lib/api-client";
+import {
+  buildDefaultColumnsState,
+  normalizeLayout,
+  parseGridLayoutToColumnsState,
+  serializeColumnsStateToLayout,
+  type GridLayoutLike,
+} from "@/lib/grid-layout-utils";
 
 /** Fixed grid height; data area scrolls inside. */
 const DEFAULT_TABLE_HEIGHT = "min(650px, 70vh)";
@@ -94,11 +105,13 @@ export interface MasterDataGridRSCProps<T = unknown> {
   pageSizes?: number[];
   /** Optional column(s) to render before data columns (e.g. extra custom columns). */
   children?: React.ReactNode;
-  /** Optional row actions (View/Edit/Delete). When set, an actions column is rendered first. */
+  /** Optional row actions (View/Edit/Delete). When set, an actions column is rendered. */
   actions?: MasterDataGridRSCActionHandlers<T>;
   showView?: boolean;
   showEdit?: boolean;
   showDelete?: boolean;
+  /** Show actions column first (true) or last (false). Default true. Same as MasterDataGrid. */
+  actionsColumnFirst?: boolean;
   /** Toolbar: Add button (e.g. "Add Vessel") */
   onAdd?: () => void;
   addButtonLabel?: string;
@@ -109,14 +122,12 @@ export interface MasterDataGridRSCProps<T = unknown> {
   onSearchChange?: (value: string) => void;
   onSearchSubmit?: () => void;
   onSearchClear?: () => void;
-  /** Optional layout buttons (when provided, show Store layout / Default layout; when showLayoutButtons true but handlers missing, show disabled) */
-  onSaveLayout?: () => void;
-  onDefaultLayout?: () => void;
-  saveLayoutLoading?: boolean;
-  /** When true, show Store layout / Default layout buttons (disabled if handlers not provided) */
-  showLayoutButtons?: boolean;
   /** When true, do not call router.refresh() after onDataStateChange (e.g. when using client-only state). */
   skipRefreshOnStateChange?: boolean;
+  /** When set with transactionId and tableName, load/save grid layout (column order/visibility) from server. Same as MasterDataGrid. */
+  moduleId?: number | string;
+  transactionId?: number | string;
+  tableName?: string;
 }
 
 /**
@@ -142,12 +153,13 @@ export function MasterDataGridRSC<T extends object>({
   scrollableMode = "scrollable",
   searchPlaceholder,
   searchFields,
-  pageSizes: pageSizesProp,
+  pageSizes: pageSizesProp = [50, 100, 500],
   children,
   actions = {},
   showView = true,
   showEdit = true,
   showDelete = true,
+  actionsColumnFirst = true,
   onAdd,
   addButtonLabel,
   onRefresh,
@@ -155,21 +167,219 @@ export function MasterDataGridRSC<T extends object>({
   onSearchChange,
   onSearchSubmit,
   onSearchClear,
-  onSaveLayout,
-  onDefaultLayout,
-  saveLayoutLoading = false,
-  showLayoutButtons = false,
   skipRefreshOnStateChange = false,
+  moduleId: moduleIdProp,
+  transactionId: transactionIdProp,
+  tableName: tableNameProp,
 }: MasterDataGridRSCProps<T>) {
   const t = useTranslations("grid");
   const tc = useTranslations("common");
   const router = useRouter();
-  const showLayout =
-    !!onSaveLayout || !!onDefaultLayout || showLayoutButtons;
-  const showToolbar =
-    !!onAdd || !!onRefresh || !!onSearchSubmit || showLayout;
+  const queryClient = useQueryClient();
+
+  const moduleId = moduleIdProp?.toString() ?? "";
+  const transactionId = transactionIdProp?.toString() ?? "";
+  const tableName = tableNameProp ?? "";
+
+  const { data: gridLayoutResponse } = useGetGridLayout(
+    moduleId,
+    transactionId,
+    tableName,
+  );
+  const updateLayoutMutation = useUpdateGridLayout();
+
+  const rawLayout = gridLayoutResponse?.data ?? gridLayoutResponse;
+  const layout = useMemo(
+    () =>
+      normalizeLayout(rawLayout, tableName) ??
+      (rawLayout as GridLayoutLike | undefined),
+    [rawLayout, tableName],
+  );
+
+  const baseColumnFields = columns.map((c) => c.field);
+  const hasActions = !!(actions.onView || actions.onEdit || actions.onDelete);
   const { onView, onEdit, onDelete } = actions;
-  const hasActions = !!(onView || onEdit || onDelete);
+
+  const defaultColumnsState = useMemo(() => {
+    if (!moduleId || !transactionId || !tableName) return undefined;
+    const fields = hasActions
+      ? ["__actions", ...baseColumnFields]
+      : baseColumnFields;
+    const hiddenFields = new Set(
+      columns.filter((c) => c.hidden).map((c) => c.field),
+    );
+    const parsed = parseGridLayoutToColumnsState(
+      layout as GridLayoutLike | undefined,
+      fields,
+    );
+    if (!parsed) return undefined;
+    let result = parsed.map((col) => ({
+      ...col,
+      hidden: hiddenFields.has(col.field ?? col.id ?? "") || col.hidden,
+    }));
+    // When we have actions, ensure __actions is always first and visible (saved layout may omit or hide it)
+    if (hasActions) {
+      const actionsEntry = result.find((c) => (c.field ?? c.id) === "__actions");
+      const rest = result.filter((c) => (c.field ?? c.id) !== "__actions");
+      const actionsState = actionsEntry
+        ? { ...actionsEntry, hidden: false, orderIndex: 0 }
+        : { id: "__actions", field: "__actions", hidden: false, orderIndex: 0 };
+      result = [
+        actionsState,
+        ...rest.map((c, i) => ({ ...c, orderIndex: i + 1 })),
+      ] as typeof result;
+    }
+    return result;
+  }, [
+    layout,
+    baseColumnFields,
+    columns,
+    hasActions,
+    moduleId,
+    transactionId,
+    tableName,
+  ]);
+
+  const columnsStateRef = useRef<
+    GridColumnsStateChangeEvent["columnsState"] | null
+  >(null);
+  const [columnsState, setColumnsState] = useState<
+    GridColumnsStateChangeEvent["columnsState"] | undefined
+  >(undefined);
+
+  const prevLayoutIdsRef = useRef<string>("");
+  useEffect(() => {
+    const key = [moduleId, transactionId, tableName].join("|");
+    if (prevLayoutIdsRef.current && prevLayoutIdsRef.current !== key) {
+      setColumnsState(undefined);
+      columnsStateRef.current = null;
+    }
+    prevLayoutIdsRef.current = key;
+  }, [moduleId, transactionId, tableName]);
+
+  // Seed column state from normalized default so the actions column is never hidden by saved layout
+  const hasLayoutIds = !!(moduleId && transactionId && tableName);
+  useEffect(() => {
+    if (
+      hasLayoutIds &&
+      defaultColumnsState != null &&
+      columnsState == null &&
+      columnsStateRef.current == null
+    ) {
+      setColumnsState(defaultColumnsState);
+      columnsStateRef.current = defaultColumnsState;
+    }
+  }, [hasLayoutIds, defaultColumnsState, columnsState]);
+
+  const handleColumnsStateChange = useCallback(
+    (e: GridColumnsStateChangeEvent) => {
+      columnsStateRef.current = e.columnsState;
+      setColumnsState(e.columnsState);
+    },
+    [],
+  );
+
+  const handleDefaultLayoutInternal = useCallback(() => {
+    if (!moduleId || !transactionId || !tableName) return;
+    const companyId = getCompanyIdFromSession();
+    if (!companyId) return;
+    const fields = hasActions
+      ? ["__actions", ...baseColumnFields]
+      : baseColumnFields;
+    const hiddenFields = new Set(
+      columns.filter((c) => c.hidden).map((c) => c.field),
+    );
+    const defaultState = buildDefaultColumnsState(fields, hiddenFields);
+    setColumnsState(defaultState);
+    columnsStateRef.current = defaultState;
+    const { grdColOrder, grdColVisible, grdColSize } =
+      serializeColumnsStateToLayout(defaultState);
+    updateLayoutMutation.mutate(
+      {
+        companyId: Number(companyId),
+        moduleId: Number(moduleId),
+        transactionId: Number(transactionId),
+        grdName: tableName,
+        grdKey: tableName,
+        grdColOrder,
+        grdColVisible,
+        grdColSize,
+        grdSort: "",
+        grdGroup: "",
+        grdString: "",
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: ["gridlayout", moduleId, transactionId, tableName],
+          });
+        },
+      },
+    );
+  }, [
+    moduleId,
+    transactionId,
+    tableName,
+    hasActions,
+    baseColumnFields,
+    columns,
+    updateLayoutMutation,
+    queryClient,
+  ]);
+
+  const handleSaveLayoutInternal = useCallback(() => {
+    if (!moduleId || !transactionId || !tableName) return;
+    const companyId = getCompanyIdFromSession();
+    if (!companyId) return;
+    const layoutData = layout as { grdString?: string; grdSort?: string };
+    let payload: { grdColOrder: string; grdColVisible: string; grdColSize: string };
+    if (columnsStateRef.current) {
+      payload = serializeColumnsStateToLayout(columnsStateRef.current);
+    } else {
+      const fields = hasActions
+        ? ["__actions", ...baseColumnFields]
+        : baseColumnFields;
+      const hiddenFields = new Set(
+        columns.filter((c) => c.hidden).map((c) => c.field),
+      );
+      const defaultState = buildDefaultColumnsState(fields, hiddenFields);
+      payload = serializeColumnsStateToLayout(defaultState);
+    }
+    const { grdColOrder, grdColVisible, grdColSize } = payload;
+    const currentSort = dataState?.sort;
+    const grdSort =
+      currentSort && currentSort.length > 0
+        ? JSON.stringify(currentSort)
+        : (layoutData?.grdSort ?? "");
+    updateLayoutMutation.mutate({
+      companyId: Number(companyId),
+      moduleId: Number(moduleId),
+      transactionId: Number(transactionId),
+      grdName: tableName,
+      grdKey: tableName,
+      grdColOrder,
+      grdColVisible,
+      grdColSize,
+      grdSort,
+      grdGroup: "",
+      grdString: layoutData?.grdString ?? "",
+    });
+  }, [
+    moduleId,
+    transactionId,
+    tableName,
+    layout,
+    dataState?.sort,
+    updateLayoutMutation,
+    hasActions,
+    baseColumnFields,
+    columns,
+  ]);
+
+  const canSaveLayout = !!(moduleId && transactionId && tableName);
+  const showToolbar =
+    !!onAdd || !!onRefresh || !!onSearchSubmit || canSaveLayout;
+
   const ActionCellComponent = hasActions
     ? createActionCell<T>(
         onView,
@@ -201,15 +411,13 @@ export function MasterDataGridRSC<T extends object>({
     [onGroupExpandChange, router],
   );
 
-  const baseColumnFields = columns.map((c) => c.field);
   const gridSearchFields = searchFields ?? baseColumnFields;
   const gridPageSize = pageable ? pageSize : 1000;
   const scrollableValue =
     scrollableMode === "virtual" ? "virtual" : "scrollable";
 
   const gridPageSizes = (() => {
-    if (pageSizesProp?.length) return pageSizesProp;
-    const base = [50, 100, 500];
+    const base = pageSizesProp.length > 0 ? pageSizesProp : [50, 100, 500];
     if (pageable && pageSize && !base.includes(pageSize)) {
       return [...base, pageSize].sort((a, b) => a - b);
     }
@@ -254,19 +462,19 @@ export function MasterDataGridRSC<T extends object>({
         title={t("actions")}
         width={130}
         locked
-        filterable={false}
         sortable={false}
+        filterable={false}
+        resizable={false}
         cells={{ data: ActionCellComponent }}
       />
     ) : null;
 
-  const orderedColumns = (
-    <>
-      {actionsColumn}
-      {children}
-      {dataColumns}
-    </>
-  );
+  const orderedColumns =
+    hasActions && ActionCellComponent
+      ? actionsColumnFirst
+        ? [actionsColumn, children, ...dataColumns].filter(Boolean)
+        : [...dataColumns, children, actionsColumn].filter(Boolean)
+      : [children, ...dataColumns].filter(Boolean);
 
   return (
     <div
@@ -287,25 +495,25 @@ export function MasterDataGridRSC<T extends object>({
                 {t("refresh")}
               </Button>
             )}
-            {(onSaveLayout || showLayoutButtons) && (
-              <Button
-                onClick={onSaveLayout}
-                title={onSaveLayout ? t("saveLayout") : "Save layout (not available for RSC grid)"}
-                disabled={saveLayoutLoading || !onSaveLayout}
-              >
-                <Save size={18} className="mr-1.5 inline" />
-                {t("saveLayout")}
-              </Button>
-            )}
-            {(onDefaultLayout || showLayoutButtons) && (
-              <Button
-                onClick={onDefaultLayout}
-                title={onDefaultLayout ? t("defaultLayout") : "Default layout (not available for RSC grid)"}
-                disabled={saveLayoutLoading || !onDefaultLayout}
-              >
-                <LayoutGrid size={18} className="mr-1.5 inline" />
-                {t("defaultLayout")}
-              </Button>
+            {canSaveLayout && (
+              <>
+                <Button
+                  onClick={handleSaveLayoutInternal}
+                  title={t("saveLayout")}
+                  disabled={updateLayoutMutation.isPending}
+                >
+                  <Save size={18} className="mr-1.5 inline" />
+                  {t("saveLayout")}
+                </Button>
+                <Button
+                  onClick={handleDefaultLayoutInternal}
+                  title={t("defaultLayout")}
+                  disabled={updateLayoutMutation.isPending}
+                >
+                  <LayoutGrid size={18} className="mr-1.5 inline" />
+                  {t("defaultLayout")}
+                </Button>
+              </>
             )}
           </div>
           {onSearchSubmit != null && (
@@ -369,6 +577,16 @@ export function MasterDataGridRSC<T extends object>({
           }
           onGroupExpandChange={
             onGroupExpandChange ? handleGroupExpandChange : undefined
+          }
+          defaultColumnsState={defaultColumnsState}
+          columnsState={columnsState}
+          onColumnsStateChange={
+            canSaveLayout ? handleColumnsStateChange : undefined
+          }
+          key={
+            tableName
+              ? `grid-${tableName}-${defaultColumnsState ? "layout-ready" : "default"}`
+              : "grid-rsc"
           }
           pageable={
             pageable

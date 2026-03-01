@@ -12,6 +12,8 @@ export function createActionCell<T>(
   showEdit = true,
   showDelete = true,
 ) {
+  const hasAnyButton = (showView && onView) || (showEdit && onEdit) || (showDelete && onDelete);
+
   const ActionCell = (props: GridCustomCellProps) => {
     const { dataItem, tdProps } = props;
     const item = dataItem as T;
@@ -20,6 +22,7 @@ export function createActionCell<T>(
     return (
       <td {...tdProps} className={tdClassName}>
         <div className="flex items-center gap-1">
+          {!hasAnyButton && <span className="text-slate-400">—</span>}
           {showView && onView && (
             <Button
               type="button"
