@@ -52,7 +52,7 @@ function ChartOfAccountTableInner(props: ChartOfAccountTableProps) {
         hidden: true,
       },
       { field: "glCode", title: t("glCode"), width: 110, minWidth: 80 },
-      { field: "glName", title: t("glName"), flex: true, minWidth: 150 },
+      { field: "glName", title: t("glName"), width: 200, minWidth: 180 },
       {
         field: "accTypeName",
         title: t("accountType"),
