@@ -3,40 +3,40 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { PortRegionCombobox } from "@/components/ui/combobox/port-region-combobox";
+import { CountryCombobox } from "@/components/ui/combobox/country-combobox";
 import { FormInput, FormSwitch, FormTextArea } from "@/components/ui/form";
-import { usePortregionLookup } from "@/hooks/use-lookup";
-import type { IPortRegionLookup } from "@/interfaces/lookup";
-import type { IPort } from "@/interfaces/port";
+import { useCountryLookup } from "@/hooks/use-lookup";
+import type { ICountryLookup } from "@/interfaces/lookup";
+import type { IPortRegion } from "@/interfaces/portregion";
 import { formatDateTime } from "@/lib/date-utils";
-import { portSchema, type PortSchemaType } from "@/schemas/port";
+import { portregionSchema, type PortRegionSchemaType } from "@/schemas/portregion";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@progress/kendo-react-buttons";
 import { useForm } from "react-hook-form";
 import { useAuthStore } from "@/stores/auth-store";
 
-export interface PortFormProps {
-  initialData?: IPort | null;
+export interface PortRegionFormProps {
+  initialData?: IPortRegion | null;
   companyId: string;
-  onSubmitAction: (data: Partial<IPort>) => void;
+  onSubmitAction: (data: Partial<IPortRegion>) => void;
   onCancelAction: () => void;
   isLoading?: boolean;
   isViewMode?: boolean;
 }
 
-export function PortForm({
+export function PortRegionForm({
   initialData,
   companyId,
   onSubmitAction,
   onCancelAction,
   isLoading = false,
   isViewMode = false,
-}: PortFormProps) {
-  const t = useTranslations("portForm");
+}: PortRegionFormProps) {
+  const t = useTranslations("portRegionForm");
   const tc = useTranslations("common");
   const { decimals } = useAuthStore();
   const datetimeFormat = decimals[0]?.longDateFormat ?? "dd/MM/yyyy HH:mm:ss";
-  const isEdit = !!initialData?.portId;
+  const isEdit = !!initialData?.portRegionId;
   const [auditTrailOpen, setAuditTrailOpen] = useState(false);
 
   const {
@@ -46,62 +46,60 @@ export function PortForm({
     watch,
     reset,
     formState: { errors },
-  } = useForm<PortSchemaType>({
-    resolver: zodResolver(portSchema),
+  } = useForm<PortRegionSchemaType>({
+    resolver: zodResolver(portregionSchema),
     defaultValues: {
-      portId: initialData?.portId,
-      portCode: initialData?.portCode ?? "",
-      portName: initialData?.portName ?? "",
-      portShortName: initialData?.portShortName ?? "",
-      portRegionId: Number(initialData?.portRegionId) || 0,
+      portRegionId: initialData?.portRegionId,
+      portRegionCode: initialData?.portRegionCode ?? "",
+      portRegionName: initialData?.portRegionName ?? "",
+      countryId: Number(initialData?.countryId) || 0,
       remarks: initialData?.remarks ?? "",
       isActive: initialData?.isActive ?? true,
     },
   });
 
-  const portRegionId = watch("portRegionId");
-  const portRegionIdNum = Number(portRegionId) || 0;
-  const { data: portRegionData = [] } = usePortregionLookup();
+  const countryId = watch("countryId");
+  const countryIdNum = Number(countryId) || 0;
+  const { data: countryData = [] } = useCountryLookup();
 
   useEffect(() => {
     if (!initialData) return;
     reset({
-      portId: initialData.portId,
-      portCode: initialData.portCode ?? "",
-      portName: initialData.portName ?? "",
-      portShortName: initialData.portShortName ?? "",
-      portRegionId: Number(initialData.portRegionId) || 0,
+      portRegionId: initialData.portRegionId,
+      portRegionCode: initialData.portRegionCode ?? "",
+      portRegionName: initialData.portRegionName ?? "",
+      countryId: Number(initialData.countryId) || 0,
       remarks: initialData.remarks ?? "",
       isActive: initialData.isActive ?? true,
     });
   }, [initialData, reset]);
 
-  const handlePortRegionChange = (value: IPortRegionLookup | null) => {
-    setValue("portRegionId", value?.portRegionId ?? 0, {
+  const handleCountryChange = (value: ICountryLookup | null) => {
+    setValue("countryId", value?.countryId ?? 0, {
       shouldValidate: true,
     });
   };
 
-  const onFormSubmit = (data: PortSchemaType) => {
+  const onFormSubmit = (data: PortRegionSchemaType) => {
     onSubmitAction({
       ...data,
       companyId: Number(companyId),
     });
   };
 
-  const portRegionValue: IPortRegionLookup | null =
-    portRegionIdNum > 0
-      ? (portRegionData.find((r) => r.portRegionId === portRegionIdNum) ??
-        (initialData && Number(initialData.portRegionId) === portRegionIdNum
+  const countryValue: ICountryLookup | null =
+    countryIdNum > 0
+      ? (countryData.find((c) => c.countryId === countryIdNum) ??
+        (initialData && Number(initialData.countryId) === countryIdNum
           ? {
-              portRegionId: portRegionIdNum,
-              portRegionCode: initialData.portRegionCode ?? "",
-              portRegionName: initialData.portRegionName ?? "",
+              countryId: countryIdNum,
+              countryCode: initialData.countryCode ?? "",
+              countryName: initialData.countryName ?? "",
             }
           : {
-              portRegionId: portRegionIdNum,
-              portRegionCode: "",
-              portRegionName: "",
+              countryId: countryIdNum,
+              countryCode: "",
+              countryName: "",
             }))
       : null;
 
@@ -110,47 +108,31 @@ export function PortForm({
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <FormInput
           control={control}
-          name="portCode"
-          label={t("portCode")}
+          name="portRegionCode"
+          label={t("portRegionCode")}
           isRequired
           isDisable={isEdit}
-          error={errors.portCode?.message}
-          valid={!errors.portCode}
+          error={errors.portRegionCode?.message}
+          valid={!errors.portRegionCode}
         />
-
         <FormInput
           control={control}
-          name="portName"
-          label={t("portName")}
+          name="portRegionName"
+          label={t("portRegionName")}
           isRequired
           isDisable={isViewMode}
-          error={errors.portName?.message}
-          valid={!errors.portName}
+          error={errors.portRegionName?.message}
+          valid={!errors.portRegionName}
         />
-        <PortRegionCombobox
-          value={
-            portRegionValue ??
-            (portRegionId
-              ? { portRegionId, portRegionCode: "", portRegionName: "" }
-              : null)
-          }
-          onChange={handlePortRegionChange}
-          isDisable={isLoading}
-          placeholder={t("selectPortRegion")}
-          label={t("portRegion")}
+        <CountryCombobox
+          value={countryValue}
+          onChange={handleCountryChange}
+          isDisable={isViewMode || isLoading}
+          placeholder={t("selectCountry")}
+          label={t("country")}
           isRequired
-          error={errors.portRegionId?.message}
+          error={errors.countryId?.message}
         />
-
-        <FormInput
-          control={control}
-          name="portShortName"
-          label={t("portShortName")}
-          isDisable={isViewMode}
-          error={errors.portShortName?.message}
-          valid={!errors.portShortName}
-        />
-
         <FormTextArea
           control={control}
           name="remarks"
@@ -161,7 +143,6 @@ export function PortForm({
           error={errors.remarks?.message}
           valid={!errors.remarks}
         />
-
         <FormSwitch
           control={control}
           name="isActive"
@@ -239,7 +220,7 @@ export function PortForm({
           {tc("cancel")}
         </Button>
         <Button type="submit" themeColor="primary" disabled={isLoading}>
-          {isLoading ? t("saving") : isEdit ? t("updatePort") : t("createPort")}
+          {isLoading ? t("saving") : isEdit ? t("updatePortRegion") : t("createPortRegion")}
         </Button>
       </div>
     </form>

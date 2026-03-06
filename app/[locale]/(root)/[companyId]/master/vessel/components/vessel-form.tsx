@@ -3,40 +3,40 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { PortRegionCombobox } from "@/components/ui/combobox/port-region-combobox";
+import { VesselTypeCombobox } from "@/components/ui/combobox/vessel-type-combobox";
 import { FormInput, FormSwitch, FormTextArea } from "@/components/ui/form";
-import { usePortregionLookup } from "@/hooks/use-lookup";
-import type { IPortRegionLookup } from "@/interfaces/lookup";
-import type { IPort } from "@/interfaces/port";
+import { useVesselTypeLookup } from "@/hooks/use-lookup";
+import type { IVesselTypeLookup } from "@/interfaces/lookup";
+import type { IVessel } from "@/interfaces/vessel";
 import { formatDateTime } from "@/lib/date-utils";
-import { portSchema, type PortSchemaType } from "@/schemas/port";
+import { vesselSchema, type VesselSchemaType } from "@/schemas/vessel";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@progress/kendo-react-buttons";
 import { useForm } from "react-hook-form";
 import { useAuthStore } from "@/stores/auth-store";
 
-export interface PortFormProps {
-  initialData?: IPort | null;
+export interface VesselFormProps {
+  initialData?: IVessel | null;
   companyId: string;
-  onSubmitAction: (data: Partial<IPort>) => void;
+  onSubmitAction: (data: Partial<IVessel>) => void;
   onCancelAction: () => void;
   isLoading?: boolean;
   isViewMode?: boolean;
 }
 
-export function PortForm({
+export function VesselForm({
   initialData,
   companyId,
   onSubmitAction,
   onCancelAction,
   isLoading = false,
   isViewMode = false,
-}: PortFormProps) {
-  const t = useTranslations("portForm");
+}: VesselFormProps) {
+  const t = useTranslations("vesselForm");
   const tc = useTranslations("common");
   const { decimals } = useAuthStore();
   const datetimeFormat = decimals[0]?.longDateFormat ?? "dd/MM/yyyy HH:mm:ss";
-  const isEdit = !!initialData?.portId;
+  const isEdit = !!initialData?.vesselId;
   const [auditTrailOpen, setAuditTrailOpen] = useState(false);
 
   const {
@@ -46,62 +46,83 @@ export function PortForm({
     watch,
     reset,
     formState: { errors },
-  } = useForm<PortSchemaType>({
-    resolver: zodResolver(portSchema),
+  } = useForm<VesselSchemaType>({
+    resolver: zodResolver(vesselSchema),
     defaultValues: {
-      portId: initialData?.portId,
-      portCode: initialData?.portCode ?? "",
-      portName: initialData?.portName ?? "",
-      portShortName: initialData?.portShortName ?? "",
-      portRegionId: Number(initialData?.portRegionId) || 0,
+      vesselId: initialData?.vesselId ?? 0,
+      vesselCode: initialData?.vesselCode ?? "",
+      vesselName: initialData?.vesselName ?? "",
+      callSign: initialData?.callSign ?? "",
+      imoCode: initialData?.imoCode ?? "",
+      grt: initialData?.grt ?? "",
+      licenseNo: initialData?.licenseNo ?? "",
+      flag: initialData?.flag ?? "",
+      nrt: initialData?.nrt ?? undefined,
+      loa: initialData?.loa ?? undefined,
+      dwt: initialData?.dwt ?? undefined,
+      vesselTypeId: Number(initialData?.vesselTypeId) || 0,
       remarks: initialData?.remarks ?? "",
       isActive: initialData?.isActive ?? true,
     },
   });
 
-  const portRegionId = watch("portRegionId");
-  const portRegionIdNum = Number(portRegionId) || 0;
-  const { data: portRegionData = [] } = usePortregionLookup();
+  const vesselTypeId = watch("vesselTypeId");
+  const vesselTypeIdNum = Number(vesselTypeId) || 0;
+  const { data: vesselTypeData = [] } = useVesselTypeLookup();
 
   useEffect(() => {
     if (!initialData) return;
     reset({
-      portId: initialData.portId,
-      portCode: initialData.portCode ?? "",
-      portName: initialData.portName ?? "",
-      portShortName: initialData.portShortName ?? "",
-      portRegionId: Number(initialData.portRegionId) || 0,
+      vesselId: initialData.vesselId,
+      vesselCode: initialData.vesselCode ?? "",
+      vesselName: initialData.vesselName ?? "",
+      callSign: initialData.callSign ?? "",
+      imoCode: initialData.imoCode ?? "",
+      grt: initialData.grt ?? "",
+      licenseNo: initialData.licenseNo ?? "",
+      flag: initialData.flag ?? "",
+      nrt: initialData.nrt ?? undefined,
+      loa: initialData.loa ?? undefined,
+      dwt: initialData.dwt ?? undefined,
+      vesselTypeId: Number(initialData.vesselTypeId) || 0,
       remarks: initialData.remarks ?? "",
       isActive: initialData.isActive ?? true,
     });
   }, [initialData, reset]);
 
-  const handlePortRegionChange = (value: IPortRegionLookup | null) => {
-    setValue("portRegionId", value?.portRegionId ?? 0, {
+  const handleVesselTypeChange = (value: IVesselTypeLookup | null) => {
+    setValue("vesselTypeId", value?.vesselTypeId ?? 0, {
       shouldValidate: true,
     });
   };
 
-  const onFormSubmit = (data: PortSchemaType) => {
+  const onFormSubmit = (data: VesselSchemaType) => {
     onSubmitAction({
       ...data,
+      grt: data.grt?.trim() || undefined,
+      licenseNo: data.licenseNo?.trim() || undefined,
+      flag: data.flag?.trim() || undefined,
+      nrt: data.nrt?.trim() || undefined,
+      loa: data.loa?.trim() || undefined,
+      dwt: data.dwt?.trim() || undefined,
+      remarks: data.remarks?.trim() || undefined,
       companyId: Number(companyId),
     });
   };
 
-  const portRegionValue: IPortRegionLookup | null =
-    portRegionIdNum > 0
-      ? (portRegionData.find((r) => r.portRegionId === portRegionIdNum) ??
-        (initialData && Number(initialData.portRegionId) === portRegionIdNum
+  const vesselTypeValue: IVesselTypeLookup | null =
+    vesselTypeIdNum > 0
+      ? (vesselTypeData.find((v) => v.vesselTypeId === vesselTypeIdNum) ??
+        (initialData && Number(initialData.vesselTypeId) === vesselTypeIdNum
           ? {
-              portRegionId: portRegionIdNum,
-              portRegionCode: initialData.portRegionCode ?? "",
-              portRegionName: initialData.portRegionName ?? "",
+              vesselTypeId: vesselTypeIdNum,
+              vesselTypeCode: initialData.vesselTypeCode ?? "",
+              vesselTypeName: initialData.vesselTypeName ?? "",
             }
           : {
-              portRegionId: portRegionIdNum,
-              portRegionCode: "",
-              portRegionName: "",
+              vesselTypeId: vesselTypeIdNum,
+              vesselTypeCode: "",
+              vesselTypeName: "",
             }))
       : null;
 
@@ -110,47 +131,97 @@ export function PortForm({
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <FormInput
           control={control}
-          name="portCode"
-          label={t("portCode")}
+          name="vesselCode"
+          label={t("vesselCode")}
           isRequired
           isDisable={isEdit}
-          error={errors.portCode?.message}
-          valid={!errors.portCode}
+          error={errors.vesselCode?.message}
+          valid={!errors.vesselCode}
         />
-
         <FormInput
           control={control}
-          name="portName"
-          label={t("portName")}
+          name="vesselName"
+          label={t("vesselName")}
           isRequired
           isDisable={isViewMode}
-          error={errors.portName?.message}
-          valid={!errors.portName}
+          error={errors.vesselName?.message}
+          valid={!errors.vesselName}
         />
-        <PortRegionCombobox
-          value={
-            portRegionValue ??
-            (portRegionId
-              ? { portRegionId, portRegionCode: "", portRegionName: "" }
-              : null)
-          }
-          onChange={handlePortRegionChange}
-          isDisable={isLoading}
-          placeholder={t("selectPortRegion")}
-          label={t("portRegion")}
-          isRequired
-          error={errors.portRegionId?.message}
-        />
-
         <FormInput
           control={control}
-          name="portShortName"
-          label={t("portShortName")}
+          name="callSign"
+          label={t("callSign")}
+          isRequired
           isDisable={isViewMode}
-          error={errors.portShortName?.message}
-          valid={!errors.portShortName}
+          error={errors.callSign?.message}
+          valid={!errors.callSign}
         />
-
+        <FormInput
+          control={control}
+          name="imoCode"
+          label={t("imoCode")}
+          isRequired
+          isDisable={isViewMode}
+          error={errors.imoCode?.message}
+          valid={!errors.imoCode}
+        />
+        <VesselTypeCombobox
+          value={vesselTypeValue}
+          onChange={handleVesselTypeChange}
+          isDisable={isViewMode || isLoading}
+          placeholder={t("selectVesselType")}
+          label={t("vesselType")}
+          isRequired
+          error={errors.vesselTypeId?.message}
+        />
+        <FormInput
+          control={control}
+          name="grt"
+          label={t("grt")}
+          isDisable={isViewMode}
+          error={errors.grt?.message}
+          valid={!errors.grt}
+        />
+        <FormInput
+          control={control}
+          name="licenseNo"
+          label={t("licenseNo")}
+          isDisable={isViewMode}
+          error={errors.licenseNo?.message}
+          valid={!errors.licenseNo}
+        />
+        <FormInput
+          control={control}
+          name="flag"
+          label={t("flag")}
+          isDisable={isViewMode}
+          error={errors.flag?.message}
+          valid={!errors.flag}
+        />
+        <FormInput
+          control={control}
+          name="nrt"
+          label={t("nrt")}
+          isDisable={isViewMode}
+          error={errors.nrt?.message}
+          valid={!errors.nrt}
+        />
+        <FormInput
+          control={control}
+          name="loa"
+          label={t("loa")}
+          isDisable={isViewMode}
+          error={errors.loa?.message}
+          valid={!errors.loa}
+        />
+        <FormInput
+          control={control}
+          name="dwt"
+          label={t("dwt")}
+          isDisable={isViewMode}
+          error={errors.dwt?.message}
+          valid={!errors.dwt}
+        />
         <FormTextArea
           control={control}
           name="remarks"
@@ -161,7 +232,6 @@ export function PortForm({
           error={errors.remarks?.message}
           valid={!errors.remarks}
         />
-
         <FormSwitch
           control={control}
           name="isActive"
@@ -239,7 +309,7 @@ export function PortForm({
           {tc("cancel")}
         </Button>
         <Button type="submit" themeColor="primary" disabled={isLoading}>
-          {isLoading ? t("saving") : isEdit ? t("updatePort") : t("createPort")}
+          {isLoading ? t("saving") : isEdit ? t("updateVessel") : t("createVessel")}
         </Button>
       </div>
     </form>
