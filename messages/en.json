@@ -245,6 +245,27 @@
     "createdDate": "Created Date",
     "editedDate": "Edited Date"
   },
+  "departmentPage": {
+    "title": "Department Master",
+    "description": "Manage departments."
+  },
+  "departmentTable": {
+    "addDepartment": "Add Department",
+    "searchDepartmentsPlaceholder": "Search departments...",
+    "code": "Code",
+    "name": "Name",
+    "active": "Active",
+    "inactive": "Inactive",
+    "remarks": "Remarks",
+    "createdBy": "Created By",
+    "editedBy": "Edited By",
+    "createdDate": "Created Date",
+    "editedDate": "Edited Date",
+    "search": "Search",
+    "clearSearch": "Clear search",
+    "summary": "Total: {total}, Active: {active}, Lookup: {lookup}",
+    "noData": "No departments found."
+  },
   "chartOfAccountPage": {
     "title": "Chart Of Account Master",
     "description": "Manage chart of accounts and GL codes."
@@ -344,7 +365,7 @@
     "creditterm": "Credit Term",
     "designation": "Designation",
     "documenttype": "Document Type",
-    "gst": "VAT",
+    "gst": "GST",
     "leavetype": "Leave Type",
     "loantype": "Loan Type",
     "ordertype": "Order Type",
@@ -432,7 +453,7 @@
     "receiptmulticurrency": "Receipt Multi Currency",
     "supplytype": "Supply Type",
     "cargotype": "Cargo Type",
-    "vatservicecategory": "VAT Service Category",
+    "vatservicecategory": "GST Service Category",
     "documentno": "Document No",
     "jobtransactions": "Job Transactions",
     "decimalsetting": "Decimal Setting",

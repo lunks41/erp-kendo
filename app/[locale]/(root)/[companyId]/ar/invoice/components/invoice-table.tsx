@@ -176,7 +176,7 @@ export default function InvoiceTable({
     },
     {
       field: "gstAmt",
-      title: "VAT Amount",
+      title: "GST Amount",
       width: 100,
       cells: {
         data: (props: { dataItem?: IArInvoiceHd; tdProps?: React.TdHTMLAttributes<HTMLTableCellElement> | null }) => (
@@ -190,7 +190,7 @@ export default function InvoiceTable({
     },
     {
       field: "totAmtAftGst",
-      title: "Total After VAT",
+      title: "Total After GST",
       width: 110,
       cells: {
         data: (props: { dataItem?: IArInvoiceHd; tdProps?: React.TdHTMLAttributes<HTMLTableCellElement> | null }) => (

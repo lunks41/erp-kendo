@@ -152,10 +152,10 @@ export default function InvoiceDetailsTable({
       : []),
     ...(visible?.m_GstId
       ? [
-          { field: "gstName", title: "Gst" },
+          { field: "gstName", title: "GST" },
           {
             field: "gstPercentage",
-            title: "VAT %",
+            title: "GST %",
             cell: ({ dataItem }: { dataItem: IArInvoiceDt }) => (
               <InvoiceDetailNumberCell
                 dataItem={dataItem}
@@ -166,7 +166,7 @@ export default function InvoiceDetailsTable({
           },
           {
             field: "gstAmt",
-            title: "VAT Amount",
+            title: "GST Amount",
             cell: ({ dataItem }: { dataItem: IArInvoiceDt }) => (
               <InvoiceDetailAmountCell
                 dataItem={dataItem}
@@ -177,7 +177,7 @@ export default function InvoiceDetailsTable({
           },
           {
             field: "gstLocalAmt",
-            title: "VAT Local",
+            title: "GST Local",
             cell: ({ dataItem }: { dataItem: IArInvoiceDt }) => (
               <InvoiceDetailAmountCell
                 dataItem={dataItem}

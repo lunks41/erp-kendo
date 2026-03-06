@@ -6,7 +6,10 @@ import { NumericTextBox } from "@progress/kendo-react-inputs";
 import { Button } from "@progress/kendo-react-buttons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { UseFormReturn } from "react-hook-form";
-import type { ArInvoiceDtSchemaType, ArInvoiceHdSchemaType } from "@/schemas/ar-invoice";
+import type {
+  ArInvoiceDtSchemaType,
+  ArInvoiceHdSchemaType,
+} from "@/schemas/ar-invoice";
 import { ArInvoiceDtSchema } from "@/schemas/ar-invoice";
 import type { IMandatoryFields, IVisibleFields } from "@/interfaces/setting";
 import type { IArInvoiceDt } from "@/interfaces/ar-invoice";
@@ -29,7 +32,7 @@ import { toast } from "@/components/layout/notification-container";
 export interface InvoiceDetailsFormRef {
   recalculateAmounts?: (
     exchangeRate?: number,
-    countryExchangeRate?: number
+    countryExchangeRate?: number,
   ) => void;
 }
 
@@ -66,7 +69,7 @@ const InvoiceDetailsForm = forwardRef<
     defaultGstId = 0,
     isCancelled = false,
   },
-  ref
+  ref,
 ) {
   const { decimals } = useAuthStore();
   const amtDec = decimals[0]?.amtDec ?? 2;
@@ -85,15 +88,16 @@ const InvoiceDetailsForm = forwardRef<
     return Math.max(...existingDetails.map((d) => d.itemNo ?? 0)) + 1;
   };
 
-  const createDefaultValues = (itemNo: number): ArInvoiceDtSchemaType => ({
-    ...defaultDetails,
-    itemNo,
-    seqNo: itemNo,
-    docItemNo: itemNo,
-    glId: defaultGlId || defaultDetails.glId,
-    uomId: defaultUomId || defaultDetails.uomId,
-    gstId: defaultGstId || defaultDetails.gstId,
-  } as ArInvoiceDtSchemaType);
+  const createDefaultValues = (itemNo: number): ArInvoiceDtSchemaType =>
+    ({
+      ...defaultDetails,
+      itemNo,
+      seqNo: itemNo,
+      docItemNo: itemNo,
+      glId: defaultGlId || defaultDetails.glId,
+      uomId: defaultUomId || defaultDetails.uomId,
+      gstId: defaultGstId || defaultDetails.gstId,
+    }) as ArInvoiceDtSchemaType;
 
   const form = useForm<ArInvoiceDtSchemaType>({
     resolver: zodResolver(ArInvoiceDtSchema(required, visible)),
@@ -112,7 +116,7 @@ const InvoiceDetailsForm = forwardRef<
 
   const recalculateAmounts = (
     exchangeRate?: number,
-    countryExchangeRate?: number
+    countryExchangeRate?: number,
   ) => {
     recalculateDetailFormAmounts(
       form,
@@ -120,7 +124,7 @@ const InvoiceDetailsForm = forwardRef<
       decimals[0] ?? { amtDec: 2, locAmtDec: 2, ctyAmtDec: 2 },
       visible,
       exchangeRate,
-      countryExchangeRate
+      countryExchangeRate,
     );
   };
 
@@ -154,210 +158,216 @@ const InvoiceDetailsForm = forwardRef<
     >
       {/* Row 1: Item No / Seq No (combined), Chart Of Account, Department, Quantity, UOM, Unit Price, Total Amount, Total Local Amount */}
       <div className="grid grid-cols-2 gap-2 md:grid-cols-4 lg:grid-cols-8 *:min-w-0">
-      <div className="col-span-1 grid grid-cols-2 gap-2">
-        <FormNumericInput
+        <div className="col-span-1 grid grid-cols-2 gap-2">
+          <FormNumericInput
+            control={form.control}
+            name="itemNo"
+            label="Item No"
+            format={0}
+            alignRight={false}
+            disabled
+          />
+          <FormNumericInput
+            control={form.control}
+            name="seqNo"
+            label="Seq No"
+            format={0}
+            alignRight={false}
+            disabled
+          />
+        </div>
+        <FormChartOfAccountMultiColumn
           control={form.control}
-          name="itemNo"
-          label="Item No"
-          format={0}
-          alignRight={false}
-          disabled
-        />
-        <FormNumericInput
-          control={form.control}
-          name="seqNo"
-          label="Seq No"
-          format={0}
-          alignRight={false}
-          disabled
-        />
-      </div>
-      <FormChartOfAccountMultiColumn
-        control={form.control}
-        name="glId"
-        companyId={companyId}
-        label="Chart Of Account"
-        isRequired={!!required?.m_GLId}
-        className="min-w-0"
-        glCode={form.watch("glCode")}
-        glName={form.watch("glName")}
-        onSelect={(v) => {
-          form.setValue("glCode", v?.glCode ?? "");
-          form.setValue("glName", v?.glName ?? "");
-        }}
-      />
-      {visible?.m_DepartmentId && (
-        <FormDepartmentCombobox
-          control={form.control}
-          name="departmentId"
-          label="Department"
+          name="glId"
+          companyId={companyId}
+          label="Chart Of Account"
+          isRequired={!!required?.m_GLId}
           className="min-w-0"
-          placeholder="Select Department..."
+          glCode={form.watch("glCode")}
+          glName={form.watch("glName")}
           onSelect={(v) => {
-            form.setValue("departmentCode", v?.departmentCode ?? "");
-            form.setValue("departmentName", v?.departmentName ?? "");
+            form.setValue("glCode", v?.glCode ?? "");
+            form.setValue("glName", v?.glName ?? "");
           }}
         />
-      )}
-      {visible?.m_QTY && (
-        <FormNumericInput
-          control={form.control}
-          name="qty"
-          label="Quantity"
-          format={qtyDec}
-          isRequired={!!required?.m_QTY}
-        />
-      )}
-      {visible?.m_UomId && (
-        <div className="min-w-0">
-          <label className="mb-1 block text-sm font-medium">UOM</label>
-          <Controller
-            name="uomId"
+        {visible?.m_DepartmentId && (
+          <FormDepartmentCombobox
             control={form.control}
-            render={({ field }) => (
-            <UomCombobox
-              className="w-full min-w-0"
-              style={{ minWidth: 0 }}
-              value={
-                  (field.value as number) > 0
-                    ? ({ uomId: field.value, uomName: form.watch("uomName") ?? "" } as import("@/interfaces/lookup").IUomLookup)
-                    : null
-                }
-                onChange={(v) => {
-                  field.onChange(v?.uomId ?? 0);
-                  form.setValue("uomCode", v?.uomCode ?? "");
-                  form.setValue("uomName", v?.uomName ?? "");
-                }}
-                label=""
-              />
-            )}
+            name="departmentId"
+            label="Department"
+            className="min-w-0"
+            placeholder="Select Department..."
+            onSelect={(v) => {
+              form.setValue("departmentCode", v?.departmentCode ?? "");
+              form.setValue("departmentName", v?.departmentName ?? "");
+            }}
           />
-        </div>
-      )}
-
-      {visible?.m_UnitPrice && (
-        <FormNumericInput
-          control={form.control}
-          name="unitPrice"
-          label="Unit Price"
-          format={priceDec}
-        />
-      )}
-
-      <FormNumericInput
-        control={form.control}
-        name="totAmt"
-        label="Total Amount"
-        format={amtDec}
-      />
-
-      <FormField label="Total Local Amount">
-        <NumericTextBox
-          value={form.watch("totLocalAmt") ?? totLocalAmt}
-          disabled
-          format={`n${locAmtDec}`}
-          fillMode="outline"
-          rounded="medium"
-          spinners={false}
-          className="w-full [&_input]:text-right"
-        />
-      </FormField>
-      </div>
-
-      {/* Row 2: VAT, VAT %, VAT Amount, VAT Local Amount, Remarks, Debit Note No */}
-      <div className="grid grid-cols-2 gap-2 md:grid-cols-4 lg:grid-cols-6 *:min-w-0">
-      {visible?.m_ProductId && (
-        <div className="min-w-0">
-          <label className="mb-1 block text-sm font-medium">Product</label>
-          <Controller
-            name="productId"
+        )}
+        {visible?.m_QTY && (
+          <FormNumericInput
             control={form.control}
-            render={({ field }) => (
-              <ProductCombobox
-                value={
-                  (field.value as number) > 0
-                    ? ({ productId: field.value, productName: form.watch("productName") ?? "" } as import("@/interfaces/lookup").IProductLookup)
-                    : null
-                }
-                onChange={(v) => {
-                  field.onChange(v?.productId ?? 0);
-                  form.setValue("productCode", v?.productCode ?? "");
-                  form.setValue("productName", v?.productName ?? "");
-                }}
-                label=""
-                placeholder="Select Product..."
-              />
-            )}
+            name="qty"
+            label="Quantity"
+            format={qtyDec}
+            isRequired={!!required?.m_QTY}
           />
-        </div>
-      )}
-      {visible?.m_GstId && (
-        <>
-        <div className="min-w-0">
-          <Controller
-            name="gstId"
+        )}
+        {visible?.m_UomId && (
+          <div className="min-w-0">
+            <label className="mb-1 block text-sm font-medium">UOM</label>
+            <Controller
+              name="uomId"
+              control={form.control}
+              render={({ field }) => (
+                <UomCombobox
+                  className="w-full min-w-0"
+                  style={{ minWidth: 0 }}
+                  value={
+                    (field.value as number) > 0
+                      ? ({
+                          uomId: field.value,
+                          uomName: form.watch("uomName") ?? "",
+                        } as import("@/interfaces/lookup").IUomLookup)
+                      : null
+                  }
+                  onChange={(v) => {
+                    field.onChange(v?.uomId ?? 0);
+                    form.setValue("uomCode", v?.uomCode ?? "");
+                    form.setValue("uomName", v?.uomName ?? "");
+                  }}
+                  label=""
+                />
+              )}
+            />
+          </div>
+        )}
+
+        {visible?.m_UnitPrice && (
+          <FormNumericInput
             control={form.control}
-            render={({ field }) => (
-            <GstCombobox
-              className="w-full min-w-0"
-              style={{ minWidth: 0 }}
-              value={
-                  (field.value as number) > 0
-                    ? ({ gstId: field.value, gstName: form.watch("gstName") ?? "" } as import("@/interfaces/lookup").IGstLookup)
-                    : null
-                }
-                onChange={(v) => {
-                  field.onChange(v?.gstId ?? 0);
-                  form.setValue("gstName", v?.gstName ?? "");
-                  form.setValue("gstPercentage", v?.gstPercentage ?? 0);
-                }}
-                label="VAT"
-                isRequired={!!required?.m_GstId}
-                placeholder="Select VAT..."
-              />
-            )}
+            name="unitPrice"
+            label="Unit Price"
+            format={priceDec}
           />
-        </div>
+        )}
+
         <FormNumericInput
           control={form.control}
-          name="gstPercentage"
-          label="VAT Percentage"
-          format={2}
-        />
-        <FormNumericInput
-          control={form.control}
-          name="gstAmt"
-          label="VAT Amount"
+          name="totAmt"
+          label="Total Amount"
           format={amtDec}
         />
-        <FormNumericInput
-          control={form.control}
-          name="gstLocalAmt"
-          label="VAT Local Amount"
-          format={locAmtDec}
-          disabled
-        />
-        </>
-      )}
-      {(visible?.m_Remarks !== false || visible?.m_DebitNoteNo !== false) && (
-        <>
-        {visible?.m_Remarks !== false && (
-          <FormTextArea
-            control={form.control}
-            name="remarks"
-            label="Remarks"
-            isRequired={!!required?.m_Remarks}
+
+        <FormField label="Total Local Amount">
+          <NumericTextBox
+            value={form.watch("totLocalAmt") ?? totLocalAmt}
+            disabled
+            format={`n${locAmtDec}`}
+            fillMode="outline"
+            rounded="medium"
+            spinners={false}
+            className="w-full [&_input]:text-right"
           />
+        </FormField>
+
+        {visible?.m_ProductId && (
+          <div className="min-w-0">
+            <label className="mb-1 block text-sm font-medium">Product</label>
+            <Controller
+              name="productId"
+              control={form.control}
+              render={({ field }) => (
+                <ProductCombobox
+                  value={
+                    (field.value as number) > 0
+                      ? ({
+                          productId: field.value,
+                          productName: form.watch("productName") ?? "",
+                        } as import("@/interfaces/lookup").IProductLookup)
+                      : null
+                  }
+                  onChange={(v) => {
+                    field.onChange(v?.productId ?? 0);
+                    form.setValue("productCode", v?.productCode ?? "");
+                    form.setValue("productName", v?.productName ?? "");
+                  }}
+                  label=""
+                  placeholder="Select Product..."
+                />
+              )}
+            />
+          </div>
         )}
-        {visible?.m_DebitNoteNo !== false && (
-          <FormInput
-            control={form.control}
-            name="debitNoteNo"
-            label="Debit Note No"
-          />
+        {visible?.m_GstId && (
+          <>
+            <div className="min-w-0">
+              <Controller
+                name="gstId"
+                control={form.control}
+                render={({ field }) => (
+                  <GstCombobox
+                    className="w-full min-w-0"
+                    style={{ minWidth: 0 }}
+                    value={
+                      (field.value as number) > 0
+                        ? ({
+                            gstId: field.value,
+                            gstName: form.watch("gstName") ?? "",
+                          } as import("@/interfaces/lookup").IGstLookup)
+                        : null
+                    }
+                    onChange={(v) => {
+                      field.onChange(v?.gstId ?? 0);
+                      form.setValue("gstName", v?.gstName ?? "");
+                      form.setValue("gstPercentage", v?.gstPercentage ?? 0);
+                    }}
+                    label="GST"
+                    isRequired={!!required?.m_GstId}
+                    placeholder="Select GST..."
+                  />
+                )}
+              />
+            </div>
+            <FormNumericInput
+              control={form.control}
+              name="gstPercentage"
+              label="GST Percentage"
+              format={2}
+            />
+            <FormNumericInput
+              control={form.control}
+              name="gstAmt"
+              label="GST Amount"
+              format={amtDec}
+            />
+            <FormNumericInput
+              control={form.control}
+              name="gstLocalAmt"
+              label="GST Local Amount"
+              format={locAmtDec}
+              disabled
+            />
+          </>
         )}
-        </>
-      )}
+        {(visible?.m_Remarks !== false || visible?.m_DebitNoteNo !== false) && (
+          <>
+            {visible?.m_Remarks !== false && (
+              <FormTextArea
+                control={form.control}
+                name="remarks"
+                label="Remarks"
+                isRequired={!!required?.m_Remarks}
+              />
+            )}
+            {visible?.m_DebitNoteNo !== false && (
+              <FormInput
+                control={form.control}
+                name="debitNoteNo"
+                label="Debit Note No"
+              />
+            )}
+          </>
+        )}
       </div>
 
       <div className="flex items-end gap-2 pt-1">

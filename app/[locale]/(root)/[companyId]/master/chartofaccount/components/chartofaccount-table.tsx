@@ -94,7 +94,7 @@ function ChartOfAccountTableInner(props: ChartOfAccountTableProps) {
             const label = value ? t("active") : t("inactive");
             const bgClass = value
               ? "bg-emerald-600 text-white"
-              : "bg-slate-500 text-white";
+              : "bg-red-600 text-white";
             return (
               <td {...props.tdProps} className="k-table-td">
                 <span
@@ -118,7 +118,7 @@ function ChartOfAccountTableInner(props: ChartOfAccountTableProps) {
             const label = value ? t("active") : t("inactive");
             const bgClass = value
               ? "bg-emerald-600 text-white"
-              : "bg-slate-500 text-white";
+              : "bg-red-600 text-white";
             return (
               <td {...props.tdProps} className="k-table-td">
                 <span
@@ -142,7 +142,7 @@ function ChartOfAccountTableInner(props: ChartOfAccountTableProps) {
             const label = value ? t("active") : t("inactive");
             const bgClass = value
               ? "bg-emerald-600 text-white"
-              : "bg-slate-500 text-white";
+              : "bg-red-600 text-white";
             return (
               <td {...props.tdProps} className="k-table-td">
                 <span
@@ -166,7 +166,7 @@ function ChartOfAccountTableInner(props: ChartOfAccountTableProps) {
             const label = value ? t("active") : t("inactive");
             const bgClass = value
               ? "bg-emerald-600 text-white"
-              : "bg-slate-500 text-white";
+              : "bg-red-600 text-white";
             return (
               <td {...props.tdProps} className="k-table-td">
                 <span
@@ -190,7 +190,7 @@ function ChartOfAccountTableInner(props: ChartOfAccountTableProps) {
             const label = value ? t("active") : t("inactive");
             const bgClass = value
               ? "bg-emerald-600 text-white"
-              : "bg-slate-500 text-white";
+              : "bg-red-600 text-white";
             return (
               <td {...props.tdProps} className="k-table-td">
                 <span
@@ -214,7 +214,7 @@ function ChartOfAccountTableInner(props: ChartOfAccountTableProps) {
             const label = value ? t("active") : t("inactive");
             const bgClass = value
               ? "bg-emerald-600 text-white"
-              : "bg-slate-500 text-white";
+              : "bg-red-600 text-white";
             return (
               <td {...props.tdProps} className="k-table-td">
                 <span
@@ -238,7 +238,7 @@ function ChartOfAccountTableInner(props: ChartOfAccountTableProps) {
             const label = value ? t("active") : t("inactive");
             const bgClass = value
               ? "bg-emerald-600 text-white"
-              : "bg-slate-500 text-white";
+              : "bg-red-600 text-white";
             return (
               <td {...props.tdProps} className="k-table-td">
                 <span
@@ -263,7 +263,7 @@ function ChartOfAccountTableInner(props: ChartOfAccountTableProps) {
             const label = value ? t("active") : t("inactive");
             const bgClass = value
               ? "bg-emerald-600 text-white"
-              : "bg-slate-500 text-white";
+              : "bg-red-600 text-white";
             return (
               <td {...props.tdProps} className="k-table-td">
                 <span

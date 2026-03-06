@@ -59,7 +59,7 @@ export default function InvoiceForm({
     <div className="flex flex-col gap-2 lg:flex-row">
       {/* Left: form fields - 6 per row */}
       <div className="min-w-0 flex-1">
-        <div className="grid grid-cols-6 gap-2">
+        <div className="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
           {/* Row 1: Account Date, Customer, Reference No, Credit Terms, Due Date, Bank */}
           <div>
             <label className="mb-0.5 block text-sm font-medium">Account Date *</label>
@@ -300,7 +300,7 @@ export default function InvoiceForm({
           <div>Amt</div>
           <div className="text-right font-medium tabular-nums">{formatNumber(form.watch("totAmt") ?? 0, amtDec)}</div>
           <div className="text-right font-medium tabular-nums">{formatNumber(form.watch("totLocalAmt") ?? 0, locAmtDec)}</div>
-          <div>VAT</div>
+          <div>GST</div>
           <div className="text-right font-medium tabular-nums">{formatNumber(form.watch("gstAmt") ?? 0, amtDec)}</div>
           <div className="text-right font-medium tabular-nums">{formatNumber(form.watch("gstLocalAmt") ?? 0, locAmtDec)}</div>
           <div>Total</div>

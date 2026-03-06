@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { Controller } from "react-hook-form";
 import { DatePicker } from "@progress/kendo-react-dateinputs";
 import { useAuthStore } from "@/stores/auth-store";
@@ -17,6 +18,14 @@ import { PortCombobox } from "@/components/ui/combobox/port-combobox";
 import { ServiceCategoryCombobox } from "@/components/ui/combobox/service-category-combobox";
 import { parseDate } from "@/lib/date-utils";
 import { formatNumber } from "@/lib/format-utils";
+import type { ICurrencyLookup } from "@/interfaces/lookup";
+import type { IArInvoiceDt } from "@/interfaces/ar-invoice";
+import type { ArInvoiceDtSchemaType } from "@/schemas/ar-invoice";
+import { setExchangeRate, setExchangeRateLocal } from "@/helpers/account";
+import {
+  recalculateAllDetailsLocalAndCtyAmounts,
+  recalculateAndSetHeaderTotals,
+} from "@/helpers/ar-invoice-calculations";
 
 interface InvoiceFormProps {
   form: UseFormReturn<ArInvoiceHdSchemaType>;
@@ -55,11 +64,57 @@ export default function InvoiceForm({
   const currencyValue =
     currencyId > 0 ? ({ currencyId, currencyName: "" } as import("@/interfaces/lookup").ICurrencyLookup) : null;
 
+  const handleCurrencyChange = React.useCallback(
+    async (selectedCurrency: ICurrencyLookup | null) => {
+      const currencyIdValue = selectedCurrency?.currencyId ?? 0;
+      const accountDate = form.getValues("accountDate");
+
+      if (!currencyIdValue || !accountDate) {
+        form.setValue("currencyId", currencyIdValue);
+        return;
+      }
+
+      await setExchangeRate(form, exhRateDec, visible);
+      if (visible?.m_CtyCurr) {
+        await setExchangeRateLocal(form, exhRateDec);
+      }
+
+      const formDetails = form.getValues("data_details") as IArInvoiceDt[] | undefined;
+      if (!formDetails || formDetails.length === 0) {
+        return;
+      }
+
+      const exchangeRate = form.getValues("exhRate") || 0;
+      const countryExchangeRate = form.getValues("ctyExhRate") || 0;
+
+      const updatedDetails = recalculateAllDetailsLocalAndCtyAmounts(
+        formDetails as IArInvoiceDt[],
+        exchangeRate,
+        countryExchangeRate,
+        decimals[0],
+        !!visible?.m_CtyCurr,
+      );
+
+      form.setValue("data_details", updatedDetails as unknown as ArInvoiceDtSchemaType[], {
+        shouldDirty: true,
+        shouldTouch: true,
+      });
+
+      recalculateAndSetHeaderTotals(
+        form,
+        updatedDetails as IArInvoiceDt[],
+        decimals[0],
+        visible,
+      );
+    },
+    [decimals, exhRateDec, form, visible],
+  );
+
   return (
     <div className="flex flex-col gap-2 lg:flex-row">
       {/* Left: form fields - 6 per row */}
       <div className="min-w-0 flex-1">
-        <div className="grid grid-cols-6 gap-2">
+        <div className="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
           {/* Row 1: Account Date, Customer, Reference No, Credit Terms, Due Date, Bank */}
           <div>
             <label className="mb-0.5 block text-sm font-medium">Account Date *</label>
@@ -88,12 +143,19 @@ export default function InvoiceForm({
             render={({ field }) => (
               <CustomerCombobox
                 value={customerValue}
-                onChange={(v) => {
+                onChange={async (v) => {
                   field.onChange(v?.customerId ?? 0);
                   if (v && !isEdit) {
-                    form.setValue("currencyId", v.currencyId ?? 0);
-                    form.setValue("creditTermId", v.creditTermId ?? 0);
-                    form.setValue("bankId", v.bankId ?? 0);
+                    const newCurrencyId = v?.currencyId ?? 0;
+                    form.setValue("currencyId", newCurrencyId);
+                    form.setValue("creditTermId", v?.creditTermId ?? 0);
+                    form.setValue("bankId", v?.bankId ?? 0);
+
+                    if (newCurrencyId) {
+                      await handleCurrencyChange(
+                        { currencyId: newCurrencyId } as ICurrencyLookup,
+                      );
+                    }
                   }
                 }}
                 label="Customer"
@@ -172,7 +234,10 @@ export default function InvoiceForm({
               render={({ field }) => (
                 <CurrencyCombobox
                   value={currencyValue}
-                  onChange={(v) => field.onChange(v?.currencyId ?? 0)}
+                  onChange={async (v) => {
+                    field.onChange(v?.currencyId ?? 0);
+                    await handleCurrencyChange(v as ICurrencyLookup | null);
+                  }}
                   label="Currency"
                   isRequired
                 />
@@ -300,7 +365,7 @@ export default function InvoiceForm({
           <div>Amt</div>
           <div className="text-right font-medium tabular-nums">{formatNumber(form.watch("totAmt") ?? 0, amtDec)}</div>
           <div className="text-right font-medium tabular-nums">{formatNumber(form.watch("totLocalAmt") ?? 0, locAmtDec)}</div>
-          <div>VAT</div>
+          <div>GST</div>
           <div className="text-right font-medium tabular-nums">{formatNumber(form.watch("gstAmt") ?? 0, amtDec)}</div>
           <div className="text-right font-medium tabular-nums">{formatNumber(form.watch("gstLocalAmt") ?? 0, locAmtDec)}</div>
           <div>Total</div>

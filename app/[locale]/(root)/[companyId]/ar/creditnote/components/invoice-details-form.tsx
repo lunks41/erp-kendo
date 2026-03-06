@@ -264,7 +264,7 @@ const InvoiceDetailsForm = forwardRef<
       </FormField>
       </div>
 
-      {/* Row 2: VAT, VAT %, VAT Amount, VAT Local Amount, Remarks, Debit Note No */}
+      {/* Row 2: GST, GST %, GST Amount, GST Local Amount, Remarks, Debit Note No */}
       <div className="grid grid-cols-2 gap-2 md:grid-cols-4 lg:grid-cols-6 *:min-w-0">
       {visible?.m_ProductId && (
         <div className="min-w-0">
@@ -311,9 +311,9 @@ const InvoiceDetailsForm = forwardRef<
                   form.setValue("gstName", v?.gstName ?? "");
                   form.setValue("gstPercentage", v?.gstPercentage ?? 0);
                 }}
-                label="VAT"
+                label="GST"
                 isRequired={!!required?.m_GstId}
-                placeholder="Select VAT..."
+                placeholder="Select GST..."
               />
             )}
           />
@@ -321,19 +321,19 @@ const InvoiceDetailsForm = forwardRef<
         <FormNumericInput
           control={form.control}
           name="gstPercentage"
-          label="VAT Percentage"
+          label="GST Percentage"
           format={2}
         />
         <FormNumericInput
           control={form.control}
           name="gstAmt"
-          label="VAT Amount"
+          label="GST Amount"
           format={amtDec}
         />
         <FormNumericInput
           control={form.control}
           name="gstLocalAmt"
-          label="VAT Local Amount"
+          label="GST Local Amount"
           format={locAmtDec}
           disabled
         />

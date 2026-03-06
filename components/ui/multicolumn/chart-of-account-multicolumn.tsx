@@ -47,7 +47,6 @@ export function ChartOfAccountMultiColumn({
     s.currentCompany?.companyId ? parseInt(s.currentCompany.companyId, 10) : 0
   )
   const effectiveCompanyId = propsCompanyId ?? storeCompanyId
-
   const { data = [], isLoading } = useChartOfAccountLookup(effectiveCompanyId)
 
   return (
@@ -56,7 +55,7 @@ export function ChartOfAccountMultiColumn({
       data={data}
       columns={COLUMNS}
       value={value}
-      onChange={(e) => onChange?.(e.value ?? null)}
+      onChange={(e) => onChange?.((e.value ?? null) as IChartOfAccountLookup | null)}
       onBlur={onBlur}
       disabled={disabled}
       placeholder={placeholder}

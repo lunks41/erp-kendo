@@ -276,6 +276,27 @@
     "createdDate": "تاريخ الإنشاء",
     "editedDate": "تاريخ التعديل"
   },
+  "departmentPage": {
+    "title": "قسم رئيسي",
+    "description": "إدارة الأقسام."
+  },
+  "departmentTable": {
+    "addDepartment": "إضافة قسم",
+    "searchDepartmentsPlaceholder": "البحث في الأقسام...",
+    "code": "الرمز",
+    "name": "الاسم",
+    "active": "نشط",
+    "inactive": "غير نشط",
+    "remarks": "ملاحظات",
+    "createdBy": "أنشئ بواسطة",
+    "editedBy": "عدّل بواسطة",
+    "createdDate": "تاريخ الإنشاء",
+    "editedDate": "تاريخ التعديل",
+    "search": "بحث",
+    "clearSearch": "مسح البحث",
+    "summary": "الإجمالي: {total}، النشط: {active}، من جدول البحث: {lookup}",
+    "noData": "لا توجد أقسام."
+  },
   "chartOfAccountForm": {
     "glCode": "رمز GL",
     "glName": "اسم GL",
@@ -432,7 +453,7 @@
     "receiptmulticurrency": "إيصال متعدد العملات",
     "supplytype": "نوع التوريد",
     "cargotype": "نوع البضاعة",
-    "vatservicecategory": "فئة خدمة ض.ق.م",
+    "vatservicecategory": "فئة خدمة GST",
     "documentno": "رقم المستند",
     "jobtransactions": "معاملات الوظائف",
     "decimalsetting": "إعداد العلامة العشرية",

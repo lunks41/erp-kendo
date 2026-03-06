@@ -15,16 +15,24 @@ import type { IArInvoiceDt } from "@/interfaces/ar-invoice";
 import type { IVisibleFields } from "@/interfaces/setting";
 import { useAuthStore } from "@/stores/auth-store";
 import {
-  InvoiceDetailReadOnlyNumber,
-  InvoiceDetailNumberCell,
   InvoiceDetailAmountCell,
-  InvoiceDetailTextCell,
+  InvoiceDetailChartOfAccountCell,
   InvoiceDetailDateCell,
+  InvoiceDetailDepartmentCell,
+  InvoiceDetailGstCell,
+  InvoiceDetailNumberCell,
+  InvoiceDetailPortCell,
+  InvoiceDetailProductCell,
+  InvoiceDetailReadOnlyNumber,
+  InvoiceDetailTextCell,
+  InvoiceDetailUomCell,
+  InvoiceDetailVesselCell,
+  InvoiceDetailBargeCell,
 } from "./invoice-details-table-cells";
 
 const TABLE_HEIGHT = "min(400px, 50vh)";
 
-export type InvoiceDetailRow = IArInvoiceDt & { inEdit?: boolean };
+export type InvoiceDetailRow = IArInvoiceDt;
 
 export type InvoiceDetailItemChangePayload = {
   dataItem: InvoiceDetailRow;
@@ -40,6 +48,8 @@ interface InvoiceDetailsGridInlineProps {
   onDeleteAction?: (itemNo: number) => void;
   onEditAction?: (detail: IArInvoiceDt) => void;
   isCancelled?: boolean;
+  editingItemNo?: number | null;
+  onAddRowAction?: () => void;
 }
 
 export function InvoiceDetailsGridInline({
@@ -49,6 +59,8 @@ export function InvoiceDetailsGridInline({
   onDeleteAction,
   onEditAction,
   isCancelled = false,
+  editingItemNo,
+  onAddRowAction,
 }: InvoiceDetailsGridInlineProps) {
   const { decimals } = useAuthStore();
   const amtDec = decimals[0]?.amtDec ?? 2;
@@ -56,13 +68,17 @@ export function InvoiceDetailsGridInline({
 
   const handleValueChange = useCallback(
     (itemNo: number, field: string, value: string | number | Date | null) => {
-      const dataIndex = data.findIndex((r) => r.itemNo === itemNo);
-      const dataItem = data[dataIndex];
-      if (dataItem) {
-        onItemChangeAction({ dataItem, field, value, dataIndex });
-      }
+      // We only need itemNo for lookup in the parent handler.
+      // dataIndex is set to -1 so the parent will always find by itemNo.
+      const minimalItem = { itemNo } as InvoiceDetailRow;
+      onItemChangeAction({
+        dataItem: minimalItem,
+        field,
+        value,
+        dataIndex: -1,
+      });
     },
-    [data, onItemChangeAction],
+    [onItemChangeAction],
   );
 
   const handleDelete = useCallback(
@@ -76,7 +92,9 @@ export function InvoiceDetailsGridInline({
     () =>
       createActionCell<InvoiceDetailRow>(
         undefined,
-        isCancelled ? undefined : onEditAction as (item: InvoiceDetailRow) => void,
+        isCancelled
+          ? undefined
+          : (onEditAction as (item: InvoiceDetailRow) => void),
         isCancelled ? undefined : handleDelete,
         false,
         !isCancelled && !!onEditAction,
@@ -92,17 +110,7 @@ export function InvoiceDetailsGridInline({
   };
 
   const columns = useMemo(() => {
-    const base: React.ReactElement[] = [
-      <GridColumn
-        key="__actions"
-        field="__actions"
-        title="Actions"
-        width={150}
-        locked
-        sortable={false}
-        filterable={false}
-        cells={{ data: ActionCellComponent }}
-      />,
+    const itemNoColumn = (
       <GridColumn
         key="itemNo"
         field="itemNo"
@@ -110,25 +118,21 @@ export function InvoiceDetailsGridInline({
         width={80}
         cells={{
           data: (props: CellProps) => (
-            <td {...(props.tdProps ?? {})} className="k-table-td min-h-9 h-9 align-middle">
-              <InvoiceDetailReadOnlyNumber dataItem={props.dataItem} field="itemNo" />
+            <td
+              {...(props.tdProps ?? {})}
+              className="k-table-td min-h-9 h-9 align-middle"
+            >
+              <InvoiceDetailReadOnlyNumber
+                dataItem={props.dataItem}
+                field="itemNo"
+              />
             </td>
           ),
         }}
-      />,
-      <GridColumn
-        key="seqNo"
-        field="seqNo"
-        title="Seq No"
-        width={70}
-        cells={{
-          data: (props: CellProps) => (
-            <td {...(props.tdProps ?? {})} className="k-table-td min-h-9 h-9 align-middle">
-              <InvoiceDetailReadOnlyNumber dataItem={props.dataItem} field="seqNo" />
-            </td>
-          ),
-        }}
-      />,
+      />
+    );
+
+    const docItemNoColumn = (
       <GridColumn
         key="docItemNo"
         field="docItemNo"
@@ -136,8 +140,46 @@ export function InvoiceDetailsGridInline({
         width={90}
         cells={{
           data: (props: CellProps) => (
-            <td {...(props.tdProps ?? {})} className="k-table-td min-h-9 h-9 align-middle">
-              <InvoiceDetailReadOnlyNumber dataItem={props.dataItem} field="docItemNo" />
+            <td
+              {...(props.tdProps ?? {})}
+              className="k-table-td min-h-9 h-9 align-middle"
+            >
+              <InvoiceDetailReadOnlyNumber
+                dataItem={props.dataItem}
+                field="docItemNo"
+              />
+            </td>
+          ),
+        }}
+      />
+    );
+
+    const base: React.ReactElement[] = [
+      <GridColumn
+        key="__actions"
+        field="__actions"
+        title="Actions"
+        width={100}
+        locked
+        sortable={false}
+        filterable={false}
+        cells={{ data: ActionCellComponent }}
+      />,
+      <GridColumn
+        key="seqNo"
+        field="seqNo"
+        title="Seq No"
+        width={60}
+        cells={{
+          data: (props: CellProps) => (
+            <td
+              {...(props.tdProps ?? {})}
+              className="k-table-td min-h-9 h-9 align-middle"
+            >
+              <InvoiceDetailReadOnlyNumber
+                dataItem={props.dataItem}
+                field="seqNo"
+              />
             </td>
           ),
         }}
@@ -146,18 +188,81 @@ export function InvoiceDetailsGridInline({
 
     if (visible?.m_ProductId) {
       base.push(
-        <GridColumn key="productCode" field="productCode" title="Product Code" width={110} />,
-        <GridColumn key="productName" field="productName" title="Product" width={140} />,
+        <GridColumn
+          key="productName"
+          field="productName"
+          title="Product"
+          width={200}
+          cells={{
+            data: (props: CellProps) => (
+              <td
+                {...(props.tdProps ?? {})}
+                className="k-table-td min-h-9 h-9 align-middle"
+              >
+                <InvoiceDetailProductCell
+                  dataItem={props.dataItem}
+                  field="productName"
+                  isEditing={props.dataItem.itemNo === editingItemNo}
+                  onValueChange={(field, value) =>
+                    handleValueChange(props.dataItem.itemNo, field, value)
+                  }
+                />
+              </td>
+            ),
+          }}
+        />,
       );
     }
     base.push(
-      <GridColumn key="glCode" field="glCode" title="Code" width={100} />,
-      <GridColumn key="glName" field="glName" title="Account" width={140} />,
+      <GridColumn
+        key="glName"
+        field="glName"
+        title="Account"
+        width={220}
+        cells={{
+          data: (props: CellProps) => (
+            <td
+              {...(props.tdProps ?? {})}
+              className="k-table-td min-h-9 h-9 align-middle"
+            >
+              <InvoiceDetailChartOfAccountCell
+                dataItem={props.dataItem}
+                field="glName"
+                isEditing={props.dataItem.itemNo === editingItemNo}
+                onValueChange={(field, value) =>
+                  handleValueChange(props.dataItem.itemNo, field, value)
+                }
+              />
+            </td>
+          ),
+        }}
+      />,
     );
     if (visible?.m_DepartmentId) {
       base.push(
-        <GridColumn key="departmentCode" field="departmentCode" title="Dept Code" width={90} />,
-        <GridColumn key="departmentName" field="departmentName" title="Department" width={120} />,
+        <GridColumn
+          key="departmentName"
+          field="departmentName"
+          title="Department"
+          width={200}
+          cells={{
+            data: (props: CellProps) => (
+              <td
+                {...(props.tdProps ?? {})}
+                className="k-table-td min-h-9 h-9 align-middle"
+              >
+                <InvoiceDetailDepartmentCell
+                  dataItem={props.dataItem}
+                  field="departmentName"
+                  isEditing={props.dataItem.itemNo === editingItemNo}
+                  onValueChange={(field, value) =>
+                    handleValueChange(props.dataItem.itemNo, field, value)
+                  }
+                />
+              </td>
+            ),
+          }}
+        />,
       );
     }
     if (visible?.m_QTY) {
@@ -166,14 +271,18 @@ export function InvoiceDetailsGridInline({
           key="qty"
           field="qty"
           title="Qty"
-          width={90}
+          width={70}
           cells={{
             data: (props: CellProps) => (
-              <td {...(props.tdProps ?? {})} className="k-table-td min-h-9 h-9 align-middle">
+              <td
+                {...(props.tdProps ?? {})}
+                className="k-table-td min-h-9 h-9 align-middle"
+              >
                 <InvoiceDetailNumberCell
                   dataItem={props.dataItem}
                   field="qty"
-                  decimals={0}
+                  decimals={amtDec}
+                  isEditing={props.dataItem.itemNo === editingItemNo}
                   onValueChange={(field, value) =>
                     handleValueChange(props.dataItem.itemNo, field, value)
                   }
@@ -186,14 +295,18 @@ export function InvoiceDetailsGridInline({
           key="billQTY"
           field="billQTY"
           title="Bill Qty"
-          width={90}
+          width={70}
           cells={{
             data: (props: CellProps) => (
-              <td {...(props.tdProps ?? {})} className="k-table-td min-h-9 h-9 align-middle">
+              <td
+                {...(props.tdProps ?? {})}
+                className="k-table-td min-h-9 h-9 align-middle"
+              >
                 <InvoiceDetailNumberCell
                   dataItem={props.dataItem}
                   field="billQTY"
-                  decimals={0}
+                  decimals={amtDec}
+                  isEditing={props.dataItem.itemNo === editingItemNo}
                   onValueChange={(field, value) =>
                     handleValueChange(props.dataItem.itemNo, field, value)
                   }
@@ -206,8 +319,29 @@ export function InvoiceDetailsGridInline({
     }
     if (visible?.m_UomId) {
       base.push(
-        <GridColumn key="uomCode" field="uomCode" title="UOM Code" width={80} />,
-        <GridColumn key="uomName" field="uomName" title="UOM" width={80} />,
+        <GridColumn
+          key="uomName"
+          field="uomName"
+          title="UOM"
+          width={140}
+          cells={{
+            data: (props: CellProps) => (
+              <td
+                {...(props.tdProps ?? {})}
+                className="k-table-td min-h-9 h-9 align-middle"
+              >
+                <InvoiceDetailUomCell
+                  dataItem={props.dataItem}
+                  field="uomName"
+                  isEditing={props.dataItem.itemNo === editingItemNo}
+                  onValueChange={(field, value) =>
+                    handleValueChange(props.dataItem.itemNo, field, value)
+                  }
+                />
+              </td>
+            ),
+          }}
+        />,
       );
     }
     if (visible?.m_UnitPrice) {
@@ -219,11 +353,15 @@ export function InvoiceDetailsGridInline({
           width={100}
           cells={{
             data: (props: CellProps) => (
-              <td {...(props.tdProps ?? {})} className="k-table-td min-h-9 h-9 align-middle">
+              <td
+                {...(props.tdProps ?? {})}
+                className="k-table-td min-h-9 h-9 align-middle"
+              >
                 <InvoiceDetailNumberCell
                   dataItem={props.dataItem}
                   field="unitPrice"
                   decimals={amtDec}
+                  isEditing={props.dataItem.itemNo === editingItemNo}
                   onValueChange={(field, value) =>
                     handleValueChange(props.dataItem.itemNo, field, value)
                   }
@@ -242,7 +380,10 @@ export function InvoiceDetailsGridInline({
         width={110}
         cells={{
           data: (props: CellProps) => (
-            <td {...(props.tdProps ?? {})} className="k-table-td min-h-9 h-9 align-middle">
+            <td
+              {...(props.tdProps ?? {})}
+              className="k-table-td min-h-9 h-9 align-middle"
+            >
               <InvoiceDetailAmountCell
                 dataItem={props.dataItem}
                 field="totAmt"
@@ -259,7 +400,10 @@ export function InvoiceDetailsGridInline({
         width={110}
         cells={{
           data: (props: CellProps) => (
-            <td {...(props.tdProps ?? {})} className="k-table-td min-h-9 h-9 align-middle">
+            <td
+              {...(props.tdProps ?? {})}
+              className="k-table-td min-h-9 h-9 align-middle"
+            >
               <InvoiceDetailAmountCell
                 dataItem={props.dataItem}
                 field="totLocalAmt"
@@ -270,67 +414,46 @@ export function InvoiceDetailsGridInline({
         }}
       />,
     );
-    if (visible?.m_Remarks !== false) {
-      base.push(
-        <GridColumn
-          key="remarks"
-          field="remarks"
-          title="Remarks"
-          width={120}
-          cells={{
-            data: (props: CellProps) => (
-              <td {...(props.tdProps ?? {})} className="k-table-td min-h-9 h-9 align-middle">
-                <InvoiceDetailTextCell
-                  dataItem={props.dataItem}
-                  field="remarks"
-                  onValueChange={(field, value) =>
-                    handleValueChange(props.dataItem.itemNo, field, value)
-                  }
-                />
-              </td>
-            ),
-          }}
-        />,
-      );
-    }
-    if (visible?.m_DebitNoteNo !== false) {
-      base.push(
-        <GridColumn
-          key="debitNoteNo"
-          field="debitNoteNo"
-          title="Debit Note No"
-          width={110}
-          cells={{
-            data: (props: CellProps) => (
-              <td {...(props.tdProps ?? {})} className="k-table-td min-h-9 h-9 align-middle">
-                <InvoiceDetailTextCell
-                  dataItem={props.dataItem}
-                  field="debitNoteNo"
-                  onValueChange={(field, value) =>
-                    handleValueChange(props.dataItem.itemNo, field, value)
-                  }
-                />
-              </td>
-            ),
-          }}
-        />,
-      );
-    }
     if (visible?.m_GstId) {
       base.push(
-        <GridColumn key="gstName" field="gstName" title="Gst" width={90} />,
+        <GridColumn
+          key="gstName"
+          field="gstName"
+          title="GST"
+          width={140}
+          cells={{
+            data: (props: CellProps) => (
+              <td
+                {...(props.tdProps ?? {})}
+                className="k-table-td min-h-9 h-9 align-middle"
+              >
+                <InvoiceDetailGstCell
+                  dataItem={props.dataItem}
+                  field="gstName"
+                  isEditing={props.dataItem.itemNo === editingItemNo}
+                  onValueChange={(field, value) =>
+                    handleValueChange(props.dataItem.itemNo, field, value)
+                  }
+                />
+              </td>
+            ),
+          }}
+        />,
         <GridColumn
           key="gstPercentage"
           field="gstPercentage"
-          title="VAT %"
+          title="GST %"
           width={80}
           cells={{
             data: (props: CellProps) => (
-              <td {...(props.tdProps ?? {})} className="k-table-td min-h-9 h-9 align-middle">
+              <td
+                {...(props.tdProps ?? {})}
+                className="k-table-td min-h-9 h-9 align-middle"
+              >
                 <InvoiceDetailNumberCell
                   dataItem={props.dataItem}
                   field="gstPercentage"
-                  decimals={2}
+                  decimals={amtDec}
                   onValueChange={(field, value) =>
                     handleValueChange(props.dataItem.itemNo, field, value)
                   }
@@ -342,11 +465,14 @@ export function InvoiceDetailsGridInline({
         <GridColumn
           key="gstAmt"
           field="gstAmt"
-          title="VAT Amount"
+          title="GST Amount"
           width={100}
           cells={{
             data: (props: CellProps) => (
-              <td {...(props.tdProps ?? {})} className="k-table-td min-h-9 h-9 align-middle">
+              <td
+                {...(props.tdProps ?? {})}
+                className="k-table-td min-h-9 h-9 align-middle"
+              >
                 <InvoiceDetailAmountCell
                   dataItem={props.dataItem}
                   field="gstAmt"
@@ -359,11 +485,14 @@ export function InvoiceDetailsGridInline({
         <GridColumn
           key="gstLocalAmt"
           field="gstLocalAmt"
-          title="VAT Local"
+          title="GST Local"
           width={100}
           cells={{
             data: (props: CellProps) => (
-              <td {...(props.tdProps ?? {})} className="k-table-td min-h-9 h-9 align-middle">
+              <td
+                {...(props.tdProps ?? {})}
+                className="k-table-td min-h-9 h-9 align-middle"
+              >
                 <InvoiceDetailAmountCell
                   dataItem={props.dataItem}
                   field="gstLocalAmt"
@@ -375,7 +504,121 @@ export function InvoiceDetailsGridInline({
         />,
       );
     }
+    if (visible?.m_Remarks !== false) {
+      base.push(
+        <GridColumn
+          key="remarks"
+          field="remarks"
+          title="Remarks"
+          width={120}
+          cells={{
+            data: (props: CellProps) => (
+              <td
+                {...(props.tdProps ?? {})}
+                className="k-table-td min-h-9 h-9 align-middle"
+              >
+                <InvoiceDetailTextCell
+                  dataItem={props.dataItem}
+                  field="remarks"
+                  isEditing={props.dataItem.itemNo === editingItemNo}
+                  onValueChange={(field, value) =>
+                    handleValueChange(props.dataItem.itemNo, field, value)
+                  }
+                />
+              </td>
+            ),
+          }}
+        />,
+      );
+    }
     base.push(
+      <GridColumn
+        key="vesselName"
+        field="vesselName"
+        title="Vessel"
+        width={140}
+        cells={{
+          data: (props: CellProps) => (
+            <td
+              {...(props.tdProps ?? {})}
+              className="k-table-td min-h-9 h-9 align-middle"
+            >
+              <InvoiceDetailVesselCell
+                dataItem={props.dataItem}
+                field="vesselName"
+                isEditing={props.dataItem.itemNo === editingItemNo}
+                onValueChange={(field, value) =>
+                  handleValueChange(props.dataItem.itemNo, field, value)
+                }
+              />
+            </td>
+          ),
+        }}
+      />,
+      <GridColumn
+        key="portName"
+        field="portName"
+        title="Port"
+        width={140}
+        cells={{
+          data: (props: CellProps) => (
+            <td
+              {...(props.tdProps ?? {})}
+              className="k-table-td min-h-9 h-9 align-middle"
+            >
+              <InvoiceDetailPortCell
+                dataItem={props.dataItem}
+                field="portName"
+                isEditing={props.dataItem.itemNo === editingItemNo}
+                onValueChange={(field, value) =>
+                  handleValueChange(props.dataItem.itemNo, field, value)
+                }
+              />
+            </td>
+          ),
+        }}
+      />,
+      ...(visible?.m_BargeId
+        ? [
+            <GridColumn
+              key="bargeName"
+              field="bargeName"
+              title="Barge"
+              width={140}
+              cells={{
+                data: (props: CellProps) => (
+                  <td
+                    {...(props.tdProps ?? {})}
+                    className="k-table-td min-h-9 h-9 align-middle"
+                  >
+                    <InvoiceDetailBargeCell
+                      dataItem={props.dataItem}
+                      field="bargeName"
+                      isEditing={props.dataItem.itemNo === editingItemNo}
+                      onValueChange={(field, value) =>
+                        handleValueChange(props.dataItem.itemNo, field, value)
+                      }
+                    />
+                  </td>
+                ),
+              }}
+            />,
+          ]
+        : []),
+      <GridColumn
+        key="supplierName"
+        field="supplierName"
+        title="Supplier"
+        width={120}
+      />,
+      <GridColumn
+        key="apInvoiceNo"
+        field="apInvoiceNo"
+        title="AP Invoice No"
+        width={120}
+      />,
+      itemNoColumn,
+      docItemNoColumn,
       <GridColumn
         key="deliveryDate"
         field="deliveryDate"
@@ -383,10 +626,14 @@ export function InvoiceDetailsGridInline({
         width={120}
         cells={{
           data: (props: CellProps) => (
-            <td {...(props.tdProps ?? {})} className="k-table-td min-h-9 h-9 align-middle">
+            <td
+              {...(props.tdProps ?? {})}
+              className="k-table-td min-h-9 h-9 align-middle"
+            >
               <InvoiceDetailDateCell
                 dataItem={props.dataItem}
                 field="deliveryDate"
+                isEditing={props.dataItem.itemNo === editingItemNo}
                 onValueChange={(field, value) =>
                   handleValueChange(props.dataItem.itemNo, field, value)
                 }
@@ -402,10 +649,14 @@ export function InvoiceDetailsGridInline({
         width={120}
         cells={{
           data: (props: CellProps) => (
-            <td {...(props.tdProps ?? {})} className="k-table-td min-h-9 h-9 align-middle">
+            <td
+              {...(props.tdProps ?? {})}
+              className="k-table-td min-h-9 h-9 align-middle"
+            >
               <InvoiceDetailDateCell
                 dataItem={props.dataItem}
                 field="supplyDate"
+                isEditing={props.dataItem.itemNo === editingItemNo}
                 onValueChange={(field, value) =>
                   handleValueChange(props.dataItem.itemNo, field, value)
                 }
@@ -414,10 +665,33 @@ export function InvoiceDetailsGridInline({
           ),
         }}
       />,
-      <GridColumn key="vesselName" field="vesselName" title="Vessel" width={100} />,
-      <GridColumn key="portName" field="portName" title="Port" width={100} />,
-      <GridColumn key="supplierName" field="supplierName" title="Supplier" width={120} />,
-      <GridColumn key="apInvoiceNo" field="apInvoiceNo" title="AP Invoice No" width={120} />,
+      ...(visible?.m_DebitNoteNo !== false
+        ? [
+            <GridColumn
+              key="debitNoteNo"
+              field="debitNoteNo"
+              title="Debit Note No"
+              width={110}
+              cells={{
+                data: (props: CellProps) => (
+                  <td
+                    {...(props.tdProps ?? {})}
+                    className="k-table-td min-h-9 h-9 align-middle"
+                  >
+                    <InvoiceDetailTextCell
+                      dataItem={props.dataItem}
+                      field="debitNoteNo"
+                      isEditing={props.dataItem.itemNo === editingItemNo}
+                      onValueChange={(field, value) =>
+                        handleValueChange(props.dataItem.itemNo, field, value)
+                      }
+                    />
+                  </td>
+                ),
+              }}
+            />,
+          ]
+        : []),
     );
     return base;
   }, [
@@ -426,6 +700,7 @@ export function InvoiceDetailsGridInline({
     locAmtDec,
     handleValueChange,
     ActionCellComponent,
+    editingItemNo,
   ]);
 
   return (
@@ -448,6 +723,15 @@ export function InvoiceDetailsGridInline({
       >
         {columns}
         <GridToolbar>
+          {!isCancelled && onAddRowAction && (
+            <button
+              type="button"
+              className="k-button k-button-md k-rounded-md k-button-solid k-button-solid-base mr-2"
+              onClick={onAddRowAction}
+            >
+              Add Row
+            </button>
+          )}
           <GridCsvExportButton>Excel</GridCsvExportButton>
           <GridPdfExportButton>PDF</GridPdfExportButton>
           <GridToolbarSpacer />

@@ -276,6 +276,27 @@
     "createdDate": "作成日",
     "editedDate": "編集日"
   },
+  "departmentPage": {
+    "title": "部門マスタ",
+    "description": "部門を管理します。"
+  },
+  "departmentTable": {
+    "addDepartment": "部門を追加",
+    "searchDepartmentsPlaceholder": "部門を検索...",
+    "code": "コード",
+    "name": "名前",
+    "active": "有効",
+    "inactive": "無効",
+    "remarks": "備考",
+    "createdBy": "作成者",
+    "editedBy": "編集者",
+    "createdDate": "作成日",
+    "editedDate": "編集日",
+    "search": "検索",
+    "clearSearch": "検索をクリア",
+    "summary": "合計: {total}, 有効: {active}, 参照テーブル: {lookup}",
+    "noData": "部門が見つかりません。"
+  },
   "chartOfAccountForm": {
     "glCode": "GLコード",
     "glName": "GL名",
@@ -432,7 +453,7 @@
     "receiptmulticurrency": "多通貨領収書",
     "supplytype": "供給タイプ",
     "cargotype": "貨物タイプ",
-    "vatservicecategory": "VAT サービスカテゴリ",
+    "vatservicecategory": "GSTサービスカテゴリ",
     "documentno": "伝票番号",
     "jobtransactions": "ジョブ取引",
     "decimalsetting": "小数点設定",
