@@ -31,7 +31,8 @@
   },
   "sidebar": {
     "dashboard": "Dashboard",
-    "loadingMenu": "Loading menu..."
+    "loadingMenu": "Loading menu...",
+    "greeting": "Hi {userName}"
   },
   "portForm": {
     "portRegion": "Port Region",
@@ -113,6 +114,7 @@
     "shortName": "Short Name",
     "region": "Region",
     "active": "Active",
+    "inactive": "Inactive",
     "remarks": "Remarks",
     "createdBy": "Created By",
     "editedBy": "Edited",

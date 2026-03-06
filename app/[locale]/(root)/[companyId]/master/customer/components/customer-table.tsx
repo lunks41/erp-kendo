@@ -1,30 +1,30 @@
-"use client"
+"use client";
 
-import { useMemo, useState, useEffect } from "react"
-import { ICustomer, ICustomerFilter } from "@/interfaces/customer"
-import { useAuthStore } from "@/stores/auth-store"
-import { CircleCheck, CircleX } from "lucide-react"
-import { Loader } from "@progress/kendo-react-indicators"
-import type { MasterDataGridColumn } from "@/components/table"
-import { MasterDataGrid } from "@/components/table"
-import { TableName } from "@/lib/utils"
-import { format, isValid } from "date-fns"
+import { useMemo, useState } from "react";
+import { ICustomer, ICustomerFilter } from "@/interfaces/customer";
+import { useAuthStore } from "@/stores/auth-store";
+import { CircleCheck, CircleX } from "lucide-react";
+import { Loader } from "@progress/kendo-react-indicators";
+import type { MasterDataGridColumn } from "@/components/table";
+import { MasterDataGrid } from "@/components/table";
+import { TableName } from "@/lib/utils";
+import { format, isValid } from "date-fns";
 
 interface CustomerTableProps {
-  data: ICustomer[]
-  isLoading?: boolean
-  totalRecords?: number
-  onSelect?: (customer: ICustomer | null) => void
-  onFilterChange?: (filters: ICustomerFilter) => void
-  onPageChange?: (page: number) => void
-  onPageSizeChange?: (pageSize: number) => void
-  currentPage?: number
-  pageSize?: number
-  serverSidePagination?: boolean
-  initialSearchValue?: string
-  onRefreshAction?: () => void
-  moduleId: number
-  transactionId: number
+  data: ICustomer[];
+  isLoading?: boolean;
+  totalRecords?: number;
+  onSelect?: (customer: ICustomer | null) => void;
+  onFilterChange?: (filters: ICustomerFilter) => void;
+  onPageChange?: (page: number) => void;
+  onPageSizeChange?: (pageSize: number) => void;
+  currentPage?: number;
+  pageSize?: number;
+  serverSidePagination?: boolean;
+  initialSearchValue?: string;
+  onRefreshAction?: () => void;
+  moduleId: number;
+  transactionId: number;
 }
 
 export function CustomerTable({
@@ -43,29 +43,61 @@ export function CustomerTable({
   moduleId,
   transactionId,
 }: CustomerTableProps) {
-  const { decimals } = useAuthStore()
-  const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
+  const { decimals } = useAuthStore();
+  const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss";
 
-  const [searchValue, setSearchValue] = useState(initialSearchValue ?? "")
-  useEffect(() => {
-    setSearchValue(initialSearchValue ?? "")
-  }, [initialSearchValue])
+  const [searchValue, setSearchValue] = useState(initialSearchValue ?? "");
 
   const columns: MasterDataGridColumn[] = useMemo(
     () => [
       { field: "customerId", title: "Id", width: 80, minWidth: 50 },
       { field: "customerCode", title: "Code", width: 120, minWidth: 50 },
       { field: "customerName", title: "Name", width: 200, minWidth: 50 },
-      { field: "customerRegNo", title: "Registration No", width: 120, minWidth: 50 },
-      { field: "parentCustomerCode", title: "Parent Code", width: 120, minWidth: 50 },
-      { field: "parentCustomerName", title: "Parent Name", width: 150, minWidth: 50 },
-      { field: "creditTermName", title: "Credit Term", width: 120, minWidth: 50 },
+      {
+        field: "customerRegNo",
+        title: "Registration No",
+        width: 120,
+        minWidth: 50,
+      },
+      {
+        field: "parentCustomerCode",
+        title: "Parent Code",
+        width: 120,
+        minWidth: 50,
+      },
+      {
+        field: "parentCustomerName",
+        title: "Parent Name",
+        width: 150,
+        minWidth: 50,
+      },
+      {
+        field: "creditTermName",
+        title: "Credit Term",
+        width: 120,
+        minWidth: 50,
+      },
       { field: "bankName", title: "Bank", width: 120, minWidth: 50 },
       { field: "currencyName", title: "Currency", width: 120, minWidth: 50 },
-      { field: "accSetupName", title: "Account Setup", width: 120, minWidth: 50 },
+      {
+        field: "accSetupName",
+        title: "Account Setup",
+        width: 120,
+        minWidth: 50,
+      },
       { field: "supplierName", title: "Supplier", width: 120, minWidth: 50 },
-      { field: "customerOtherName", title: "Other Name", width: 200, minWidth: 50 },
-      { field: "customerShortName", title: "Short Name", width: 120, minWidth: 50 },
+      {
+        field: "customerOtherName",
+        title: "Other Name",
+        width: 200,
+        minWidth: 50,
+      },
+      {
+        field: "customerShortName",
+        title: "Short Name",
+        width: 120,
+        minWidth: 50,
+      },
       {
         field: "isCustomer",
         title: "Customer",
@@ -189,14 +221,18 @@ export function CustomerTable({
         minWidth: 150,
         cells: {
           data: (props) => {
-            const raw = (props.dataItem as ICustomer).createDate
+            const raw = (props.dataItem as ICustomer).createDate;
             const date =
-              typeof raw === "string" ? new Date(raw) : raw instanceof Date ? raw : null
+              typeof raw === "string"
+                ? new Date(raw)
+                : raw instanceof Date
+                  ? raw
+                  : null;
             return (
               <td {...props.tdProps} className="k-table-td">
                 {date && isValid(date) ? format(date, datetimeFormat) : "-"}
               </td>
-            )
+            );
           },
         },
       },
@@ -208,43 +244,44 @@ export function CustomerTable({
         minWidth: 150,
         cells: {
           data: (props) => {
-            const raw = (props.dataItem as ICustomer).editDate
+            const raw = (props.dataItem as ICustomer).editDate;
             const date =
-              typeof raw === "string" ? new Date(raw) : raw instanceof Date ? raw : null
+              typeof raw === "string"
+                ? new Date(raw)
+                : raw instanceof Date
+                  ? raw
+                  : null;
             return (
               <td {...props.tdProps} className="k-table-td">
                 {date && isValid(date) ? format(date, datetimeFormat) : "-"}
               </td>
-            )
+            );
           },
         },
       },
     ],
-    [datetimeFormat]
-  )
+    [datetimeFormat],
+  );
 
-  const handleView = onSelect ? (item: unknown) => onSelect(item as ICustomer) : undefined
+  const handleView = onSelect
+    ? (item: unknown) => onSelect(item as ICustomer)
+    : undefined;
 
   const handleFilterSubmit = () => {
     if (onFilterChange) {
       onFilterChange({
         search: searchValue,
         sortOrder: "asc",
-      })
+      });
     }
-  }
+  };
 
   const handleFilterClear = () => {
-    setSearchValue("")
+    setSearchValue("");
     if (onFilterChange) {
-      onFilterChange({ search: "", sortOrder: "asc" })
+      onFilterChange({ search: "", sortOrder: "asc" });
     }
-  }
-
-  const skip =
-    serverSidePagination && currentPage && pageSize
-      ? (currentPage - 1) * pageSize
-      : undefined
+  };
 
   return (
     <div className="relative w-full overflow-hidden">
@@ -264,8 +301,6 @@ export function CustomerTable({
         showDelete={false}
         pageable
         pageSize={pageSize}
-        pageSizes={[25, 50, 100, 200]}
-        sortable
         moduleId={moduleId}
         transactionId={transactionId}
         tableName={TableName.customer}
@@ -274,7 +309,6 @@ export function CustomerTable({
         onSearchChange={setSearchValue}
         onSearchSubmit={handleFilterSubmit}
         onSearchClear={handleFilterClear}
-        skip={skip}
         total={serverSidePagination ? totalRecords : undefined}
         currentPage={currentPage}
         serverSidePagination={serverSidePagination}
@@ -282,5 +316,5 @@ export function CustomerTable({
         onPageSizeChange={onPageSizeChange}
       />
     </div>
-  )
+  );
 }

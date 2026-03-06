@@ -22,7 +22,7 @@ export async function getServerData<T>(
 ): Promise<ApiResponse<T>> {
   const cookieStore = await cookies();
   const headersList = await headers();
-  const host = headersList.get("host") ?? "localhost:4100";
+  const host = headersList.get("host") ?? "localhost:5000";
   const protocol =
     headersList.get("x-forwarded-proto") ??
     (host.includes("localhost") ? "http" : "https");

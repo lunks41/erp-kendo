@@ -192,7 +192,6 @@ export function ContactsTable({
       showDelete={!!handleDelete}
       pageable={false}
       pageSize={1000}
-      sortable
       moduleId={moduleId}
       transactionId={transactionId}
       tableName={TableName.customerContact}

@@ -315,7 +315,6 @@ export default function InvoiceTable({
         dataItemKey="invoiceId"
         pageable
         pageSize={pageSize}
-        skip={(currentPage - 1) * pageSize}
         total={totalRecords}
         currentPage={currentPage}
         onPageChange={(p) => setCurrentPage(p)}

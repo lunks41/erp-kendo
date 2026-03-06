@@ -209,7 +209,6 @@ export function AddresssTable({
       showDelete={!!handleDelete}
       pageable={false}
       pageSize={1000}
-      sortable
       moduleId={moduleId}
       transactionId={transactionId}
       tableName={TableName.customerAddress}

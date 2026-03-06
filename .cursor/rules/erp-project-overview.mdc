@@ -44,4 +44,4 @@ alwaysApply: true
 - Common namespaces: common, ui, grid, auth, sidebar, sidebarMenu, plus page/form-specific (e.g., portForm, portTable)
 
 ## Dev
-- Port 4100 (npm run dev)
+- Port 5000 (npm run dev)

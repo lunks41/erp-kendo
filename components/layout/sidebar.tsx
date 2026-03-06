@@ -328,14 +328,31 @@ export function Sidebar({ companyId }: SidebarProps) {
     pathname === `/${companyId}` ||
     (pathname?.endsWith(companyId) && !pathname?.slice(pathname.indexOf(companyId) + companyId.length).split("/").filter(Boolean).length);
 
+  const userName = useAuthStore((s) => s.user?.userName) ?? "User";
+
   return (
-    <aside className="flex w-64 shrink-0 flex-col border-r border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-900/50">
+    <aside className="flex w-64 shrink-0 flex-col border-r border-slate-200/80 bg-white dark:border-slate-700/80 dark:bg-slate-900/80">
+      {/* Fintech-style header: compact logo + greeting */}
+      <div className="flex shrink-0 flex-col gap-1 border-b border-slate-200/80 px-4 py-4 dark:border-slate-700/80">
+        <div className="flex items-center gap-2">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-300">
+            <LayoutDashboard className="h-4 w-4" aria-hidden />
+          </div>
+          <span className="text-sm font-semibold tracking-tight text-slate-900 dark:text-white">
+            {t("dashboard")}
+          </span>
+        </div>
+        <p className="text-xs font-medium text-slate-600 dark:text-slate-400">
+          {t("greeting", { userName })}
+        </p>
+      </div>
+
       <nav className="flex-1 space-y-0.5 overflow-y-auto p-3">
         {/* Dashboard / Home - always first */}
         <div className="mb-2">
           <Link
             href={companyId ? `/${companyId}` : "#"}
-            className={`flex items-center gap-2 rounded-md px-2 py-2 text-xs font-medium transition-colors ${
+            className={`flex items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-medium transition-colors ${
               isDashboardActive
                 ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300"
                 : "text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
@@ -361,16 +378,16 @@ export function Sidebar({ companyId }: SidebarProps) {
                 <button
                   type="button"
                   onClick={() => setOpenModule((m) => (m === group.title ? null : group.title))}
-                  className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-xs font-medium text-slate-700 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+                  className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium text-slate-700 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
                 >
-                  <GroupIcon className="h-4 w-4 shrink-0" />
+                  <GroupIcon className="h-4 w-4 shrink-0 opacity-80" />
                   <span className="flex-1">{getMenuLabel(group.moduleCode, group.title)}</span>
                   <ChevronRight
                     className={`h-3.5 w-3.5 shrink-0 transition-transform ${isOpen ? "rotate-90" : ""}`}
                   />
                 </button>
                 {isOpen && group.items.length > 0 && (
-                  <div className="ml-3 space-y-0.5 border-l border-slate-200 pl-2 dark:border-slate-700">
+                  <div className="ml-3 space-y-0.5 border-l border-slate-200/80 pl-2 dark:border-slate-700/80">
                     {group.items.map((item) => {
                       const href = getUrl(item.url);
                       const isActive =
@@ -380,13 +397,13 @@ export function Sidebar({ companyId }: SidebarProps) {
                         <Link
                           key={item.url}
                           href={href}
-                          className={`flex items-center gap-2 rounded-md px-2 py-1.5 text-xs font-medium transition-colors ${
+                          className={`flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors ${
                             isActive
                               ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300"
                               : "text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
                           }`}
                         >
-                          <ItemIcon className="h-3.5 w-3.5 shrink-0" />
+                          <ItemIcon className="h-3.5 w-3.5 shrink-0 opacity-80" />
                           <span className="flex-1 truncate">{getMenuLabel(item.transactionCode, item.title)}</span>
                           <ChevronRight
                             className={`h-3 w-3 shrink-0 ${isActive ? "opacity-100" : "opacity-50"}`}

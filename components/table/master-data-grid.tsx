@@ -64,37 +64,25 @@ export interface MasterDataGridProps<T = unknown> {
   columns: MasterDataGridColumn[];
   dataItemKey: string;
   actions?: MasterDataGridActionHandlers<T>;
-  showView?: boolean;
-  showEdit?: boolean;
-  showDelete?: boolean;
-  showAdd?: boolean;
-  pageable?: boolean;
-  pageSize?: number;
-  sortable?: boolean;
-  filterable?: boolean;
   className?: string;
   style?: React.CSSProperties;
-  /** For server-side pagination: records to skip */
-  skip?: number;
+  /**
+   * pageable: show pager (page numbers + page size dropdown). When false, all data is shown (no paging).
+   * pageSize: how many rows per page (current selection). Used with pageable. Dropdown options are built from [50, 100, 500] and include pageSize if needed.
+   */
+  pageable?: boolean;
+  pageSize?: number;
   /** For server-side pagination: total record count */
   total?: number;
-  /** Called when page changes; receives 1-based page number */
-  onPageChange?: (page: number) => void;
-  /** Called when page size changes */
-  onPageSizeChange?: (pageSize: number) => void;
-  /** Current 1-based page (used with skip for server-side) */
+  /** Current 1-based page; skip is derived as (currentPage - 1) * pageSize for server-side. */
   currentPage?: number;
   serverSidePagination?: boolean;
   moduleId?: number | string;
   transactionId?: number | string;
   /** Table name for grid layout lookup (e.g. TableName.port) */
   tableName?: string;
-  /** Add button click handler */
-  onAdd?: () => void;
   /** Add button label */
   addButtonLabel?: string;
-  /** Refresh button click handler */
-  onRefresh?: () => void;
   /** Search box placeholder */
   searchPlaceholder?: string;
   /** Search fields for GridSearchBox (defaults to column fields) */
@@ -109,20 +97,28 @@ export interface MasterDataGridProps<T = unknown> {
   actionsColumnFirst?: boolean;
   /** Enable column menu (filter, sort, columns chooser). Default true. */
   columnMenu?: boolean;
-  /** Page size dropdown options. Defaults to [50,100,500] with current pageSize included. */
-  pageSizes?: number[];
   /** External search: current value (controlled). When set with onSearchChange/onSearchSubmit, shows search box + Search button on toolbar right. */
   searchValue?: string;
+  /** Override grid container height (e.g. "min(450px, 55vh)" for dialog use) */
+  tableHeight?: string;
+  /** Show group panel ("drag column header here to group"). When false, drag-to-group is disabled. Default true. */
+  groupable?: boolean;
+  showView?: boolean;
+  showEdit?: boolean;
+  showDelete?: boolean;
+  showAdd?: boolean;
+  /** Called when user switches page (e.g. clicks page 2). Receives 1-based page number so parent can refetch. */
+  onPageChange?: (page: number) => void;
+  /** Called when user changes "items per page". Parent should update pageSize and usually reset to page 1. */
+  onPageSizeChange?: (pageSize: number) => void;
+  onAdd?: () => void;
+  onRefresh?: () => void;
   /** Called when search input value changes (e.g. user types). */
   onSearchChange?: (value: string) => void;
   /** Called when user clicks Search or presses Enter. Use to apply search and e.g. reset to page 1. */
   onSearchSubmit?: () => void;
   /** Called when user clicks the clear (X) button. Use to clear filter and refetch (e.g. set filter to "", reset page). */
   onSearchClear?: () => void;
-  /** Override grid container height (e.g. "min(450px, 55vh)" for dialog use) */
-  tableHeight?: string;
-  /** Enable grouping (group panel + column menu "Group by this column"). Default true. */
-  groupable?: boolean;
 }
 /** Fixed grid height; data area scrolls inside. Pagination stays visible. */
 const DEFAULT_TABLE_HEIGHT = "min(650px, 70vh)";
@@ -143,28 +139,17 @@ export function MasterDataGrid<T extends object>({
   columns,
   dataItemKey,
   actions = {},
-  showView = true,
-  showEdit = true,
-  showDelete = true,
-  showAdd = true,
-  pageable = true,
-  pageSize = 100,
-  sortable = true,
-  filterable = false,
   className,
   style,
-  skip,
+  pageable = true,
+  pageSize = 100,
   total,
-  onPageChange,
-  onPageSizeChange,
   currentPage = 1,
   serverSidePagination,
   moduleId,
   transactionId,
   tableName = "",
-  onAdd,
   addButtonLabel = "Add",
-  onRefresh,
   searchPlaceholder = "Search...",
   searchFields,
   csvFileName = "grid-export",
@@ -172,14 +157,22 @@ export function MasterDataGrid<T extends object>({
   scrollableMode = "scrollable",
   actionsColumnFirst = true,
   columnMenu = true,
-  pageSizes: pageSizesProp,
   searchValue: searchValueProp,
+  tableHeight,
+  groupable = true,
+  showView = true,
+  showEdit = true,
+  showDelete = true,
+  showAdd = true,
+  onPageChange,
+  onPageSizeChange,
+  onAdd,
+  onRefresh,
   onSearchChange,
   onSearchSubmit,
   onSearchClear,
-  tableHeight,
-  groupable = true,
 }: MasterDataGridProps<T>) {
+  const sortable = true;
   const effectiveTableHeight = tableHeight ?? DEFAULT_TABLE_HEIGHT;
   const t = useTranslations("grid");
   const tc = useTranslations("common");
@@ -299,7 +292,10 @@ export function MasterDataGrid<T extends object>({
     },
   );
 
-  const [clientSkipTake, setClientSkipTake] = useState({ skip: 0, take: pageSize });
+  const [clientSkipTake, setClientSkipTake] = useState({
+    skip: 0,
+    take: pageSize,
+  });
 
   const prevLayoutIdsRef = useRef<string>("");
   useEffect(() => {
@@ -325,38 +321,38 @@ export function MasterDataGrid<T extends object>({
     });
   }, [initialSortGroup.sort, initialSortGroup.group]);
 
-  const handleDataStateChange = useCallback((e: GridDataStateChangeEvent) => {
-    const ds = e.dataState;
-    const isPagingChange =
-      ds.skip !== undefined || ds.take !== undefined;
+  const handleDataStateChange = useCallback(
+    (e: GridDataStateChangeEvent) => {
+      const ds = e.dataState;
+      const isPagingChange = ds.skip !== undefined || ds.take !== undefined;
 
-    if (ds.sort !== undefined) {
-      if (
-        !serverSidePagination ||
-        ds.sort.length > 0 ||
-        !isPagingChange
-      ) {
-        setSortState(ds.sort);
-        sortGroupRef.current = { ...sortGroupRef.current, sort: ds.sort };
+      // Always apply sort when present (including [] for unsort / no arrow)
+      if (ds.sort !== undefined) {
+        const applySort =
+          !serverSidePagination || ds.sort.length > 0 || !isPagingChange;
+        if (applySort) {
+          setSortState(ds.sort);
+          sortGroupRef.current = { ...sortGroupRef.current, sort: ds.sort };
+        }
       }
-    }
-    if (ds.group !== undefined) {
-      if (
-        !serverSidePagination ||
-        ds.group.length > 0 ||
-        !isPagingChange
-      ) {
-        setGroupState(ds.group);
-        sortGroupRef.current = { ...sortGroupRef.current, group: ds.group };
+      if (ds.group !== undefined) {
+        if (!serverSidePagination || ds.group.length > 0 || !isPagingChange) {
+          setGroupState(ds.group);
+          sortGroupRef.current = { ...sortGroupRef.current, group: ds.group };
+        }
       }
-    }
-    if (!serverSidePagination && (ds.skip !== undefined || ds.take !== undefined)) {
-      setClientSkipTake((prev) => ({
-        skip: ds.skip !== undefined ? ds.skip : prev.skip,
-        take: ds.take !== undefined ? ds.take : prev.take,
-      }));
-    }
-  }, [serverSidePagination]);
+      if (
+        !serverSidePagination &&
+        (ds.skip !== undefined || ds.take !== undefined)
+      ) {
+        setClientSkipTake((prev) => ({
+          skip: ds.skip !== undefined ? ds.skip : prev.skip,
+          take: ds.take !== undefined ? ds.take : prev.take,
+        }));
+      }
+    },
+    [serverSidePagination],
+  );
 
   const handleColumnsStateChange = useCallback(
     (e: GridColumnsStateChangeEvent) => {
@@ -392,9 +388,7 @@ export function MasterDataGrid<T extends object>({
   };
 
   const gridSkip = serverSidePagination
-    ? typeof skip === "number"
-      ? skip
-      : (currentPage - 1) * pageSize
+    ? (currentPage - 1) * pageSize
     : undefined;
 
   const processedResult = useMemo(() => {
@@ -426,10 +420,14 @@ export function MasterDataGrid<T extends object>({
     : (processedResult?.total ?? data.length);
   const gridSkipResolved = serverSidePagination
     ? gridSkip
-    : (pageable ? clientSkipTake.skip : undefined);
+    : pageable
+      ? clientSkipTake.skip
+      : undefined;
   const gridTakeResolved = serverSidePagination
     ? undefined
-    : (pageable ? clientSkipTake.take : undefined);
+    : pageable
+      ? clientSkipTake.take
+      : undefined;
 
   const handleDefaultLayout = useCallback(() => {
     if (!moduleId || !transactionId || !tableName) return;
@@ -539,13 +537,12 @@ export function MasterDataGrid<T extends object>({
     scrollableMode === "virtual" ? "virtual" : "scrollable";
 
   const gridPageSizes = useMemo(() => {
-    if (pageSizesProp?.length) return pageSizesProp;
     const base = [50, 100, 500];
     if (pageable && pageSize && !base.includes(pageSize)) {
       return [...base, pageSize].sort((a, b) => a - b);
     }
     return base;
-  }, [pageSizesProp, pageable, pageSize]);
+  }, [pageable, pageSize]);
 
   const actionsColumn = hasActions && ActionCellComponent && (
     <GridColumn
@@ -572,7 +569,6 @@ export function MasterDataGrid<T extends object>({
       locked,
       hidden,
       sortable: colSortable,
-      filterable: colFilterable,
       cells: colCells,
       ...rest
     } = col;
@@ -692,7 +688,6 @@ export function MasterDataGrid<T extends object>({
           data={gridData}
           dataItemKey={dataItemKey}
           sort={sortState}
-          group={groupState}
           onDataStateChange={handleDataStateChange}
           pageable={
             pageable
@@ -707,7 +702,7 @@ export function MasterDataGrid<T extends object>({
           pageSize={gridTakeResolved ?? gridPageSize}
           skip={gridSkipResolved}
           total={gridTotalResolved}
-          sortable={sortable}
+          sortable={sortable ? { allowUnsort: true, mode: "single" } : false}
           filterable={false}
           groupable={groupable}
           resizable

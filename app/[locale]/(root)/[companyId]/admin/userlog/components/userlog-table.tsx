@@ -74,8 +74,6 @@ export function UserLogTable(props: UserLogTableProps) {
       dataItemKey="userName"
       pageable
       pageSize={50}
-      sortable
-      filterable
       moduleId={moduleId}
       transactionId={transactionId}
       tableName={TableName.userlog}

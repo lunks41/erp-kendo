@@ -65,8 +65,6 @@ export function ErrorLogTable({
       dataItemKey="documentId"
       pageable
       pageSize={50}
-      sortable
-      filterable
       moduleId={moduleId}
       transactionId={transactionId}
       tableName={TableName.errorlog}

@@ -31,7 +31,8 @@
   },
   "sidebar": {
     "dashboard": "لوحة التحكم",
-    "loadingMenu": "جاري تحميل القائمة..."
+    "loadingMenu": "جاري تحميل القائمة...",
+    "greeting": "مرحباً {userName}"
   },
   "portForm": {
     "portRegion": "منطقة الميناء",
@@ -113,6 +114,7 @@
     "shortName": "الاسم المختصر",
     "region": "المنطقة",
     "active": "نشط",
+    "inactive": "غير نشط",
     "remarks": "ملاحظات",
     "createdBy": "أنشئ بواسطة",
     "editedBy": "عدّل",

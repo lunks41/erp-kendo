@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { memo, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import type { MasterDataGridColumn } from "@/components/table";
 import { MasterDataGrid } from "@/components/table";
@@ -32,7 +32,6 @@ export interface PortTableProps {
   currentPage?: number;
   pageSize?: number;
   /** Page size dropdown options (e.g. from user settings) */
-  pageSizes?: number[];
   serverSidePagination?: boolean;
   moduleId?: number | string;
   transactionId?: number | string;
@@ -40,16 +39,24 @@ export interface PortTableProps {
   canDelete?: boolean;
   canView?: boolean;
   canCreate?: boolean;
+  /** Optional column overrides; when set, replaces default columns for flexibility */
+  columns?: MasterDataGridColumn[];
 }
 
-export function PortTable(props: PortTableProps) {
+function PortTableInner(props: PortTableProps) {
   const t = useTranslations("portTable");
   const { decimals } = useAuthStore();
   const datetimeFormat = decimals[0]?.longDateFormat ?? "dd/MM/yyyy HH:mm:ss";
 
-  const columns: MasterDataGridColumn[] = useMemo(
+  const defaultColumns: MasterDataGridColumn[] = useMemo(
     () => [
-      { field: "portId", title: "Port Id", width: 80, minWidth: 60 },
+      {
+        field: "portId",
+        title: "Port Id",
+        width: 80,
+        minWidth: 60,
+        hidden: true,
+      },
       { field: "portCode", title: t("code"), width: 100, minWidth: 80 },
       { field: "portName", title: t("name"), flex: true, minWidth: 150 },
       {
@@ -58,9 +65,35 @@ export function PortTable(props: PortTableProps) {
         width: 100,
         media: "(min-width: 768px)",
       },
-      { field: "portRegionCode", title: "Region Code", width: 100, minWidth: 80 },
-      { field: "portRegionName", title: t("region"), width: 120, minWidth: 100 },
-      { field: "isActive", title: t("active"), width: 80 },
+      {
+        field: "portRegionName",
+        title: t("region"),
+        width: 120,
+        minWidth: 100,
+      },
+      {
+        field: "isActive",
+        title: t("active"),
+        width: 100,
+        cells: {
+          data: (props) => {
+            const isActive = (props.dataItem as IPort).isActive;
+            const label = isActive ? t("active") : t("inactive");
+            const bgClass = isActive
+              ? "bg-emerald-600 text-white"
+              : "bg-red-600 text-white";
+            return (
+              <td {...props.tdProps} className="k-table-td">
+                <span
+                  className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium ${bgClass}`}
+                >
+                  {label}
+                </span>
+              </td>
+            );
+          },
+        },
+      },
       { field: "remarks", title: t("remarks"), flex: true, minWidth: 100 },
       {
         field: "createBy",
@@ -69,37 +102,48 @@ export function PortTable(props: PortTableProps) {
         media: "(min-width: 992px)",
       },
       {
-        field: "editBy",
-        title: t("editedBy"),
-        width: 100,
-        media: "(min-width: 1200px)",
-      },
-      {
         field: "createDate",
         title: t("createdDate"),
-        width: 130,
+        width: 180,
         cells: {
           data: (props) => {
             const val = (props.dataItem as IPort).createDate;
+            const text = formatDateTime(val, datetimeFormat);
             return (
-              <td {...props.tdProps} className="k-table-td">
-                {formatDateTime(val, datetimeFormat)}
+              <td
+                {...props.tdProps}
+                className="k-table-td whitespace-nowrap"
+                title={text}
+              >
+                {text}
               </td>
             );
           },
         },
       },
       {
+        field: "editBy",
+        title: t("editedBy"),
+        width: 100,
+        media: "(min-width: 1200px)",
+      },
+
+      {
         field: "editDate",
         title: t("editedDate"),
-        width: 130,
+        width: 180,
         media: "(min-width: 1200px)",
         cells: {
           data: (props) => {
             const val = (props.dataItem as IPort).editDate;
+            const text = formatDateTime(val, datetimeFormat);
             return (
-              <td {...props.tdProps} className="k-table-td">
-                {formatDateTime(val, datetimeFormat)}
+              <td
+                {...props.tdProps}
+                className="k-table-td whitespace-nowrap"
+                title={text}
+              >
+                {text}
               </td>
             );
           },
@@ -126,15 +170,17 @@ export function PortTable(props: PortTableProps) {
     onPageChange,
     onPageSizeChange,
     currentPage = 1,
-    pageSize = 50,
-    pageSizes,
+    pageSize,
     serverSidePagination,
     moduleId,
     transactionId,
     canEdit = true,
     canDelete = true,
     canView = true,
+    columns: columnsOverride,
   } = props;
+
+  const columns = columnsOverride ?? defaultColumns;
 
   return (
     <MasterDataGrid
@@ -146,31 +192,30 @@ export function PortTable(props: PortTableProps) {
         onEdit: (item) => onEdit(item as unknown as IPort),
         onDelete: (item) => onDelete(item as unknown as IPort),
       }}
+      pageable
+      groupable={false}
+      pageSize={pageSize}
+      total={serverSidePagination ? totalRecords : undefined}
+      currentPage={currentPage}
+      serverSidePagination={serverSidePagination}
+      searchPlaceholder={searchPlaceholder ?? t("searchPortsPlaceholder")}
+      searchValue={searchFilter}
       showView={canView}
       showEdit={canEdit}
       showDelete={canDelete}
-      pageable
-      pageSize={pageSize}
-      pageSizes={pageSizes}
-      sortable
-      filterable
-      skip={serverSidePagination ? (currentPage - 1) * pageSize : undefined}
-      total={serverSidePagination ? totalRecords : undefined}
       onPageChange={onPageChange}
       onPageSizeChange={onPageSizeChange}
-      currentPage={currentPage}
-      serverSidePagination={serverSidePagination}
-      moduleId={moduleId}
-      transactionId={transactionId}
-      tableName={TableName.port}
       onAdd={onAdd}
       onRefresh={onRefresh}
-      addButtonLabel={addButtonLabel ?? t("addPort")}
-      searchPlaceholder={searchPlaceholder ?? t("searchPortsPlaceholder")}
-      searchValue={searchFilter}
       onSearchChange={onSearchChange}
       onSearchSubmit={onSearchSubmit}
       onSearchClear={onSearchClear}
+      moduleId={moduleId}
+      transactionId={transactionId}
+      tableName={TableName.port}
+      addButtonLabel={addButtonLabel ?? t("addPort")}
     />
   );
 }
+
+export const PortTable = memo(PortTableInner);

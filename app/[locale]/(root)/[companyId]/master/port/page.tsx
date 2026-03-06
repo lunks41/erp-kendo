@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useMemo, useSyncExternalStore, useState } from "react";
 import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Button } from "@progress/kendo-react-buttons";
@@ -38,7 +38,13 @@ export default function PortMasterPage() {
 
   const params = useParams();
   const companyId = (params?.companyId as string) ?? "";
-  const [mounted, setMounted] = useState(false);
+
+  // Client-only flag without setState-in-effect (avoids cascading renders)
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
 
   const permissionsLoaded = Object.keys(permissions).length > 0;
   const portPermission = getPermissions(moduleId, transactionId);
@@ -60,34 +66,7 @@ export default function PortMasterPage() {
   const [pageSize, setPageSize] = useState<number | null>(null);
   const effectivePageSize = pageSize ?? preferredPageSize;
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!mounted || !permissionsLoaded) return;
-    const portPerm = getPermissions(moduleId, transactionId);
-    if (portPerm) {
-      console.debug("[Port Master] Permission (1-37):", {
-        isRead: portPerm.isRead,
-        isCreate: portPerm.isCreate,
-        isEdit: portPerm.isEdit,
-        isDelete: portPerm.isDelete,
-      });
-    } else {
-      console.debug(
-        "[Port Master] No permission entry for moduleId=1, transactionId=37 (Port).",
-      );
-    }
-  }, [
-    mounted,
-    permissionsLoaded,
-    permissions,
-    moduleId,
-    transactionId,
-    getPermissions,
-  ]);
-
+  // Query: TanStack Query for list (server-side pagination); grid uses Kendo Data Query for sort/group in-memory
   const { data: portsResponse, isLoading } = useGetWithPagination<IPort>(
     `${Port.get}`,
     "ports",
@@ -99,56 +78,60 @@ export default function PortMasterPage() {
 
   const ports = portsResponse?.data ?? [];
   const totalRecords = portsResponse?.totalRecords ?? 0;
+
+  // Update: mutations for create/update and delete; invalidate list query so it refetches
   const saveMutation = usePersist<IPort>(Port.add);
   const deleteMutation = useDelete(Port.delete);
 
-  const handleAdd = () => {
+  const invalidatePortsList = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: ["ports"] });
+  }, [queryClient]);
+
+  const handleAdd = useCallback(() => {
     setSelectedPort(null);
     setViewMode(false);
     setDialogOpen(true);
-  };
+  }, []);
 
-  const handleView = (item: IPort) => {
+  const handleView = useCallback((item: IPort) => {
     setSelectedPort(item);
     setViewMode(true);
     setDialogOpen(true);
-  };
+  }, []);
 
-  const handleEdit = (item: IPort) => {
+  const handleEdit = useCallback((item: IPort) => {
     setSelectedPort(item);
     setViewMode(false);
     setDialogOpen(true);
-  };
+  }, []);
 
-  const handleDelete = (item: IPort) => {
+  const handleDelete = useCallback((item: IPort) => {
     setPortToDelete(item);
     setDeleteDialogOpen(true);
-  };
+  }, []);
 
-  const portsQueryKey = ["ports", searchFilter, currentPage, effectivePageSize];
-
-  const handleDeleteConfirm = async () => {
+  const handleDeleteConfirm = useCallback(async () => {
     if (!portToDelete) return;
     try {
       await deleteMutation.mutateAsync(String(portToDelete.portId));
-      await queryClient.refetchQueries({ queryKey: portsQueryKey });
+      await invalidatePortsList();
       setDeleteDialogOpen(false);
       setPortToDelete(null);
     } catch {
       // Error handled by mutation
     }
-  };
+  }, [portToDelete, deleteMutation, invalidatePortsList]);
 
-  const handleFormSubmit = (data: Partial<IPort>) => {
+  const handleFormSubmit = useCallback((data: Partial<IPort>) => {
     setPendingSaveData(data);
     setSaveDialogOpen(true);
-  };
+  }, []);
 
-  const handleSaveConfirm = async () => {
+  const handleSaveConfirm = useCallback(async () => {
     if (!pendingSaveData) return;
     try {
       await saveMutation.mutateAsync(pendingSaveData);
-      await queryClient.refetchQueries({ queryKey: portsQueryKey });
+      await invalidatePortsList();
       setDialogOpen(false);
       setSelectedPort(null);
       setSaveDialogOpen(false);
@@ -156,23 +139,37 @@ export default function PortMasterPage() {
     } catch {
       // Error handled by mutation
     }
-  };
+  }, [pendingSaveData, saveMutation, invalidatePortsList]);
 
-  const handleCloseDialog = () => {
+  const handleCloseDialog = useCallback(() => {
     setDialogOpen(false);
     setSelectedPort(null);
-  };
+  }, []);
 
-  const handlePageChange = (page: number) => setCurrentPage(page);
-
-  const handlePageSizeChange = (size: number) => {
+  const handlePageChange = useCallback(
+    (page: number) => setCurrentPage(page),
+    [],
+  );
+  const handlePageSizeChange = useCallback((size: number) => {
     setPageSize(size);
     setCurrentPage(1);
-  };
+  }, []);
 
-  const handleRefresh = () => {
-    queryClient.refetchQueries({ queryKey: portsQueryKey });
-  };
+  const handleRefresh = useCallback(
+    () => invalidatePortsList(),
+    [invalidatePortsList],
+  );
+
+  const handleSearchSubmit = useCallback(() => {
+    setSearchFilter(searchInput);
+    setCurrentPage(1);
+  }, [searchInput]);
+
+  const handleSearchClear = useCallback(() => {
+    setSearchInput("");
+    setSearchFilter("");
+    setCurrentPage(1);
+  }, []);
 
   return (
     <div className="flex flex-col gap-4 p-4">
@@ -186,7 +183,7 @@ export default function PortMasterPage() {
         </p>
       </div>
 
-      <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-sm dark:border-slate-700 dark:bg-slate-800/50">
+      <div>
         {hasNoPortRights ? (
           <TableSkeleton showLock rowCount={10} columnCount={6} />
         ) : isLoading ? (
@@ -204,24 +201,12 @@ export default function PortMasterPage() {
             onRefresh={handleRefresh}
             searchFilter={searchInput}
             onSearchChange={setSearchInput}
-            onSearchSubmit={() => {
-              setSearchFilter(searchInput);
-              setCurrentPage(1);
-            }}
-            onSearchClear={() => {
-              setSearchInput("");
-              setSearchFilter("");
-              setCurrentPage(1);
-            }}
+            onSearchSubmit={handleSearchSubmit}
+            onSearchClear={handleSearchClear}
             onPageChange={handlePageChange}
             onPageSizeChange={handlePageSizeChange}
             currentPage={currentPage}
             pageSize={effectivePageSize}
-            pageSizes={
-              preferredPageSize && ![50, 100, 200].includes(preferredPageSize)
-                ? [50, preferredPageSize, 100, 200].sort((a, b) => a - b)
-                : undefined
-            }
             serverSidePagination
             moduleId={moduleId}
             transactionId={transactionId}
