@@ -103,6 +103,10 @@ export interface MasterDataGridProps<T = unknown> {
   tableHeight?: string;
   /** Show group panel ("drag column header here to group"). When false, drag-to-group is disabled. Default true. */
   groupable?: boolean;
+  /** Allow clearing sort (unsort). Default true. */
+  allowUnsort?: boolean;
+  /** Multi-column sort when true; single-column sort when false. Default false. */
+  sortMultiple?: boolean;
   showView?: boolean;
   showEdit?: boolean;
   showDelete?: boolean;
@@ -160,6 +164,8 @@ export function MasterDataGrid<T extends object>({
   searchValue: searchValueProp,
   tableHeight,
   groupable = true,
+  allowUnsort = true,
+  sortMultiple = false,
   showView = true,
   showEdit = true,
   showDelete = true,
@@ -331,8 +337,10 @@ export function MasterDataGrid<T extends object>({
         const applySort =
           !serverSidePagination || ds.sort.length > 0 || !isPagingChange;
         if (applySort) {
-          setSortState(ds.sort);
-          sortGroupRef.current = { ...sortGroupRef.current, sort: ds.sort };
+          // Use undefined when unsorted so Grid clears the column header arrow
+          const nextSort = ds.sort.length ? ds.sort : undefined;
+          setSortState(nextSort);
+          sortGroupRef.current = { ...sortGroupRef.current, sort: nextSort };
         }
       }
       if (ds.group !== undefined) {
@@ -687,7 +695,6 @@ export function MasterDataGrid<T extends object>({
         <Grid
           data={gridData}
           dataItemKey={dataItemKey}
-          sort={sortState}
           onDataStateChange={handleDataStateChange}
           pageable={
             pageable
@@ -702,7 +709,11 @@ export function MasterDataGrid<T extends object>({
           pageSize={gridTakeResolved ?? gridPageSize}
           skip={gridSkipResolved}
           total={gridTotalResolved}
-          sortable={sortable ? { allowUnsort: true, mode: "single" } : false}
+          sortable={
+            sortable
+              ? { allowUnsort, mode: sortMultiple ? "multiple" : "single" }
+              : false
+          }
           filterable={false}
           groupable={groupable}
           resizable
