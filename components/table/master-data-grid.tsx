@@ -178,7 +178,6 @@ export function MasterDataGrid<T extends object>({
   onSearchSubmit,
   onSearchClear,
 }: MasterDataGridProps<T>) {
-  const sortable = true;
   const effectiveTableHeight = tableHeight ?? DEFAULT_TABLE_HEIGHT;
   const t = useTranslations("grid");
   const tc = useTranslations("common");
@@ -366,7 +365,6 @@ export function MasterDataGrid<T extends object>({
     (e: GridColumnsStateChangeEvent) => {
       columnsStateRef.current = e.columnsState;
       setColumnsState(e.columnsState);
-      // Layout is only saved when user clicks "Save layout" button
     },
     [],
   );
@@ -537,7 +535,7 @@ export function MasterDataGrid<T extends object>({
 
   const canSaveLayout = !!(moduleId && transactionId && tableName);
   const showSearchBar = onSearchSubmit != null;
-  const showToolbar = onAdd || onRefresh || canSaveLayout || showSearchBar;
+  const showToolbar = onAdd || onRefresh || showSearchBar;
 
   const gridSearchFields = searchFields ?? baseColumnFields;
   const gridPageSize = pageable ? pageSize : 1000;
@@ -590,7 +588,7 @@ export function MasterDataGrid<T extends object>({
         minWidth={(minWidth ?? (flex ? 120 : undefined)) as number | undefined}
         locked={locked}
         hidden={hidden}
-        sortable={colSortable ?? sortable}
+        sortable={colSortable ?? true}
         filterable={false}
         cells={colCells ?? { data: GridTooltipCell }}
         {...rest}
@@ -623,26 +621,6 @@ export function MasterDataGrid<T extends object>({
                 <RotateCcw size={18} className="mr-1.5 inline" />
                 {t("refresh")}
               </Button>
-            )}
-            {canSaveLayout && (
-              <>
-                <Button
-                  onClick={handleSaveLayout}
-                  title={t("saveLayout")}
-                  disabled={updateLayoutMutation.isPending}
-                >
-                  <Save size={18} className="mr-1.5 inline" />
-                  {t("saveLayout")}
-                </Button>
-                <Button
-                  onClick={handleDefaultLayout}
-                  title={t("defaultLayout")}
-                  disabled={updateLayoutMutation.isPending}
-                >
-                  <LayoutGrid size={18} className="mr-1.5 inline" />
-                  {t("defaultLayout")}
-                </Button>
-              </>
             )}
           </div>
           {showSearchBar && (
@@ -709,11 +687,8 @@ export function MasterDataGrid<T extends object>({
           pageSize={gridTakeResolved ?? gridPageSize}
           skip={gridSkipResolved}
           total={gridTotalResolved}
-          sortable={
-            sortable
-              ? { allowUnsort, mode: sortMultiple ? "multiple" : "single" }
-              : false
-          }
+          defaultSort={initialSortGroup.sort}
+          sortable={{ allowUnsort, mode: sortMultiple ? "multiple" : "single" }}
           filterable={false}
           groupable={groupable}
           resizable
@@ -743,6 +718,26 @@ export function MasterDataGrid<T extends object>({
           <GridToolbar>
             <GridCsvExportButton>{t("excel")}</GridCsvExportButton>
             <GridPdfExportButton>{t("pdf")}</GridPdfExportButton>
+            {canSaveLayout && (
+              <>
+                <Button
+                  onClick={handleSaveLayout}
+                  title={t("saveLayout")}
+                  disabled={updateLayoutMutation.isPending}
+                >
+                  <Save size={18} className="mr-1.5 inline" />
+                  {t("saveLayout")}
+                </Button>
+                <Button
+                  onClick={handleDefaultLayout}
+                  title={t("defaultLayout")}
+                  disabled={updateLayoutMutation.isPending}
+                >
+                  <LayoutGrid size={18} className="mr-1.5 inline" />
+                  {t("defaultLayout")}
+                </Button>
+              </>
+            )}
             <GridToolbarSpacer />
             <GridSearchBox
               placeholder={searchPlaceholder ?? tc("search")}
