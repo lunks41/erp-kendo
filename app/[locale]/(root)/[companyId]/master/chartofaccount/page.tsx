@@ -53,10 +53,15 @@ export default function ChartOfAccountMasterPage() {
   const [searchInput, setSearchInput] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [itemToDelete, setItemToDelete] = useState<IChartOfAccount | null>(null);
+  const [itemToDelete, setItemToDelete] = useState<IChartOfAccount | null>(
+    null,
+  );
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
-  const [pendingSaveData, setPendingSaveData] = useState<Partial<IChartOfAccount> | null>(null);
-  const [selectedItem, setSelectedItem] = useState<IChartOfAccount | null>(null);
+  const [pendingSaveData, setPendingSaveData] =
+    useState<Partial<IChartOfAccount> | null>(null);
+  const [selectedItem, setSelectedItem] = useState<IChartOfAccount | null>(
+    null,
+  );
   const [viewMode, setViewMode] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const preferredPageSize = defaults?.common?.masterGridTotalRecords || 50;
@@ -140,7 +145,10 @@ export default function ChartOfAccountMasterPage() {
     setSelectedItem(null);
   }, []);
 
-  const handlePageChange = useCallback((page: number) => setCurrentPage(page), []);
+  const handlePageChange = useCallback(
+    (page: number) => setCurrentPage(page),
+    [],
+  );
   const handlePageSizeChange = useCallback((size: number) => {
     setPageSize(size);
     setCurrentPage(1);
@@ -220,28 +228,46 @@ export default function ChartOfAccountMasterPage() {
             <div className="space-y-4 py-2">
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="text-slate-500 dark:text-slate-400">GL Code</span>
+                  <span className="text-slate-500 dark:text-slate-400">
+                    GL Code
+                  </span>
                   <p className="font-medium">{selectedItem.glCode}</p>
                 </div>
                 <div>
-                  <span className="text-slate-500 dark:text-slate-400">GL Name</span>
+                  <span className="text-slate-500 dark:text-slate-400">
+                    GL Name
+                  </span>
                   <p className="font-medium">{selectedItem.glName}</p>
                 </div>
                 <div>
-                  <span className="text-slate-500 dark:text-slate-400">Account Type</span>
-                  <p className="font-medium">{selectedItem.accTypeName || "—"}</p>
+                  <span className="text-slate-500 dark:text-slate-400">
+                    Account Type
+                  </span>
+                  <p className="font-medium">
+                    {selectedItem.accTypeName || "—"}
+                  </p>
                 </div>
                 <div>
-                  <span className="text-slate-500 dark:text-slate-400">Account Group</span>
-                  <p className="font-medium">{selectedItem.accGroupName || "—"}</p>
+                  <span className="text-slate-500 dark:text-slate-400">
+                    Account Group
+                  </span>
+                  <p className="font-medium">
+                    {selectedItem.accGroupName || "—"}
+                  </p>
                 </div>
                 <div className="col-span-2">
-                  <span className="text-slate-500 dark:text-slate-400">Remarks</span>
+                  <span className="text-slate-500 dark:text-slate-400">
+                    Remarks
+                  </span>
                   <p className="font-medium">{selectedItem.remarks || "—"}</p>
                 </div>
                 <div>
-                  <span className="text-slate-500 dark:text-slate-400">Active</span>
-                  <p className="font-medium">{selectedItem.isActive ? "Yes" : "No"}</p>
+                  <span className="text-slate-500 dark:text-slate-400">
+                    Active
+                  </span>
+                  <p className="font-medium">
+                    {selectedItem.isActive ? "Yes" : "No"}
+                  </p>
                 </div>
               </div>
               <DialogActionsBar>
@@ -252,11 +278,6 @@ export default function ChartOfAccountMasterPage() {
             </div>
           ) : (
             <>
-              {!selectedItem && (
-                <p className="mb-4 text-sm text-slate-500 dark:text-slate-400">
-                  Add a new chart of account (GL code).
-                </p>
-              )}
               <ChartOfAccountForm
                 key={selectedItem?.glId ?? "new"}
                 initialData={selectedItem}
@@ -279,7 +300,9 @@ export default function ChartOfAccountMasterPage() {
         }}
         onConfirm={handleSaveConfirm}
         type="save"
-        title={selectedItem ? "Update Chart Of Account" : "Create Chart Of Account"}
+        title={
+          selectedItem ? "Update Chart Of Account" : "Create Chart Of Account"
+        }
         message={
           selectedItem
             ? `Are you sure you want to update "${selectedItem.glName}"?`
