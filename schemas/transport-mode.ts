@@ -1,7 +1,7 @@
 import * as z from "zod"
 
 export const transportModeSchema = z.object({
-  transportModeId: z.number(),
+  transportModeId: z.number().optional(),
   transportModeCode: z
     .string()
     .min(1, { message: "transport mode code is required" })

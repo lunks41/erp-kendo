@@ -1,7 +1,7 @@
 import * as z from "zod"
 
 export const productSchema = z.object({
-  productId: z.number(),
+  productId: z.number().optional(),
 
   productCode: z
     .string()

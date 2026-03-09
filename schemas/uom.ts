@@ -1,7 +1,7 @@
 import * as z from "zod"
 
 export const uomSchema = z.object({
-  uomId: z.number().min(0, { message: "UOM id is required" }),
+  uomId: z.number().optional(),
   uomCode: z
     .string()
     .min(1, { message: "UOM code is required" })

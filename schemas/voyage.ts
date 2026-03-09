@@ -1,7 +1,7 @@
 import * as z from "zod"
 
 export const voyageSchema = z.object({
-  voyageId: z.number().min(0, { message: "voyage id is required" }),
+  voyageId: z.number().optional(),
   voyageNo: z
     .string()
     .min(2, { message: "voyage number is required" })

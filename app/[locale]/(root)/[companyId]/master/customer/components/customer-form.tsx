@@ -2,11 +2,6 @@
 
 import { useEffect, useMemo } from "react";
 import { ICustomer } from "@/interfaces/customer";
-import type {
-  IBankLookup,
-  ICreditTermLookup,
-  ICurrencyLookup,
-} from "@/interfaces/lookup";
 import { customerSchema } from "@/schemas/customer";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -26,14 +21,7 @@ import {
   FormCheckbox,
   FormTextArea,
 } from "@/components/ui/form";
-import {
-  useAccountSetupLookup,
-  useBankLookup,
-  useCreditTermLookup,
-  useCurrencyLookup,
-  useCustomerLookup,
-  useSupplierLookup,
-} from "@/hooks/use-lookup";
+import { useCustomerLookup } from "@/hooks/use-lookup";
 import { CustomerCodeAutoComplete } from "@/components/ui/autocomplete/customer-code-autocomplete";
 import { Form } from "@/components/ui/form";
 
@@ -91,106 +79,7 @@ export default function CustomerForm({
   const parentCustomerId = Number(watch("parentCustomerId")) || 0;
   const supplierId = Number(watch("supplierId")) || 0;
 
-  const { data: bankData = [] } = useBankLookup();
-  const { data: currencyData = [] } = useCurrencyLookup();
-  const { data: creditTermData = [] } = useCreditTermLookup();
-  const { data: accSetupData = [] } = useAccountSetupLookup();
   const { data: customerData = [] } = useCustomerLookup();
-  const { data: supplierData = [] } = useSupplierLookup();
-
-  const bankValue = useMemo(
-    () =>
-      bankId > 0
-        ? (bankData.find((b) => b.bankId === bankId) ??
-          (initialData && initialData.bankId === bankId
-            ? {
-                bankId,
-                bankCode: initialData.bankCode ?? "",
-                bankName: initialData.bankName ?? "",
-                currencyId: 0,
-              }
-            : null))
-        : null,
-    [bankId, bankData, initialData],
-  );
-  const currencyValue = useMemo(
-    () =>
-      currencyId > 0
-        ? (currencyData.find((c) => c.currencyId === currencyId) ??
-          (initialData && initialData.currencyId === currencyId
-            ? {
-                currencyId,
-                currencyCode: initialData.currencyCode ?? "",
-                currencyName: initialData.currencyName ?? "",
-                isMultiply: false,
-              }
-            : null))
-        : null,
-    [currencyId, currencyData, initialData],
-  );
-  const creditTermValue = useMemo(
-    () =>
-      creditTermId > 0
-        ? (creditTermData.find((c) => c.creditTermId === creditTermId) ??
-          (initialData && initialData.creditTermId === creditTermId
-            ? {
-                creditTermId,
-                creditTermCode: initialData.creditTermCode ?? "",
-                creditTermName: initialData.creditTermName ?? "",
-              }
-            : null))
-        : null,
-    [creditTermId, creditTermData, initialData],
-  );
-  const accSetupValue = useMemo(
-    () =>
-      accSetupId > 0
-        ? (accSetupData.find((a) => a.accSetupId === accSetupId) ??
-          (initialData && initialData.accSetupId === accSetupId
-            ? {
-                accSetupId,
-                accSetupCode: initialData.accSetupCode ?? "",
-                accSetupName: initialData.accSetupName ?? "",
-              }
-            : null))
-        : null,
-    [accSetupId, accSetupData, initialData],
-  );
-  const parentCustomerValue = useMemo(
-    () =>
-      parentCustomerId > 0
-        ? (customerData.find((c) => c.customerId === parentCustomerId) ??
-          (initialData && initialData.parentCustomerId === parentCustomerId
-            ? {
-                customerId: parentCustomerId,
-                customerCode: initialData.parentCustomerCode ?? "",
-                customerName: initialData.parentCustomerName ?? "",
-                currencyId: 0,
-                creditTermId: 0,
-                bankId: 0,
-              }
-            : null))
-        : null,
-    [parentCustomerId, customerData, initialData],
-  );
-  const supplierValue = useMemo(
-    () =>
-      supplierId > 0
-        ? (supplierData.find((s) => s.supplierId === supplierId) ??
-          (initialData && initialData.supplierId === supplierId
-            ? {
-                supplierId,
-                supplierCode: initialData.supplierCode ?? "",
-                supplierName: initialData.supplierName ?? "",
-                currencyId: 0,
-                creditTermId: 0,
-                bankId: 0,
-                supplierRegNo: "",
-              }
-            : null))
-        : null,
-    [supplierId, supplierData, initialData],
-  );
 
   const customerCodeValue = useMemo(() => {
     const code = String(watch("customerCode") ?? "").trim();
@@ -322,8 +211,8 @@ export default function CustomerForm({
                 valid={!errors.customerRegNo}
               />
               <BankCombobox
-                value={bankValue}
-                onChange={(v: IBankLookup | null) =>
+                value={bankId ? { bankId } : null}
+                onChange={(v) =>
                   setValue("bankId", v?.bankId ?? 0, { shouldValidate: true })
                 }
                 label="Bank"
@@ -333,8 +222,8 @@ export default function CustomerForm({
             </div>
             <div className="grid grid-cols-6 gap-2">
               <CurrencyCombobox
-                value={currencyValue}
-                onChange={(v: ICurrencyLookup | null) =>
+                value={currencyId ? { currencyId } : null}
+                onChange={(v) =>
                   setValue("currencyId", v?.currencyId ?? 0, {
                     shouldValidate: true,
                   })
@@ -345,8 +234,8 @@ export default function CustomerForm({
               />
 
               <CreditTermCombobox
-                value={creditTermValue}
-                onChange={(v: ICreditTermLookup | null) =>
+                value={creditTermId ? { creditTermId } : null}
+                onChange={(v) =>
                   setValue("creditTermId", v?.creditTermId ?? 0, {
                     shouldValidate: true,
                   })
@@ -356,7 +245,7 @@ export default function CustomerForm({
                 error={errors.creditTermId?.message}
               />
               <CustomerCombobox
-                value={parentCustomerValue}
+                value={parentCustomerId ? { customerId: parentCustomerId } : null}
                 onChange={(v) =>
                   setValue("parentCustomerId", v?.customerId ?? 0)
                 }
@@ -364,7 +253,7 @@ export default function CustomerForm({
               />
 
               <AccountSetupCombobox
-                value={accSetupValue}
+                value={accSetupId ? { accSetupId } : null}
                 onChange={(v) =>
                   setValue("accSetupId", v?.accSetupId ?? 0, {
                     shouldValidate: true,
@@ -376,7 +265,7 @@ export default function CustomerForm({
               />
 
               <SupplierCombobox
-                value={supplierValue}
+                value={supplierId ? { supplierId } : null}
                 onChange={(v) => setValue("supplierId", v?.supplierId ?? 0)}
                 label="Supplier"
               />

@@ -17,7 +17,8 @@ import type { IBargeLookup } from "@/interfaces/lookup";
  * For very large lists (e.g. customers, COA), consider Filtering with Remote Data + Virtualization.
  */
 export interface BargeComboboxProps {
-  value?: IBargeLookup | null;
+  /** Selected item or partial { bargeId } for resolution from data */
+  value?: IBargeLookup | { bargeId?: number } | null;
   onChange?: (value: IBargeLookup | null) => void;
   onBlur?: () => void;
   isDisable?: boolean;

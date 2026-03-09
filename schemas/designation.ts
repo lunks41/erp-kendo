@@ -1,7 +1,7 @@
 import * as z from "zod"
 
 export const designationSchema = z.object({
-  designationId: z.number(),
+  designationId: z.number().optional(),
 
   designationCode: z
     .string()

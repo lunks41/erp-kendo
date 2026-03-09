@@ -17,7 +17,8 @@ import type { IPortLookup } from "@/interfaces/lookup";
  * For very large lists (e.g. customers, COA), consider Filtering with Remote Data + Virtualization.
  */
 export interface PortComboboxProps {
-  value?: IPortLookup | null;
+  /** Selected item or partial { portId } for resolution from data */
+  value?: IPortLookup | { portId?: number } | null;
   onChange?: (value: IPortLookup | null) => void;
   onBlur?: () => void;
   isDisable?: boolean;

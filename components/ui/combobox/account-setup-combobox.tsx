@@ -17,7 +17,8 @@ import type { IAccountSetupLookup } from "@/interfaces/lookup";
  * For very large lists (e.g. customers, COA), consider Filtering with Remote Data + Virtualization.
  */
 export interface AccountSetupComboboxProps {
-  value?: IAccountSetupLookup | null;
+  /** Selected item or partial { accSetupId } for resolution from data */
+  value?: IAccountSetupLookup | { accSetupId?: number } | null;
   onChange?: (value: IAccountSetupLookup | null) => void;
   onBlur?: () => void;
   isDisable?: boolean;

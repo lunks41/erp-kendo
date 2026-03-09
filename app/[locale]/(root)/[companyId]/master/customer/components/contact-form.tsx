@@ -1,21 +1,24 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { ICustomerContact } from "@/interfaces/customer"
+import { useEffect, useState } from "react";
+import { ICustomerContact } from "@/interfaces/customer";
 import {
   CustomerContactSchemaType,
   customerContactSchema,
-} from "@/schemas/customer"
-import { useAuthStore } from "@/stores/auth-store"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { format } from "date-fns"
-import { useForm } from "react-hook-form"
-import { Button } from "@progress/kendo-react-buttons"
-import { Badge } from "@progress/kendo-react-indicators"
-import { ExpansionPanel, ExpansionPanelContent } from "@progress/kendo-react-layout"
+} from "@/schemas/customer";
+import { useAuthStore } from "@/stores/auth-store";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { format } from "date-fns";
+import { useForm } from "react-hook-form";
+import { Button } from "@progress/kendo-react-buttons";
+import { Badge } from "@progress/kendo-react-indicators";
+import {
+  ExpansionPanel,
+  ExpansionPanelContent,
+} from "@progress/kendo-react-layout";
 
-import { FormInput, FormSwitch } from "@/components/ui/form"
-import { Form } from "@/components/ui/form"
+import { FormInput, FormCheckbox } from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 
 // Default values for the contact form
 const defaultContactSchemaType: CustomerContactSchemaType = {
@@ -33,15 +36,15 @@ const defaultContactSchemaType: CustomerContactSchemaType = {
   isDefault: false,
   messId: "",
   contactMessType: "",
-}
+};
 
 interface CustomerContactFormProps {
-  initialData?: ICustomerContact
-  customerId?: number
-  submitAction: (data: CustomerContactSchemaType) => void
-  onCancelAction?: () => void
-  isSubmitting?: boolean
-  isReadOnly?: boolean
+  initialData?: ICustomerContact;
+  customerId?: number;
+  submitAction: (data: CustomerContactSchemaType) => void;
+  onCancelAction?: () => void;
+  isSubmitting?: boolean;
+  isReadOnly?: boolean;
 }
 
 export function CustomerContactForm({
@@ -52,13 +55,13 @@ export function CustomerContactForm({
   isSubmitting = false,
   isReadOnly = false,
 }: CustomerContactFormProps) {
-  const { decimals } = useAuthStore()
-  const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
-  const [auditExpanded, setAuditExpanded] = useState(false)
+  const { decimals } = useAuthStore();
+  const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss";
+  const [auditExpanded, setAuditExpanded] = useState(false);
 
   // Validate that customerId is provided and valid
   if (!customerId || customerId <= 0) {
-    throw new Error("Valid customerId is required for contact form")
+    throw new Error("Valid customerId is required for contact form");
   }
   const form = useForm<CustomerContactSchemaType>({
     resolver: zodResolver(customerContactSchema),
@@ -83,12 +86,12 @@ export function CustomerContactForm({
           ...defaultContactSchemaType,
           customerId: customerId,
         },
-  })
-  const { control } = form
+  });
+  const { control } = form;
 
   const onSubmit = (data: CustomerContactSchemaType) => {
-    console.log("Form submitted with data:", data)
-    console.log("Form validation errors:", form.formState.errors)
+    console.log("Form submitted with data:", data);
+    console.log("Form validation errors:", form.formState.errors);
 
     // Process and handle null values according to CustomerContactSchemaType schema
     const contactData = {
@@ -112,11 +115,11 @@ export function CustomerContactForm({
       isDefault: data.isDefault ?? false,
       isFinance: data.isFinance ?? false,
       isSales: data.isSales ?? false,
-    }
-    console.log("Processed contact data:", contactData)
-    console.log("Calling submitAction...")
-    submitAction(contactData)
-  }
+    };
+    console.log("Processed contact data:", contactData);
+    console.log("Calling submitAction...");
+    submitAction(contactData);
+  };
 
   useEffect(() => {
     form.reset(
@@ -140,16 +143,16 @@ export function CustomerContactForm({
         : {
             ...defaultContactSchemaType,
             customerId: customerId,
-          }
-    )
-  }, [initialData, customerId, form])
+          },
+    );
+  }, [initialData, customerId, form]);
 
   return (
     <div className="max-w flex flex-col gap-2">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit, (errors) => {
-            console.log("Form validation failed:", errors)
+            console.log("Form validation failed:", errors);
           })}
           className="space-y-2"
         >
@@ -209,29 +212,29 @@ export function CustomerContactForm({
             </div>
 
             <div className="grid grid-cols-4 gap-2">
-              <FormSwitch
+              <FormCheckbox
                 control={control}
                 name="isActive"
                 label="Active Status"
-                isDisable={isReadOnly}
+                disabled={isReadOnly}
               />
-              <FormSwitch
+              <FormCheckbox
                 control={control}
                 name="isDefault"
                 label="Default Contact"
-                isDisable={isReadOnly}
+                disabled={isReadOnly}
               />
-              <FormSwitch
+              <FormCheckbox
                 control={control}
                 name="isSales"
                 label="Sales Contact"
-                isDisable={isReadOnly}
+                disabled={isReadOnly}
               />
-              <FormSwitch
+              <FormCheckbox
                 control={control}
                 name="isFinance"
                 label="Finance Contact"
-                isDisable={isReadOnly}
+                disabled={isReadOnly}
               />
             </div>
 
@@ -249,9 +252,15 @@ export function CustomerContactForm({
                     title="View Audit Trail"
                     subtitle={
                       initialData.createDate || initialData.editDate ? (
-                        <Badge themeColor="secondary" fillMode="outline" size="small">
+                        <Badge
+                          themeColor="secondary"
+                          fillMode="outline"
+                          size="small"
+                        >
                           {initialData.createDate ? "Created" : ""}
-                          {initialData.editDate ? (initialData.createDate ? " • " : "") + "Modified" : ""}
+                          {initialData.editDate
+                            ? (initialData.createDate ? " • " : "") + "Modified"
+                            : ""}
                         </Badge>
                       ) : undefined
                     }
@@ -262,27 +271,45 @@ export function CustomerContactForm({
                         {initialData.createDate && (
                           <div className="space-y-2">
                             <div className="flex items-center justify-between">
-                              <span className="text-foreground text-sm font-medium">Created By</span>
-                              <Badge themeColor="secondary" fillMode="outline" size="small">
+                              <span className="text-foreground text-sm font-medium">
+                                Created By
+                              </span>
+                              <Badge
+                                themeColor="secondary"
+                                fillMode="outline"
+                                size="small"
+                              >
                                 {initialData.createBy}
                               </Badge>
                             </div>
                             <div className="text-muted-foreground text-sm">
-                              {format(new Date(initialData.createDate), datetimeFormat)}
+                              {format(
+                                new Date(initialData.createDate),
+                                datetimeFormat,
+                              )}
                             </div>
                           </div>
                         )}
                         {initialData.editBy && (
                           <div className="space-y-2">
                             <div className="flex items-center justify-between">
-                              <span className="text-foreground text-sm font-medium">Last Modified By</span>
-                              <Badge themeColor="secondary" fillMode="outline" size="small">
+                              <span className="text-foreground text-sm font-medium">
+                                Last Modified By
+                              </span>
+                              <Badge
+                                themeColor="secondary"
+                                fillMode="outline"
+                                size="small"
+                              >
                                 {initialData.editBy}
                               </Badge>
                             </div>
                             <div className="text-muted-foreground text-sm">
                               {initialData.editDate
-                                ? format(new Date(initialData.editDate), datetimeFormat)
+                                ? format(
+                                    new Date(initialData.editDate),
+                                    datetimeFormat,
+                                  )
                                 : "-"}
                             </div>
                           </div>
@@ -298,7 +325,11 @@ export function CustomerContactForm({
               {isReadOnly ? "Close" : "Cancel"}
             </Button>
             {!isReadOnly && (
-              <Button themeColor="primary" type="submit" disabled={isSubmitting}>
+              <Button
+                themeColor="primary"
+                type="submit"
+                disabled={isSubmitting}
+              >
                 {isSubmitting ? "Saving..." : initialData ? "Update" : "Create"}
               </Button>
             )}
@@ -306,5 +337,5 @@ export function CustomerContactForm({
         </form>
       </Form>
     </div>
-  )
+  );
 }

@@ -1,23 +1,26 @@
-"use client"
+"use client";
 
-import { useEffect, useMemo, useState } from "react"
-import { ICustomerAddress } from "@/interfaces/customer"
+import { useEffect, useMemo, useState } from "react";
+import { ICustomerAddress } from "@/interfaces/customer";
 import {
   CustomerAddressSchemaType,
   customerAddressSchema,
-} from "@/schemas/customer"
-import { useAuthStore } from "@/stores/auth-store"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { format } from "date-fns"
-import { useForm } from "react-hook-form"
-import { Button } from "@progress/kendo-react-buttons"
-import { Badge } from "@progress/kendo-react-indicators"
-import { ExpansionPanel, ExpansionPanelContent } from "@progress/kendo-react-layout"
+} from "@/schemas/customer";
+import { useAuthStore } from "@/stores/auth-store";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { format } from "date-fns";
+import { useForm } from "react-hook-form";
+import { Button } from "@progress/kendo-react-buttons";
+import { Badge } from "@progress/kendo-react-indicators";
+import {
+  ExpansionPanel,
+  ExpansionPanelContent,
+} from "@progress/kendo-react-layout";
 
-import { CountryCombobox } from "@/components/ui/combobox"
-import { FormInput, FormSwitch, FormTextArea } from "@/components/ui/form"
-import { useCountryLookup } from "@/hooks/use-lookup"
-import { Form } from "@/components/ui/form"
+import { CountryCombobox } from "@/components/ui/combobox";
+import { FormInput, FormCheckbox, FormTextArea } from "@/components/ui/form";
+import { useCountryLookup } from "@/hooks/use-lookup";
+import { Form } from "@/components/ui/form";
 
 // Default values for the address form
 const defaultAddressSchemaType: CustomerAddressSchemaType = {
@@ -39,15 +42,15 @@ const defaultAddressSchemaType: CustomerAddressSchemaType = {
   isDeliveryAdd: false,
   isFinAdd: false,
   isSalesAdd: false,
-}
+};
 
 interface CustomerAddressFormProps {
-  initialData?: ICustomerAddress
-  customerId?: number
-  submitAction: (data: CustomerAddressSchemaType) => void
-  onCancelAction?: () => void
-  isSubmitting?: boolean
-  isReadOnly?: boolean
+  initialData?: ICustomerAddress;
+  customerId?: number;
+  submitAction: (data: CustomerAddressSchemaType) => void;
+  onCancelAction?: () => void;
+  isSubmitting?: boolean;
+  isReadOnly?: boolean;
 }
 
 export function CustomerAddressForm({
@@ -58,13 +61,13 @@ export function CustomerAddressForm({
   isSubmitting = false,
   isReadOnly = false,
 }: CustomerAddressFormProps) {
-  const { decimals } = useAuthStore()
-  const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss"
-  const [auditExpanded, setAuditExpanded] = useState(false)
+  const { decimals } = useAuthStore();
+  const datetimeFormat = decimals[0]?.longDateFormat || "dd/MM/yyyy HH:mm:ss";
+  const [auditExpanded, setAuditExpanded] = useState(false);
 
   // Validate that customerId is provided and valid
   if (!customerId || customerId <= 0) {
-    throw new Error("Valid customerId is required for address form")
+    throw new Error("Valid customerId is required for address form");
   }
   const form = useForm<CustomerAddressSchemaType>({
     resolver: zodResolver(customerAddressSchema),
@@ -93,24 +96,24 @@ export function CustomerAddressForm({
           ...defaultAddressSchemaType,
           customerId: customerId,
         },
-  })
-  const { control, setValue, watch } = form
-  const countryId = Number(watch("countryId")) || 0
-  const { data: countryData = [] } = useCountryLookup()
+  });
+  const { control, setValue, watch } = form;
+  const countryId = Number(watch("countryId")) || 0;
+  const { data: countryData = [] } = useCountryLookup();
   const countryValue = useMemo(
     () =>
       countryId > 0
-        ? countryData.find((c) => c.countryId === countryId) ??
+        ? (countryData.find((c) => c.countryId === countryId) ??
           (initialData && initialData.countryId === countryId
             ? { countryId, countryCode: "", countryName: "" }
-            : null)
+            : null))
         : null,
-    [countryId, countryData, initialData]
-  )
+    [countryId, countryData, initialData],
+  );
 
   const onSubmit = (data: CustomerAddressSchemaType) => {
-    console.log("Form submitted with data:", data)
-    console.log("Form validation errors:", form.formState.errors)
+    console.log("Form submitted with data:", data);
+    console.log("Form validation errors:", form.formState.errors);
 
     // Process the form data according to CustomerAddressSchemaType schema
     const addressData = {
@@ -137,12 +140,12 @@ export function CustomerAddressForm({
       isDeliveryAdd: data.isDeliveryAdd ?? false,
       isFinAdd: data.isFinAdd ?? false,
       isSalesAdd: data.isSalesAdd ?? false,
-    }
+    };
 
-    console.log("Processed address data:", addressData)
-    console.log("Calling submitAction...")
-    submitAction(addressData)
-  }
+    console.log("Processed address data:", addressData);
+    console.log("Calling submitAction...");
+    submitAction(addressData);
+  };
 
   useEffect(() => {
     form.reset(
@@ -170,16 +173,16 @@ export function CustomerAddressForm({
         : {
             ...defaultAddressSchemaType,
             customerId: customerId,
-          }
-    )
-  }, [initialData, customerId, form])
+          },
+    );
+  }, [initialData, customerId, form]);
 
   return (
     <div className="max-w flex flex-col gap-2">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit, (errors) => {
-            console.log("Form validation failed:", errors)
+            console.log("Form validation failed:", errors);
           })}
           className="space-y-4"
         >
@@ -240,7 +243,11 @@ export function CustomerAddressForm({
               />
               <CountryCombobox
                 value={countryValue}
-                onChange={(v) => setValue("countryId", v?.countryId ?? 0, { shouldValidate: true })}
+                onChange={(v) =>
+                  setValue("countryId", v?.countryId ?? 0, {
+                    shouldValidate: true,
+                  })
+                }
                 label="Country"
                 isRequired
                 error={form.formState.errors.countryId?.message}
@@ -263,35 +270,35 @@ export function CustomerAddressForm({
             </div>
 
             <div className="grid grid-cols-6 gap-2">
-              <FormSwitch
+              <FormCheckbox
                 control={control}
                 name="isActive"
                 label="Active Status"
-                isDisable={isReadOnly}
+                disabled={isReadOnly}
               />
-              <FormSwitch
+              <FormCheckbox
                 control={control}
                 name="isDefaultAdd"
                 label="Default Address"
-                isDisable={isReadOnly}
+                disabled={isReadOnly}
               />
-              <FormSwitch
+              <FormCheckbox
                 control={control}
                 name="isDeliveryAdd"
                 label="Delivery Address"
-                isDisable={isReadOnly}
+                disabled={isReadOnly}
               />
-              <FormSwitch
+              <FormCheckbox
                 control={control}
                 name="isFinAdd"
                 label="Finance Address"
-                isDisable={isReadOnly}
+                disabled={isReadOnly}
               />
-              <FormSwitch
+              <FormCheckbox
                 control={control}
                 name="isSalesAdd"
                 label="Sales Address"
-                isDisable={isReadOnly}
+                disabled={isReadOnly}
               />
             </div>
 
@@ -309,9 +316,15 @@ export function CustomerAddressForm({
                     title="View Audit Trail"
                     subtitle={
                       initialData.createDate || initialData.editDate ? (
-                        <Badge themeColor="secondary" fillMode="outline" size="small">
+                        <Badge
+                          themeColor="secondary"
+                          fillMode="outline"
+                          size="small"
+                        >
                           {initialData.createDate ? "Created" : ""}
-                          {initialData.editDate ? (initialData.createDate ? " • " : "") + "Modified" : ""}
+                          {initialData.editDate
+                            ? (initialData.createDate ? " • " : "") + "Modified"
+                            : ""}
                         </Badge>
                       ) : undefined
                     }
@@ -322,27 +335,45 @@ export function CustomerAddressForm({
                         {initialData.createDate && (
                           <div className="space-y-2">
                             <div className="flex items-center justify-between">
-                              <span className="text-foreground text-sm font-medium">Created By</span>
-                              <Badge themeColor="secondary" fillMode="outline" size="small">
+                              <span className="text-foreground text-sm font-medium">
+                                Created By
+                              </span>
+                              <Badge
+                                themeColor="secondary"
+                                fillMode="outline"
+                                size="small"
+                              >
                                 {initialData.createBy}
                               </Badge>
                             </div>
                             <div className="text-muted-foreground text-sm">
-                              {format(new Date(initialData.createDate), datetimeFormat)}
+                              {format(
+                                new Date(initialData.createDate),
+                                datetimeFormat,
+                              )}
                             </div>
                           </div>
                         )}
                         {initialData.editBy && (
                           <div className="space-y-2">
                             <div className="flex items-center justify-between">
-                              <span className="text-foreground text-sm font-medium">Last Modified By</span>
-                              <Badge themeColor="secondary" fillMode="outline" size="small">
+                              <span className="text-foreground text-sm font-medium">
+                                Last Modified By
+                              </span>
+                              <Badge
+                                themeColor="secondary"
+                                fillMode="outline"
+                                size="small"
+                              >
                                 {initialData.editBy}
                               </Badge>
                             </div>
                             <div className="text-muted-foreground text-sm">
                               {initialData.editDate
-                                ? format(new Date(initialData.editDate), datetimeFormat)
+                                ? format(
+                                    new Date(initialData.editDate),
+                                    datetimeFormat,
+                                  )
                                 : "-"}
                             </div>
                           </div>
@@ -358,7 +389,11 @@ export function CustomerAddressForm({
               {isReadOnly ? "Close" : "Cancel"}
             </Button>
             {!isReadOnly && (
-              <Button themeColor="primary" type="submit" disabled={isSubmitting}>
+              <Button
+                themeColor="primary"
+                type="submit"
+                disabled={isSubmitting}
+              >
                 {isSubmitting ? "Saving..." : initialData ? "Update" : "Create"}
               </Button>
             )}
@@ -366,5 +401,5 @@ export function CustomerAddressForm({
         </form>
       </Form>
     </div>
-  )
+  );
 }

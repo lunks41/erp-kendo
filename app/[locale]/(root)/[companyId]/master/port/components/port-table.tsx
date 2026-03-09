@@ -1,7 +1,8 @@
 "use client";
 
 import { memo, useMemo } from "react";
-import { useTranslations } from "next-intl";
+import { Check, X } from "lucide-react";
+import { useNamespaceTranslations } from "@/hooks/use-form-translations";
 import type { MasterDataGridColumn } from "@/components/table";
 import { MasterDataGrid } from "@/components/table";
 import type { IPort } from "@/interfaces/port";
@@ -44,7 +45,8 @@ export interface PortTableProps {
 }
 
 function PortTableInner(props: PortTableProps) {
-  const t = useTranslations("portTable");
+  const t = useNamespaceTranslations("port");
+  const tc = useNamespaceTranslations("common");
   const { decimals } = useAuthStore();
   const datetimeFormat = decimals[0]?.longDateFormat ?? "dd/MM/yyyy HH:mm:ss";
 
@@ -57,8 +59,8 @@ function PortTableInner(props: PortTableProps) {
         minWidth: 60,
         hidden: true,
       },
-      { field: "portCode", title: t("code"), width: 100, minWidth: 80 },
-      { field: "portName", title: t("name"), flex: true, minWidth: 150 },
+      { field: "portCode", title: tc("code"), width: 100, minWidth: 80 },
+      { field: "portName", title: tc("name"), flex: true, minWidth: 150 },
       {
         field: "portShortName",
         title: t("shortName"),
@@ -73,37 +75,43 @@ function PortTableInner(props: PortTableProps) {
       },
       {
         field: "isActive",
-        title: t("active"),
+        title: tc("active"),
         width: 100,
         cells: {
           data: (props) => {
             const isActive = (props.dataItem as IPort).isActive;
-            const label = isActive ? t("active") : t("inactive");
+            const label = isActive ? tc("active") : tc("inactive");
             const bgClass = isActive
-              ? "bg-emerald-600 text-white"
-              : "bg-red-600 text-white";
+              ? "bg-emerald-500 text-white"
+              : "bg-red-500 text-white";
             return (
               <td {...props.tdProps} className="k-table-td">
                 <span
-                  className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium ${bgClass}`}
+                  className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-xs font-medium ${bgClass}`}
+                  title={label}
+                  aria-label={label}
                 >
-                  {label}
+                  {isActive ? (
+                    <Check className="h-3 w-3" />
+                  ) : (
+                    <X className="h-3 w-3" />
+                  )}
                 </span>
               </td>
             );
           },
         },
       },
-      { field: "remarks", title: t("remarks"), flex: true, minWidth: 100 },
+      { field: "remarks", title: tc("remarks"), flex: true, minWidth: 100 },
       {
         field: "createBy",
-        title: t("createdBy"),
+        title: tc("createdBy"),
         width: 100,
         media: "(min-width: 992px)",
       },
       {
         field: "createDate",
-        title: t("createdDate"),
+        title: tc("createdDate"),
         width: 180,
         cells: {
           data: (props) => {
@@ -123,14 +131,14 @@ function PortTableInner(props: PortTableProps) {
       },
       {
         field: "editBy",
-        title: t("editedBy"),
+        title: tc("editedBy"),
         width: 100,
         media: "(min-width: 1200px)",
       },
 
       {
         field: "editDate",
-        title: t("editedDate"),
+        title: tc("editedDate"),
         width: 180,
         media: "(min-width: 1200px)",
         cells: {
@@ -150,7 +158,7 @@ function PortTableInner(props: PortTableProps) {
         },
       },
     ],
-    [datetimeFormat, t],
+    [datetimeFormat, t, tc],
   );
 
   const {

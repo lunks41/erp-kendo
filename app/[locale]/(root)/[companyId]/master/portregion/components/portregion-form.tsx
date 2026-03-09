@@ -1,15 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useNamespaceTranslations } from "@/hooks/use-form-translations";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { CountryCombobox } from "@/components/ui/combobox/country-combobox";
-import { FormInput, FormSwitch, FormTextArea } from "@/components/ui/form";
-import { useCountryLookup } from "@/hooks/use-lookup";
-import type { ICountryLookup } from "@/interfaces/lookup";
+import { FormInput, FormCheckbox, FormTextArea } from "@/components/ui/form";
 import type { IPortRegion } from "@/interfaces/portregion";
 import { formatDateTime } from "@/lib/date-utils";
-import { portregionSchema, type PortRegionSchemaType } from "@/schemas/portregion";
+import {
+  portregionSchema,
+  type PortRegionSchemaType,
+} from "@/schemas/portregion";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@progress/kendo-react-buttons";
 import { useForm } from "react-hook-form";
@@ -32,8 +33,8 @@ export function PortRegionForm({
   isLoading = false,
   isViewMode = false,
 }: PortRegionFormProps) {
-  const t = useTranslations("portRegionForm");
-  const tc = useTranslations("common");
+  const t = useNamespaceTranslations("portRegion");
+  const tc = useNamespaceTranslations("common");
   const { decimals } = useAuthStore();
   const datetimeFormat = decimals[0]?.longDateFormat ?? "dd/MM/yyyy HH:mm:ss";
   const isEdit = !!initialData?.portRegionId;
@@ -59,8 +60,6 @@ export function PortRegionForm({
   });
 
   const countryId = watch("countryId");
-  const countryIdNum = Number(countryId) || 0;
-  const { data: countryData = [] } = useCountryLookup();
 
   useEffect(() => {
     if (!initialData) return;
@@ -74,7 +73,7 @@ export function PortRegionForm({
     });
   }, [initialData, reset]);
 
-  const handleCountryChange = (value: ICountryLookup | null) => {
+  const handleCountryChange = (value: { countryId?: number } | null) => {
     setValue("countryId", value?.countryId ?? 0, {
       shouldValidate: true,
     });
@@ -86,22 +85,6 @@ export function PortRegionForm({
       companyId: Number(companyId),
     });
   };
-
-  const countryValue: ICountryLookup | null =
-    countryIdNum > 0
-      ? (countryData.find((c) => c.countryId === countryIdNum) ??
-        (initialData && Number(initialData.countryId) === countryIdNum
-          ? {
-              countryId: countryIdNum,
-              countryCode: initialData.countryCode ?? "",
-              countryName: initialData.countryName ?? "",
-            }
-          : {
-              countryId: countryIdNum,
-              countryCode: "",
-              countryName: "",
-            }))
-      : null;
 
   return (
     <form onSubmit={handleSubmit(onFormSubmit)} className="flex flex-col gap-3">
@@ -125,7 +108,7 @@ export function PortRegionForm({
           valid={!errors.portRegionName}
         />
         <CountryCombobox
-          value={countryValue}
+          value={countryId ? { countryId } : null}
           onChange={handleCountryChange}
           isDisable={isViewMode || isLoading}
           placeholder={t("selectCountry")}
@@ -136,21 +119,18 @@ export function PortRegionForm({
         <FormTextArea
           control={control}
           name="remarks"
-          label={t("remarks")}
+          label={tc("remarks")}
           isDisable={isViewMode}
           rows={3}
           className="sm:col-span-2"
           error={errors.remarks?.message}
           valid={!errors.remarks}
         />
-        <FormSwitch
+        <FormCheckbox
           control={control}
           name="isActive"
-          label={t("activeStatus")}
-          isDisable={isLoading}
-          onLabel={t("onLabel")}
-          offLabel={t("offLabel")}
-          className="sm:col-span-2"
+          label={tc("activeStatus")}
+          disabled={isLoading}
         />
       </div>
 
@@ -161,14 +141,14 @@ export function PortRegionForm({
             onClick={() => setAuditTrailOpen((o) => !o)}
             className="flex w-full items-center justify-between gap-2 px-2.5 py-1.5 text-left text-xs font-medium text-slate-600 dark:text-slate-400"
           >
-            <span>{t("viewAuditTrail")}</span>
+            <span>{tc("viewAuditTrail")}</span>
             <span className="flex items-center gap-1">
               <span className="rounded px-1.5 py-0.5 text-[10px] font-medium text-slate-500 dark:text-slate-400">
-                {t("created")}
+                {tc("created")}
               </span>
               <span className="text-slate-400 dark:text-slate-500">•</span>
               <span className="rounded px-1.5 py-0.5 text-[10px] font-medium text-slate-500 dark:text-slate-400">
-                {t("modified")}
+                {tc("modified")}
               </span>
               {auditTrailOpen ? (
                 <ChevronUp className="h-3.5 w-3.5" />
@@ -181,27 +161,29 @@ export function PortRegionForm({
             <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 border-t border-slate-200 px-2.5 py-2 dark:border-slate-700">
               <div className="flex flex-col gap-0.5">
                 <span className="text-[10px] font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
-                  {t("createdBy")}
+                  {tc("createdBy")}
                 </span>
                 <div className="flex flex-wrap items-center gap-1">
                   <span className="inline-flex rounded px-1.5 py-0.5 text-[11px] font-medium text-slate-700 dark:text-slate-300">
                     {initialData.createBy || "—"}
                   </span>
                   <span className="text-[11px] text-slate-500 dark:text-slate-400">
-                    {formatDateTime(initialData.createDate, datetimeFormat) || "—"}
+                    {formatDateTime(initialData.createDate, datetimeFormat) ||
+                      "—"}
                   </span>
                 </div>
               </div>
               <div className="flex flex-col gap-0.5">
                 <span className="text-[10px] font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
-                  {t("lastModifiedBy")}
+                  {tc("lastModifiedBy")}
                 </span>
                 <div className="flex flex-wrap items-center gap-1">
                   <span className="inline-flex rounded px-1.5 py-0.5 text-[11px] font-medium text-slate-700 dark:text-slate-300">
                     {initialData.editBy || "—"}
                   </span>
                   <span className="text-[11px] text-slate-500 dark:text-slate-400">
-                    {formatDateTime(initialData.editDate, datetimeFormat) || "—"}
+                    {formatDateTime(initialData.editDate, datetimeFormat) ||
+                      "—"}
                   </span>
                 </div>
               </div>
@@ -220,7 +202,11 @@ export function PortRegionForm({
           {tc("cancel")}
         </Button>
         <Button type="submit" themeColor="primary" disabled={isLoading}>
-          {isLoading ? t("saving") : isEdit ? t("updatePortRegion") : t("createPortRegion")}
+          {isLoading
+            ? t("saving")
+            : isEdit
+              ? t("updatePortRegion")
+              : t("createPortRegion")}
         </Button>
       </div>
     </form>

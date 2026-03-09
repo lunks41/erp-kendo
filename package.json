@@ -41,6 +41,7 @@
     "@progress/kendo-react-tooltip": "^14.2.0",
     "@progress/kendo-smartpaste-common": "^1.0.0",
     "@progress/kendo-theme-default": "^13.0.1",
+    "@progress/kendo-theme-fluent": "^13.0.1",
     "@progress/kendo-webspeech-common": "^1.0.1",
     "@tanstack/react-query": "^5.90.21",
     "axios": "^1.13.5",

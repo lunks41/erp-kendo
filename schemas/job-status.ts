@@ -1,7 +1,7 @@
 import * as z from "zod"
 
 export const jobStatusSchema = z.object({
-  jobStatusId: z.number(),
+  jobStatusId: z.number().optional(),
   jobStatusCode: z
     .string()
     .min(1, { message: "job status code is required" })

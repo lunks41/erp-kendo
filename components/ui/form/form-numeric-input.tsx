@@ -54,6 +54,7 @@ export function FormNumericInput<T extends FieldValues>({
             format={fmt}
             fillMode="outline"
             rounded="medium"
+            size="medium"
             spinners={false}
             className={`w-full ${alignRight ? "[&_input]:text-right" : ""}`}
           />

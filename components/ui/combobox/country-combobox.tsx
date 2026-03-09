@@ -17,7 +17,8 @@ import type { ICountryLookup } from "@/interfaces/lookup";
  * For very large lists (e.g. customers, COA), consider Filtering with Remote Data + Virtualization.
  */
 export interface CountryComboboxProps {
-  value?: ICountryLookup | null;
+  /** Selected item or partial { countryId } for resolution from data */
+  value?: ICountryLookup | { countryId?: number } | null;
   onChange?: (value: ICountryLookup | null) => void;
   onBlur?: () => void;
   isDisable?: boolean;

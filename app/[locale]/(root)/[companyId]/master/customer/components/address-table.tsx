@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { CircleCheck, CircleX } from "lucide-react";
+import { Check, X, CircleCheck, CircleX } from "lucide-react";
 import { Badge } from "@progress/kendo-react-indicators";
 import type { MasterDataGridColumn } from "@/components/table";
 import { MasterDataGrid } from "@/components/table";
@@ -140,11 +140,28 @@ export function AddresssTable({
         width: 90,
         minWidth: 70,
         cells: {
-          data: (props) => (
-            <td {...props.tdProps} className="k-table-td">
-              <StatusIcon value={!!(props.dataItem as ICustomerAddress).isActive} />
-            </td>
-          ),
+          data: (props) => {
+            const isActive = (props.dataItem as ICustomerAddress).isActive;
+            const label = isActive ? "Active" : "Inactive";
+            const bgClass = isActive
+              ? "bg-emerald-500 text-white"
+              : "bg-red-500 text-white";
+            return (
+              <td {...props.tdProps} className="k-table-td">
+                <span
+                  className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-xs font-medium ${bgClass}`}
+                  title={label}
+                  aria-label={label}
+                >
+                  {isActive ? (
+                    <Check className="h-3 w-3" />
+                  ) : (
+                    <X className="h-3 w-3" />
+                  )}
+                </span>
+              </td>
+            );
+          },
         },
       },
       { field: "remarks", title: "Remarks", width: 150, minWidth: 100 },

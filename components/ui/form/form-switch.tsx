@@ -30,7 +30,12 @@ export function FormSwitch<T extends FieldValues>({
   offLabel,
 }: FormSwitchProps<T>) {
   return (
-    <FormField label={label} error={error} className={className}>
+    <FormField
+      label={label}
+      error={error}
+      className={className}
+      controlClassName="w-fit"
+    >
       <Controller
         name={name}
         control={control}

@@ -1,7 +1,7 @@
 import * as z from "zod"
 
 export const entityTypeSchema = z.object({
-  entityTypeId: z.number(),
+  entityTypeId: z.number().optional(),
   entityTypeCode: z
     .string()
     .min(1, { message: "entity type code is required" })

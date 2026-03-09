@@ -1,7 +1,7 @@
 import * as z from "zod"
 
 export const passTypeSchema = z.object({
-  passTypeId: z.number(),
+  passTypeId: z.number().optional(),
   passTypeCode: z
     .string()
     .min(1, { message: "pass type code is required" })

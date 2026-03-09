@@ -54,6 +54,7 @@ export function FormInput<T extends FieldValues>({
             valid={valid}
             fillMode="outline"
             rounded="medium"
+            size="medium"
           />
         )}
       />

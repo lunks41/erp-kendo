@@ -1,7 +1,7 @@
 import * as z from "zod"
 
 export const chargeSchema = z.object({
-  chargeId: z.number(),
+  chargeId: z.number().optional(),
   chargeCode: z
     .string()
     .min(1, { message: "charge code is required" })

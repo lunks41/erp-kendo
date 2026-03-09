@@ -1,7 +1,7 @@
 import * as z from "zod"
 
 export const taxSchema = z.object({
-  taxId: z.number(),
+  taxId: z.number().optional(),
 
   taxCode: z
     .string()

@@ -1,7 +1,7 @@
 import * as z from "zod"
 
 export const visaSchema = z.object({
-  visaId: z.number(),
+  visaId: z.number().optional(),
   visaCode: z
     .string()
     .min(1, { message: "visa code is required" })

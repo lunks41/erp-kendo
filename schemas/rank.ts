@@ -1,7 +1,7 @@
 import * as z from "zod"
 
 export const rankSchema = z.object({
-  rankId: z.number(),
+  rankId: z.number().optional(),
   rankCode: z
     .string()
     .min(1, { message: "rank code is required" })

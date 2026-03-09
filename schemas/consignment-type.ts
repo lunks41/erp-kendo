@@ -1,7 +1,7 @@
 import * as z from "zod"
 
 export const consignmentTypeSchema = z.object({
-  consignmentTypeId: z.number(),
+  consignmentTypeId: z.number().optional(),
   consignmentTypeCode: z
     .string()
     .min(1, { message: "consignment type code is required" })

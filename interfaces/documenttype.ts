@@ -1,8 +1,8 @@
 export interface IDocumentType {
+  documentTypeId: number
   companyId: number
-  docTypeId: number
-  docTypeCode: string
-  docTypeName: string
+  documentTypeCode: string
+  documentTypeName: string
   createBy: string
   editBy: string | null
   createDate: Date | string

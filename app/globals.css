@@ -1,9 +1,17 @@
 @import "tailwindcss";
-@import "@progress/kendo-theme-default/dist/all.css";
+@import "@progress/kendo-theme-fluent/dist/all.css";
+
+/* Class-based dark mode: sync with Kendo theme selection (dark themes add .dark to html) */
+@custom-variant dark (&:where(.dark, .dark *));
 
 :root {
   --background: #ffffff;
   --foreground: #171717;
+}
+
+:root.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
 }
 
 @theme inline {
@@ -11,13 +19,6 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 html {
@@ -55,6 +56,122 @@ body {
   padding: 0.25rem 0.5rem;
 }
 
+/* Form inputs and combobox: same height for alignment (Sequence No, Category 3, etc.) */
+.k-textbox,
+.k-numerictextbox,
+.k-combobox .k-input-wrap {
+  min-height: 2.25rem !important;
+}
+.k-textbox .k-input-inner,
+.k-numerictextbox .k-input-inner,
+.k-combobox .k-input-inner {
+  min-height: 2.25rem !important;
+}
+
+/* Checkbox: no outer border, flat design, focus ring only when focused */
+.k-checkbox-wrap,
+.k-checkbox-wrap::before {
+  border: none !important;
+  border-radius: 4px;
+  box-sizing: border-box;
+  box-shadow: none !important;
+  background-color: var(--background) !important;
+}
+.k-checkbox-wrap:hover,
+.k-checkbox-wrap:hover::before {
+  border: none !important;
+  box-shadow: none !important;
+}
+.k-checkbox-wrap.k-focus,
+.k-checkbox-wrap.k-focus::before,
+.k-ripple-container .k-checkbox:focus + .k-checkbox-wrap,
+.k-ripple-container .k-checkbox.k-focus + .k-checkbox-wrap {
+  border: none !important;
+  box-shadow: 0 0 0 1px rgb(59 130 246) !important;
+}
+.k-checkbox-wrap:not(.k-focus)::before {
+  box-shadow: none !important;
+}
+.dark .k-checkbox-wrap,
+.dark .k-checkbox-wrap::before {
+  border: none !important;
+  box-shadow: none !important;
+}
+.dark .k-checkbox-wrap {
+  background-color: rgb(30 41 59) !important;
+}
+.dark .k-checkbox-wrap:hover,
+.dark .k-checkbox-wrap:hover::before {
+  border: none !important;
+  box-shadow: none !important;
+}
+.dark .k-checkbox-wrap.k-focus,
+.dark .k-checkbox-wrap.k-focus::before,
+.dark .k-ripple-container .k-checkbox:focus + .k-checkbox-wrap,
+.dark .k-ripple-container .k-checkbox.k-focus + .k-checkbox-wrap {
+  border: none !important;
+  box-shadow: 0 0 0 1px rgb(96 165 250) !important;
+}
+.dark .k-checkbox-wrap:not(.k-focus)::before {
+  box-shadow: none !important;
+}
+/* Remove any theme 3D/emboss on the checkbox input and its pseudo-elements */
+.k-checkbox,
+.k-checkbox::before,
+.k-checkbox::after {
+  box-shadow: none !important;
+}
+.k-checkbox-wrap * {
+  box-shadow: none !important;
+}
+.k-checkbox-wrap.k-focus *,
+.k-checkbox-wrap.k-focus::before {
+  box-shadow: none !important;
+}
+.k-checkbox-wrap.k-focus {
+  box-shadow: 0 0 0 1px rgb(59 130 246) !important;
+}
+.dark .k-checkbox-wrap.k-focus {
+  box-shadow: 0 0 0 1px rgb(96 165 250) !important;
+}
+
+/* Switch (toggle): simple flat design, single border to match checkbox/combobox/input */
+.k-switch .k-switch-track,
+.k-switch.k-switch-sm .k-switch-track {
+  min-width: 2rem !important;
+  width: 2rem !important;
+  height: 1.125rem !important;
+  min-height: 1.125rem !important;
+  border: 1px solid rgb(148 163 184) !important;
+  box-shadow: none !important;
+  background-color: rgb(226 232 240) !important; /* slate-200, flat fill */
+}
+.k-switch .k-switch-thumb,
+.k-switch.k-switch-sm .k-switch-thumb {
+  width: 0.875rem !important;
+  height: 0.875rem !important;
+  min-width: 0.875rem !important;
+  min-height: 0.875rem !important;
+  border: 1px solid rgb(148 163 184) !important;
+  box-shadow: none !important;
+}
+.k-switch.k-switch-on .k-switch-track {
+  border-color: rgb(148 163 184) !important;
+  box-shadow: none !important;
+}
+.dark .k-switch .k-switch-track,
+.dark .k-switch.k-switch-sm .k-switch-track {
+  border-color: rgb(71 85 105) !important;
+  background-color: rgb(51 65 85) !important;
+}
+.dark .k-switch .k-switch-thumb,
+.dark .k-switch.k-switch-sm .k-switch-thumb {
+  border-color: rgb(71 85 105) !important;
+}
+.dark .k-switch.k-switch-on .k-switch-track {
+  border-color: rgb(71 85 105) !important;
+}
+
 /* Kendo Grid: constrain height so scrollable + pager work; avoid clipping pager */
 .k-grid-container {
   overflow: hidden;
@@ -66,4 +183,184 @@ body {
   min-height: 2.25rem; /* 36px / h-9 */
   height: 2.25rem;
   vertical-align: middle;
+}
+
+/* Dark mode: Kendo inputs, searchbox, combobox - dark bg, white/contrast text */
+.dark .k-input,
+.dark .k-input-inner,
+.dark .k-textarea,
+.dark .k-searchbox,
+.dark .k-searchbar,
+.dark .k-picker {
+  background-color: rgb(30 41 59) !important; /* slate-800 */
+  color: rgb(248 250 252) !important; /* slate-50 */
+  border-color: rgb(71 85 105) !important; /* slate-600 */
+}
+
+.dark .k-input::placeholder,
+.dark .k-input-inner::placeholder,
+.dark .k-searchbox::placeholder {
+  color: rgb(148 163 184) !important; /* slate-400 */
+}
+
+.dark .k-dropdownlist .k-input-inner,
+.dark .k-combobox .k-input-inner,
+.dark .k-multiselect .k-input-values {
+  background-color: rgb(30 41 59) !important;
+  color: rgb(248 250 252) !important;
+}
+
+/* Dark mode: Kendo dropdown/popup list (combobox options) */
+.dark .k-list-container,
+.dark .k-popup,
+.dark .k-list {
+  background-color: rgb(30 41 59) !important;
+  color: rgb(248 250 252) !important;
+  border-color: rgb(71 85 105) !important;
+}
+
+.dark .k-list .k-item,
+.dark .k-list-optionlabel {
+  color: rgb(248 250 252) !important;
+}
+
+.dark .k-list .k-item:hover,
+.dark .k-list .k-item.k-selected {
+  background-color: rgb(51 65 85) !important;
+  color: rgb(255 255 255) !important;
+}
+
+/* Dark mode: Kendo form labels and edit fields in modal */
+.dark .k-form-field > label,
+.dark .k-label,
+.dark .k-edit-label {
+  color: rgb(226 232 240) !important; /* slate-200 */
+}
+
+.dark .k-edit-field,
+.dark .k-form-field {
+  color: rgb(248 250 252) !important;
+}
+
+/* Dark mode: Kendo Grid - table, header, rows, toolbar, pager */
+.dark .k-grid,
+.dark .k-grid-container,
+.dark .k-grid-content,
+.dark .k-grid-table,
+.dark .k-grid .k-table {
+  background-color: rgb(30 41 59) !important; /* slate-800 */
+  color: rgb(248 250 252) !important; /* slate-50 */
+  border-color: rgb(71 85 105) !important; /* slate-600 */
+}
+
+.dark .k-grid-header,
+.dark .k-grid-header-wrap,
+.dark .k-grid-header th,
+.dark .k-grid thead th,
+.dark .k-table-th {
+  background-color: rgb(51 65 85) !important; /* slate-700 */
+  color: rgb(248 250 252) !important;
+  border-color: rgb(71 85 105) !important;
+}
+
+.dark .k-grid td,
+.dark .k-grid .k-table-td,
+.dark .k-grid tbody td {
+  background-color: rgb(30 41 59) !important;
+  color: rgb(248 250 252) !important;
+  border-color: rgb(71 85 105) !important;
+}
+
+.dark .k-grid .k-table-tbody tr:hover .k-table-td,
+.dark .k-grid .k-table-tbody tr.k-hover .k-table-td {
+  background-color: rgb(51 65 85) !important; /* slate-700 hover */
+}
+
+.dark .k-grid-toolbar,
+.dark .k-toolbar {
+  background-color: rgb(30 41 59) !important;
+  border-color: rgb(71 85 105) !important;
+  color: rgb(248 250 252) !important;
+}
+
+.dark .k-pager,
+.dark .k-grid-pager {
+  background-color: rgb(51 65 85) !important;
+  border-color: rgb(71 85 105) !important;
+  color: rgb(248 250 252) !important;
+}
+
+.dark .k-pager .k-button,
+.dark .k-pager .k-link {
+  color: rgb(248 250 252) !important;
+  border-color: rgb(71 85 105) !important;
+}
+
+.dark .k-pager .k-link.k-selected {
+  background-color: rgb(71 85 105) !important;
+  color: rgb(255 255 255) !important;
+}
+
+/* Dark mode: Action column icons - contrast (slate-200) */
+.dark .k-grid .k-table-td .k-button .k-icon,
+.dark .k-grid .k-table-td .k-button svg {
+  color: rgb(226 232 240) !important; /* slate-200 */
+}
+
+.dark .k-grid .k-table-td .k-button:hover .k-icon,
+.dark .k-grid .k-table-td .k-button:hover svg {
+  color: rgb(255 255 255) !important;
+}
+
+/* Primary buttons: dark blue background with white text (Fluent-style) */
+.k-button.k-primary,
+.k-button-solid-primary,
+.k-button-solid-base.k-primary {
+  background-color: #2f6abb !important; /* dark fluent blue */
+  border-color: #2f6abb !important;
+  color: #ffffff !important;
+}
+
+.k-button.k-primary:hover,
+.k-button-solid-primary:hover,
+.k-button-solid-base.k-primary:hover {
+  background-color: #2f6abb !important; /* slightly darker on hover */
+  border-color: #2f6abb !important;
+  color: #ffffff !important;
+}
+
+.dark .k-button.k-primary,
+.dark .k-button-solid-primary,
+.dark .k-button-solid-base.k-primary {
+  background-color: #2f6abb !important;
+  border-color: #2f6abb !important;
+  color: #ffffff !important;
+}
+
+/* Dialog/window title bar: dark blue with white text */
+.k-window-titlebar,
+.k-dialog-titlebar,
+.k-dialog .k-window-titlebar {
+  background-color: #2f6abb !important;
+  color: #ffffff !important;
+  border-bottom: 1px solid #2f6abb !important;
+}
+
+.k-window-title,
+.k-dialog .k-window-title {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+.dark .k-window-titlebar,
+.dark .k-dialog-titlebar,
+.dark .k-dialog .k-window-titlebar {
+  background-color: #2f6abb !important;
+  color: #ffffff !important;
+  border-bottom: 1px solid #001f52 !important;
+}
+
+.dark .k-window-title,
+.dark .k-dialog .k-window-title {
+  color: #ffffff !important;
 }

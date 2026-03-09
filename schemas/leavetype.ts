@@ -1,7 +1,7 @@
 import * as z from "zod"
 
 export const leaveTypeSchema = z.object({
-  leaveTypeId: z.number(),
+  leaveTypeId: z.number().optional(),
   leaveTypeCode: z
     .string()
     .min(1, { message: "leave type code is required" })

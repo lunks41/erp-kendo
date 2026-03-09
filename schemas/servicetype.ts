@@ -1,7 +1,7 @@
 import * as z from "zod"
 
 export const serviceTypeSchema = z.object({
-  serviceTypeId: z.number(),
+  serviceTypeId: z.number().optional(),
 
   serviceTypeCode: z
     .string()
@@ -32,7 +32,7 @@ export const serviceTypeFiltersSchema = z.object({
 export type ServiceTypeFiltersValues = z.infer<typeof serviceTypeFiltersSchema>
 
 export const serviceTypeCategorySchema = z.object({
-  serviceTypeCategoryId: z.number(),
+  serviceTypeCategoryId: z.number().min(0),
 
   serviceTypeCategoryCode: z
     .string()

@@ -17,7 +17,8 @@ import type { ICustomerLookup } from "@/interfaces/lookup";
  * For very large lists (e.g. customers, COA), consider Filtering with Remote Data + Virtualization.
  */
 export interface CustomerComboboxProps {
-  value?: ICustomerLookup | null;
+  /** Selected item or partial { customerId } for resolution from data */
+  value?: ICustomerLookup | { customerId?: number } | null;
   onChange?: (value: ICustomerLookup | null) => void;
   onBlur?: () => void;
   isDisable?: boolean;

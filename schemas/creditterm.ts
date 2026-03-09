@@ -1,7 +1,7 @@
 import * as z from "zod"
 
 export const credittermSchema = z.object({
-  creditTermId: z.number(),
+  creditTermId: z.number().optional(),
   creditTermCode: z
     .string()
     .min(1, { message: "credit term code is required" })

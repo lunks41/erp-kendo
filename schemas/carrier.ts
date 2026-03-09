@@ -1,7 +1,7 @@
 import * as z from "zod"
 
 export const carrierSchema = z.object({
-  carrierId: z.number(),
+  carrierId: z.number().optional(),
   carrierCode: z
     .string()
     .min(1, { message: "carrier code is required" })

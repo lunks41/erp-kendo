@@ -1,7 +1,7 @@
 import * as z from "zod"
 
 export const paymentTypeSchema = z.object({
-  paymentTypeId: z.number(),
+  paymentTypeId: z.number().optional(),
 
   paymentTypeCode: z
     .string()

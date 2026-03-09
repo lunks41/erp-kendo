@@ -1,7 +1,7 @@
 import * as z from "zod"
 
 export const orderTypeSchema = z.object({
-  orderTypeId: z.number(),
+  orderTypeId: z.number().optional(),
 
   orderTypeCode: z
     .string()
@@ -11,7 +11,7 @@ export const orderTypeSchema = z.object({
     .string()
     .min(2, { message: "Order type name must be at least 2 characters" })
     .max(150),
-  orderTypeCategoryId: z.number(),
+  orderTypeCategoryId: z.number().min(0),
   orderTypeCategoryCode: z.string().max(50),
   orderTypeCategoryName: z.string().max(150),
 

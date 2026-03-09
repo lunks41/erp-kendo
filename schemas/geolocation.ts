@@ -1,7 +1,7 @@
 import * as z from "zod"
 
 export const geolocationSchema = z.object({
-  geoLocationId: z.number(),
+  geoLocationId: z.number().optional(),
   geoLocationCode: z
     .string()
     .min(1, { message: "GeoLocation code is required" })
@@ -10,7 +10,7 @@ export const geolocationSchema = z.object({
     .string()
     .min(2, { message: "GeoLocation name must be at least 2 characters" })
     .max(150, { message: "GeoLocation name cannot exceed 150 characters" }),
-  portId: z.number().min(1, { message: "Port is required" }),
+  portId: z.number().min(0, { message: "Port ID must be 0 or greater" }),
   latitude: z
     .string()
     .max(50, { message: "Latitude cannot exceed 50 characters" })

@@ -1,7 +1,7 @@
 import * as z from "zod"
 
 export const serviceModeSchema = z.object({
-  serviceModeId: z.number(),
+  serviceModeId: z.number().optional(),
   serviceModeCode: z
     .string()
     .min(1, { message: "service mode code is required" })

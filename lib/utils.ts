@@ -331,10 +331,21 @@ export function getModuleAndTransactionId(pathname: string): {
   switch (moduleId) {
     case ModuleId.master: {
       // Map URL kebab-case (e.g. port-region) to enum key (portRegion)
+      const masterKeyMap: Record<string, keyof typeof MasterTransactionId> = {
+        "port-region": "portRegion",
+        documenttype: "documentType",
+        entitytype: "entityType",
+        taskstatus: "taskStatus",
+        transportlocation: "transportLocation",
+        transportmode: "transportMode",
+        servicemode: "serviceMode",
+        servicetype: "serviceType",
+        subcategory: "subCategory",
+        supplytype: "supplyType",
+      }
       const masterKey =
-        transactionName === "port-region"
-          ? "portRegion"
-          : (transactionName as keyof typeof MasterTransactionId)
+        masterKeyMap[transactionName] ??
+        (transactionName as keyof typeof MasterTransactionId)
       transactionId =
         MasterTransactionId[masterKey] ?? 0
       break

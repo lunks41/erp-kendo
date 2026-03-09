@@ -22,13 +22,15 @@ export function createActionCell<T>(
     return (
       <td {...tdProps} className={tdClassName}>
         <div className="flex items-center gap-1">
-          {!hasAnyButton && <span className="text-slate-400">—</span>}
+          {!hasAnyButton && (
+            <span className="text-slate-400 dark:text-slate-300">—</span>
+          )}
           {showView && onView && (
             <Button
               type="button"
               fillMode="flat"
               size="small"
-              startIcon={<Eye className="h-4 w-4" />}
+              startIcon={<Eye className="h-4 w-4 text-slate-700 dark:text-slate-200" />}
               title="View"
               onClick={(e) => {
                 e.stopPropagation();
@@ -41,7 +43,7 @@ export function createActionCell<T>(
               type="button"
               fillMode="flat"
               size="small"
-              startIcon={<Pencil className="h-4 w-4" />}
+              startIcon={<Pencil className="h-4 w-4 text-slate-700 dark:text-slate-200" />}
               title="Edit"
               onClick={(e) => {
                 e.stopPropagation();
@@ -55,7 +57,7 @@ export function createActionCell<T>(
               fillMode="flat"
               size="small"
               themeColor="error"
-              startIcon={<Trash2 className="h-4 w-4" />}
+              startIcon={<Trash2 className="h-4 w-4 text-slate-700 dark:text-slate-200" />}
               title="Delete"
               onClick={(e) => {
                 e.stopPropagation();

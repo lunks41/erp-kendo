@@ -1,7 +1,7 @@
 import * as z from "zod"
 
 export const landingPurposeSchema = z.object({
-  landingPurposeId: z.number(),
+  landingPurposeId: z.number().optional(),
   landingPurposeCode: z
     .string()
     .min(1, { message: "landing purpose code is required" })

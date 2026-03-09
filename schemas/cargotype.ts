@@ -1,7 +1,7 @@
 import * as z from "zod"
 
 export const cargoTypeSchema = z.object({
-  cargoTypeId: z.number(),
+  cargoTypeId: z.number().optional(),
   cargoTypeCode: z
     .string()
     .min(1, { message: "cargo type code is required" })

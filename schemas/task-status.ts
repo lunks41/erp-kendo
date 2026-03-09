@@ -1,7 +1,7 @@
 import * as z from "zod"
 
 export const taskStatusSchema = z.object({
-  taskStatusId: z.number(),
+  taskStatusId: z.number().optional(),
   taskStatusCode: z
     .string()
     .min(1, { message: "task status code is required" })

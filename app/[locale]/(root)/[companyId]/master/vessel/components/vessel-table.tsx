@@ -1,13 +1,14 @@
 "use client";
 
 import { memo, useMemo } from "react";
-import { useTranslations } from "next-intl";
+import { useNamespaceTranslations } from "@/hooks/use-form-translations";
 import type { MasterDataGridColumn } from "@/components/table";
 import { MasterDataGrid } from "@/components/table";
 import type { IVessel } from "@/interfaces/vessel";
 import { formatDateTime } from "@/lib/date-utils";
 import { TableName } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
+import { Check, X } from "lucide-react";
 
 export interface VesselTableProps {
   data: IVessel[];
@@ -38,7 +39,8 @@ export interface VesselTableProps {
 }
 
 function VesselTableInner(props: VesselTableProps) {
-  const t = useTranslations("vesselTable");
+  const t = useNamespaceTranslations("vessel");
+  const tc = useNamespaceTranslations("common");
   const { decimals } = useAuthStore();
   const datetimeFormat = decimals[0]?.longDateFormat ?? "dd/MM/yyyy HH:mm:ss";
 
@@ -51,8 +53,8 @@ function VesselTableInner(props: VesselTableProps) {
         minWidth: 60,
         hidden: true,
       },
-      { field: "vesselCode", title: t("code"), width: 100, minWidth: 80 },
-      { field: "vesselName", title: t("name"), flex: true, minWidth: 150 },
+      { field: "vesselCode", title: tc("code"), width: 100, minWidth: 80 },
+      { field: "vesselName", title: tc("name"), flex: true, minWidth: 150 },
       {
         field: "vesselTypeName",
         title: t("type"),
@@ -74,37 +76,43 @@ function VesselTableInner(props: VesselTableProps) {
       { field: "grt", title: t("grt"), width: 80, minWidth: 60 },
       {
         field: "isActive",
-        title: t("active"),
+        title: tc("active"),
         width: 100,
         cells: {
           data: (props) => {
             const isActive = (props.dataItem as IVessel).isActive;
-            const label = isActive ? t("active") : t("inactive");
+            const label = isActive ? tc("active") : tc("inactive");
             const bgClass = isActive
-              ? "bg-emerald-600 text-white"
-              : "bg-red-600 text-white";
+              ? "bg-emerald-500 text-white"
+              : "bg-red-500 text-white";
             return (
               <td {...props.tdProps} className="k-table-td">
                 <span
-                  className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium ${bgClass}`}
+                  className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-xs font-medium ${bgClass}`}
+                  title={label}
+                  aria-label={label}
                 >
-                  {label}
+                  {isActive ? (
+                    <Check className="h-3 w-3" />
+                  ) : (
+                    <X className="h-3 w-3" />
+                  )}
                 </span>
               </td>
             );
           },
         },
       },
-      { field: "remarks", title: t("remarks"), flex: true, minWidth: 100 },
+      { field: "remarks", title: tc("remarks"), flex: true, minWidth: 100 },
       {
         field: "createBy",
-        title: t("createdBy"),
+        title: tc("createdBy"),
         width: 100,
         media: "(min-width: 992px)",
       },
       {
         field: "createDate",
-        title: t("createdDate"),
+        title: tc("createdDate"),
         width: 180,
         cells: {
           data: (props) => {
@@ -124,13 +132,13 @@ function VesselTableInner(props: VesselTableProps) {
       },
       {
         field: "editBy",
-        title: t("editedBy"),
+        title: tc("editedBy"),
         width: 100,
         media: "(min-width: 1200px)",
       },
       {
         field: "editDate",
-        title: t("editedDate"),
+        title: tc("editedDate"),
         width: 180,
         media: "(min-width: 1200px)",
         cells: {
@@ -150,7 +158,7 @@ function VesselTableInner(props: VesselTableProps) {
         },
       },
     ],
-    [datetimeFormat, t],
+    [datetimeFormat, t, tc],
   );
 
   const {

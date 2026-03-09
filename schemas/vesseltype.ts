@@ -1,7 +1,7 @@
 import * as z from "zod"
 
 export const vesselTypeSchema = z.object({
-  vesselTypeId: z.number(),
+  vesselTypeId: z.number().optional(),
   vesselTypeCode: z
     .string()
     .min(1, { message: "vessel type code is required" })

@@ -1,4 +1,5 @@
 export interface ILoanType {
+  companyId?: number
   loanTypeId: number
   loanTypeCode: string
   loanTypeName: string

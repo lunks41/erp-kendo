@@ -1,34 +1,29 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useTranslations } from "next-intl";
-import { ChevronDown, ChevronUp } from "lucide-react";
-import { ComboBox } from "@progress/kendo-react-dropdowns";
-import { Controller } from "react-hook-form";
+import {
+  AccountGroupCombobox,
+  AccountTypeCombobox,
+  COACategoryCombobox,
+} from "@/components/ui/combobox";
 import {
   FormCheckbox,
   FormInput,
   FormNumericInput,
-  FormSwitch,
   FormTextArea,
 } from "@/components/ui/form";
-import { formatDateTime } from "@/lib/date-utils";
-import {
-  useAccountTypeLookup,
-  useAccountGroupLookup,
-  useCOACategory1Lookup,
-  useCOACategory2Lookup,
-  useCOACategory3Lookup,
-} from "@/hooks/use-lookup";
+import { useNamespaceTranslations } from "@/hooks/use-form-translations";
 import type { IChartOfAccount } from "@/interfaces/chartofaccount";
+import { formatDateTime } from "@/lib/date-utils";
 import {
   chartofAccountSchema,
   type ChartOfAccountSchemaType,
 } from "@/schemas/chartofaccount";
+import { useAuthStore } from "@/stores/auth-store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@progress/kendo-react-buttons";
+import { ChevronDown, ChevronUp } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useAuthStore } from "@/stores/auth-store";
 
 const defaultBooleans = {
   isSysControl: false,
@@ -59,33 +54,12 @@ export function ChartOfAccountForm({
   isLoading = false,
   isViewMode = false,
 }: ChartOfAccountFormProps) {
-  const t = useTranslations("chartOfAccountForm");
-  const tc = useTranslations("common");
+  const t = useNamespaceTranslations("chartOfAccount");
+  const tc = useNamespaceTranslations("common");
   const { decimals } = useAuthStore();
   const datetimeFormat = decimals[0]?.longDateFormat ?? "dd/MM/yyyy HH:mm:ss";
   const isEdit = !!initialData?.glId;
   const [auditTrailOpen, setAuditTrailOpen] = useState(false);
-
-  const { data: accTypeData = [] } = useAccountTypeLookup();
-  const { data: accGroupData = [] } = useAccountGroupLookup();
-  const { data: cat1Data = [] } = useCOACategory1Lookup();
-  const { data: cat2Data = [] } = useCOACategory2Lookup();
-  const { data: cat3Data = [] } = useCOACategory3Lookup();
-
-  const cat2WithNone = useMemo(
-    () => [
-      { coaCategoryId: 0, coaCategoryCode: "", coaCategoryName: "—" },
-      ...cat2Data,
-    ],
-    [cat2Data],
-  );
-  const cat3WithNone = useMemo(
-    () => [
-      { coaCategoryId: 0, coaCategoryCode: "", coaCategoryName: "—" },
-      ...cat3Data,
-    ],
-    [cat3Data],
-  );
 
   const {
     control,
@@ -151,27 +125,46 @@ export function ChartOfAccountForm({
     });
   };
 
-  const accTypeValue = accTypeId
-    ? (accTypeData.find((x) => x.accTypeId === accTypeId) ?? null)
-    : null;
-  const accGroupValue = accGroupId
-    ? (accGroupData.find((x) => x.accGroupId === accGroupId) ?? null)
-    : null;
-  const cat1Value = coaCategoryId1
-    ? (cat1Data.find((x) => x.coaCategoryId === coaCategoryId1) ?? null)
-    : null;
-  const cat2Value =
-    coaCategoryId2 !== undefined && coaCategoryId2 !== null
-      ? (cat2WithNone.find((x) => x.coaCategoryId === coaCategoryId2) ?? null)
-      : null;
-  const cat3Value =
-    coaCategoryId3 !== undefined && coaCategoryId3 !== null
-      ? (cat3WithNone.find((x) => x.coaCategoryId === coaCategoryId3) ?? null)
-      : null;
+  const handleAccountTypeChange = useCallback(
+    (v: { accTypeId?: number } | null) => {
+      setValue("accTypeId", v?.accTypeId ?? 0, { shouldValidate: true });
+    },
+    [setValue],
+  );
+  const handleAccountGroupChange = useCallback(
+    (v: { accGroupId?: number } | null) => {
+      setValue("accGroupId", v?.accGroupId ?? 0, { shouldValidate: true });
+    },
+    [setValue],
+  );
+  const handleCategory1Change = useCallback(
+    (v: { coaCategoryId?: number } | null) => {
+      setValue("coaCategoryId1", v?.coaCategoryId ?? 0, {
+        shouldValidate: true,
+      });
+    },
+    [setValue],
+  );
+  const handleCategory2Change = useCallback(
+    (v: { coaCategoryId?: number } | null) => {
+      setValue("coaCategoryId2", v?.coaCategoryId ?? 0, {
+        shouldValidate: true,
+      });
+    },
+    [setValue],
+  );
+  const handleCategory3Change = useCallback(
+    (v: { coaCategoryId?: number } | null) => {
+      setValue("coaCategoryId3", v?.coaCategoryId ?? 0, {
+        shouldValidate: true,
+      });
+    },
+    [setValue],
+  );
 
   return (
     <form onSubmit={handleSubmit(onFormSubmit)} className="flex flex-col gap-3">
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <FormInput
           control={control}
           name="glCode"
@@ -191,161 +184,61 @@ export function ChartOfAccountForm({
           valid={!errors.glName}
         />
 
-        <Controller
-          name="accTypeId"
-          control={control}
-          render={({ field }) => (
-            <div className="flex flex-col gap-1">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                {t("accountType")} <span className="text-red-500">*</span>
-              </label>
-              <ComboBox
-                data={accTypeData}
-                value={accTypeValue}
-                onChange={({ value }) =>
-                  setValue("accTypeId", value?.accTypeId ?? 0, {
-                    shouldValidate: true,
-                  })
-                }
-                textField="accTypeName"
-                dataItemKey="accTypeId"
-                disabled={isViewMode || isLoading}
-                placeholder={t("selectAccountType")}
-                fillMode="outline"
-                rounded="medium"
-                size="medium"
-              />
-              {errors.accTypeId && (
-                <span className="text-xs text-red-500">
-                  {errors.accTypeId.message}
-                </span>
-              )}
-            </div>
-          )}
+        <AccountTypeCombobox
+          value={accTypeId ? { accTypeId } : null}
+          onChange={handleAccountTypeChange}
+          label={t("accountType")}
+          isRequired
+          isDisable={isViewMode || isLoading}
+          placeholder={t("selectAccountType")}
+          error={errors.accTypeId?.message}
         />
-        <Controller
-          name="accGroupId"
-          control={control}
-          render={({ field }) => (
-            <div className="flex flex-col gap-1">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                {t("accountGroup")} <span className="text-red-500">*</span>
-              </label>
-              <ComboBox
-                data={accGroupData}
-                value={accGroupValue}
-                onChange={({ value }) =>
-                  setValue("accGroupId", value?.accGroupId ?? 0, {
-                    shouldValidate: true,
-                  })
-                }
-                textField="accGroupName"
-                dataItemKey="accGroupId"
-                disabled={isViewMode || isLoading}
-                placeholder={t("selectAccountGroup")}
-                fillMode="outline"
-                rounded="medium"
-                size="medium"
-              />
-              {errors.accGroupId && (
-                <span className="text-xs text-red-500">
-                  {errors.accGroupId.message}
-                </span>
-              )}
-            </div>
-          )}
+        <AccountGroupCombobox
+          value={accGroupId ? { accGroupId } : null}
+          onChange={handleAccountGroupChange}
+          label={t("accountGroup")}
+          isRequired
+          isDisable={isViewMode || isLoading}
+          placeholder={t("selectAccountGroup")}
+          error={errors.accGroupId?.message}
         />
-        <Controller
-          name="coaCategoryId1"
-          control={control}
-          render={() => (
-            <div className="flex flex-col gap-1">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                {t("category1")} <span className="text-red-500">*</span>
-              </label>
-              <ComboBox
-                data={cat1Data}
-                value={cat1Value}
-                onChange={({ value }) =>
-                  setValue("coaCategoryId1", value?.coaCategoryId ?? 0, {
-                    shouldValidate: true,
-                  })
-                }
-                textField="coaCategoryName"
-                dataItemKey="coaCategoryId"
-                disabled={isViewMode || isLoading}
-                placeholder={t("selectCategory1")}
-                fillMode="outline"
-                rounded="medium"
-                size="medium"
-              />
-              {errors.coaCategoryId1 && (
-                <span className="text-xs text-red-500">
-                  {errors.coaCategoryId1.message}
-                </span>
-              )}
-            </div>
-          )}
+        <COACategoryCombobox
+          variant={1}
+          value={coaCategoryId1 ? { coaCategoryId: coaCategoryId1 } : null}
+          onChange={handleCategory1Change}
+          label={t("category1")}
+          isRequired
+          isDisable={isViewMode || isLoading}
+          placeholder={t("selectCategory1")}
+          error={errors.coaCategoryId1?.message}
         />
-        <Controller
-          name="coaCategoryId2"
-          control={control}
-          render={() => (
-            <div className="flex flex-col gap-1">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                {t("category2")}
-              </label>
-              <ComboBox
-                data={cat2WithNone}
-                value={cat2Value}
-                onChange={({ value }) =>
-                  setValue("coaCategoryId2", value?.coaCategoryId ?? 0, {
-                    shouldValidate: true,
-                  })
-                }
-                textField="coaCategoryName"
-                dataItemKey="coaCategoryId"
-                disabled={isViewMode || isLoading}
-                placeholder={t("selectCategory2")}
-                fillMode="outline"
-                rounded="medium"
-                size="medium"
-              />
-            </div>
-          )}
+        <COACategoryCombobox
+          variant={2}
+          includeNone
+          value={
+            coaCategoryId2 != null ? { coaCategoryId: coaCategoryId2 } : null
+          }
+          onChange={handleCategory2Change}
+          label={t("category2")}
+          isDisable={isViewMode || isLoading}
+          placeholder={t("selectCategory2")}
         />
-        <Controller
-          name="coaCategoryId3"
-          control={control}
-          render={() => (
-            <div className="flex flex-col gap-1">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                {t("category3")}
-              </label>
-              <ComboBox
-                data={cat3WithNone}
-                value={cat3Value}
-                onChange={({ value }) =>
-                  setValue("coaCategoryId3", value?.coaCategoryId ?? 0, {
-                    shouldValidate: true,
-                  })
-                }
-                textField="coaCategoryName"
-                dataItemKey="coaCategoryId"
-                disabled={isViewMode || isLoading}
-                placeholder={t("selectCategory3")}
-                fillMode="outline"
-                rounded="medium"
-                size="medium"
-              />
-            </div>
-          )}
+        <COACategoryCombobox
+          variant={3}
+          includeNone
+          value={
+            coaCategoryId3 != null ? { coaCategoryId: coaCategoryId3 } : null
+          }
+          onChange={handleCategory3Change}
+          label={t("category3")}
+          isDisable={isViewMode || isLoading}
+          placeholder={t("selectCategory3")}
         />
 
         <FormNumericInput
           control={control}
           name="seqNo"
-          label={t("seqNo")}
+          label={tc("seqNo")}
           format={0}
           alignRight={false}
           disabled={isViewMode}
@@ -354,16 +247,16 @@ export function ChartOfAccountForm({
         <FormTextArea
           control={control}
           name="remarks"
-          label={t("remarks")}
+          label={tc("remarks")}
           isDisable={isViewMode}
           rows={3}
-          className="sm:col-span-2"
+          className="sm:col-span-3"
           error={errors.remarks?.message}
           valid={!errors.remarks}
         />
 
         {/* Boolean account behaviour flags (compact grid) */}
-        <div className="sm:col-span-2 grid grid-cols-1 gap-2 md:grid-cols-3">
+        <div className="sm:col-span-3 grid grid-cols-1 gap-2 md:grid-cols-6 [&>div]:flex [&>div]:flex-col [&>div]:items-start">
           <FormCheckbox
             control={control}
             name="isSysControl"
@@ -418,17 +311,13 @@ export function ChartOfAccountForm({
             label={t("universal")}
             disabled={isLoading}
           />
+          <FormCheckbox
+            control={control}
+            name="isActive"
+            label={tc("activeStatus")}
+            disabled={isLoading}
+          />
         </div>
-
-        <FormSwitch
-          control={control}
-          name="isActive"
-          label={t("activeStatus")}
-          isDisable={isLoading}
-          onLabel={t("onLabel")}
-          offLabel={t("offLabel")}
-          className="sm:col-span-2"
-        />
       </div>
 
       {isEdit && initialData && (
@@ -438,14 +327,14 @@ export function ChartOfAccountForm({
             onClick={() => setAuditTrailOpen((o) => !o)}
             className="flex w-full items-center justify-between gap-2 px-2.5 py-1.5 text-left text-xs font-medium text-slate-600 dark:text-slate-400"
           >
-            <span>{t("viewAuditTrail")}</span>
+            <span>{tc("viewAuditTrail")}</span>
             <span className="flex items-center gap-1">
               <span className="rounded px-1.5 py-0.5 text-[10px] font-medium text-slate-500 dark:text-slate-400">
-                {t("created")}
+                {tc("created")}
               </span>
               <span className="text-slate-400 dark:text-slate-500">•</span>
               <span className="rounded px-1.5 py-0.5 text-[10px] font-medium text-slate-500 dark:text-slate-400">
-                {t("modified")}
+                {tc("modified")}
               </span>
               {auditTrailOpen ? (
                 <ChevronUp className="h-3.5 w-3.5" />
@@ -458,7 +347,7 @@ export function ChartOfAccountForm({
             <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 border-t border-slate-200 px-2.5 py-2 dark:border-slate-700">
               <div className="flex flex-col gap-0.5">
                 <span className="text-[10px] font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
-                  {t("createdBy")}
+                  {tc("createdBy")}
                 </span>
                 <div className="flex flex-wrap items-center gap-1">
                   <span className="inline-flex rounded px-1.5 py-0.5 text-[11px] font-medium text-slate-700 dark:text-slate-300">
@@ -472,7 +361,7 @@ export function ChartOfAccountForm({
               </div>
               <div className="flex flex-col gap-0.5">
                 <span className="text-[10px] font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
-                  {t("lastModifiedBy")}
+                  {tc("lastModifiedBy")}
                 </span>
                 <div className="flex flex-wrap items-center gap-1">
                   <span className="inline-flex rounded px-1.5 py-0.5 text-[11px] font-medium text-slate-700 dark:text-slate-300">

@@ -28,7 +28,12 @@ export function FormCheckbox<T extends FieldValues>({
   labelPlacement = "after",
 }: FormCheckboxProps<T>) {
   return (
-    <FormField label={label} error={error} className={className}>
+    <FormField
+      label={label}
+      error={error}
+      className={className}
+      controlClassName="w-fit"
+    >
       <Controller
         name={name}
         control={control}

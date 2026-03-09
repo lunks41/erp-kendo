@@ -1,7 +1,7 @@
 import * as z from "zod"
 
 export const loanTypeSchema = z.object({
-  loanTypeId: z.number(),
+  loanTypeId: z.number().optional(),
   loanTypeCode: z
     .string()
     .min(1, { message: "loan type code is required" })

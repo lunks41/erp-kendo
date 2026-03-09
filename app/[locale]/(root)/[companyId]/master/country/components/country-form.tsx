@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useNamespaceTranslations } from "@/hooks/use-form-translations";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { FormInput, FormSwitch, FormTextArea } from "@/components/ui/form";
+import { FormInput, FormCheckbox, FormTextArea } from "@/components/ui/form";
 import type { ICountry } from "@/interfaces/country";
 import { formatDateTime } from "@/lib/date-utils";
 import { countrySchema, type CountrySchemaType } from "@/schemas/country";
@@ -29,8 +29,8 @@ export function CountryForm({
   isLoading = false,
   isViewMode = false,
 }: CountryFormProps) {
-  const t = useTranslations("countryForm");
-  const tc = useTranslations("common");
+  const t = useNamespaceTranslations("country");
+  const tc = useNamespaceTranslations("common");
   const { decimals } = useAuthStore();
   const datetimeFormat = decimals[0]?.longDateFormat ?? "dd/MM/yyyy HH:mm:ss";
   const isEdit = !!initialData?.countryId;
@@ -104,21 +104,18 @@ export function CountryForm({
         <FormTextArea
           control={control}
           name="remarks"
-          label={t("remarks")}
+          label={tc("remarks")}
           isDisable={isViewMode}
           rows={3}
           className="sm:col-span-2"
           error={errors.remarks?.message}
           valid={!errors.remarks}
         />
-        <FormSwitch
+        <FormCheckbox
           control={control}
           name="isActive"
-          label={t("activeStatus")}
-          isDisable={isLoading}
-          onLabel={t("onLabel")}
-          offLabel={t("offLabel")}
-          className="sm:col-span-2"
+          label={tc("activeStatus")}
+          disabled={isLoading}
         />
       </div>
 
@@ -129,14 +126,14 @@ export function CountryForm({
             onClick={() => setAuditTrailOpen((o) => !o)}
             className="flex w-full items-center justify-between gap-2 px-2.5 py-1.5 text-left text-xs font-medium text-slate-600 dark:text-slate-400"
           >
-            <span>{t("viewAuditTrail")}</span>
+            <span>{tc("viewAuditTrail")}</span>
             <span className="flex items-center gap-1">
               <span className="rounded px-1.5 py-0.5 text-[10px] font-medium text-slate-500 dark:text-slate-400">
-                {t("created")}
+                {tc("created")}
               </span>
               <span className="text-slate-400 dark:text-slate-500">•</span>
               <span className="rounded px-1.5 py-0.5 text-[10px] font-medium text-slate-500 dark:text-slate-400">
-                {t("modified")}
+                {tc("modified")}
               </span>
               {auditTrailOpen ? (
                 <ChevronUp className="h-3.5 w-3.5" />
@@ -149,27 +146,29 @@ export function CountryForm({
             <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 border-t border-slate-200 px-2.5 py-2 dark:border-slate-700">
               <div className="flex flex-col gap-0.5">
                 <span className="text-[10px] font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
-                  {t("createdBy")}
+                  {tc("createdBy")}
                 </span>
                 <div className="flex flex-wrap items-center gap-1">
                   <span className="inline-flex rounded px-1.5 py-0.5 text-[11px] font-medium text-slate-700 dark:text-slate-300">
                     {initialData.createBy || "—"}
                   </span>
                   <span className="text-[11px] text-slate-500 dark:text-slate-400">
-                    {formatDateTime(initialData.createDate, datetimeFormat) || "—"}
+                    {formatDateTime(initialData.createDate, datetimeFormat) ||
+                      "—"}
                   </span>
                 </div>
               </div>
               <div className="flex flex-col gap-0.5">
                 <span className="text-[10px] font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
-                  {t("lastModifiedBy")}
+                  {tc("lastModifiedBy")}
                 </span>
                 <div className="flex flex-wrap items-center gap-1">
                   <span className="inline-flex rounded px-1.5 py-0.5 text-[11px] font-medium text-slate-700 dark:text-slate-300">
                     {initialData.editBy || "—"}
                   </span>
                   <span className="text-[11px] text-slate-500 dark:text-slate-400">
-                    {formatDateTime(initialData.editDate, datetimeFormat) || "—"}
+                    {formatDateTime(initialData.editDate, datetimeFormat) ||
+                      "—"}
                   </span>
                 </div>
               </div>
@@ -188,7 +187,11 @@ export function CountryForm({
           {tc("cancel")}
         </Button>
         <Button type="submit" themeColor="primary" disabled={isLoading}>
-          {isLoading ? t("saving") : isEdit ? t("updateCountry") : t("createCountry")}
+          {isLoading
+            ? t("saving")
+            : isEdit
+              ? t("updateCountry")
+              : t("createCountry")}
         </Button>
       </div>
     </form>

@@ -1,21 +1,21 @@
 import * as z from "zod"
 
 export const documentTypeSchema = z.object({
-  docTypeId: z.number(),
-  docTypeCode: z
+  documentTypeId: z.number().optional(),
+  documentTypeCode: z
     .string()
-    .min(1, { message: "document type code is required" })
-    .max(50, { message: "document type code cannot exceed 50 characters" }),
-  docTypeName: z
+    .min(1, { message: "Document type code is required" })
+    .max(50, { message: "Document type code cannot exceed 50 characters" }),
+  documentTypeName: z
     .string()
-    .min(2, { message: "document type name must be at least 2 characters" })
-    .max(150, { message: "document type name cannot exceed 150 characters" }),
+    .min(1, { message: "Document type name must be at least 1 character" })
+    .max(150, { message: "Document type name cannot exceed 150 characters" }),
 
-  isActive: z.boolean(),
   remarks: z
     .string()
     .max(255, { message: "Remarks cannot exceed 255 characters" })
     .optional(),
+  isActive: z.boolean(),
 })
 
 export type DocumentTypeSchemaType = z.infer<typeof documentTypeSchema>
@@ -26,6 +26,4 @@ export const documentTypeFiltersSchema = z.object({
   sortOrder: z.enum(["asc", "desc"]).optional(),
 })
 
-export type DocumentTypeFiltersValues = z.infer<
-  typeof documentTypeFiltersSchema
->
+export type DocumentTypeFiltersValues = z.infer<typeof documentTypeFiltersSchema>

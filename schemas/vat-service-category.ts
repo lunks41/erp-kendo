@@ -1,7 +1,7 @@
 import * as z from "zod"
 
 export const vatServiceCategorySchema = z.object({
-  serviceCategoryId: z.number(),
+  serviceCategoryId: z.number().optional(),
   serviceCategoryCode: z
     .string()
     .min(1, { message: "service category code is required" })

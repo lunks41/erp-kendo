@@ -2,7 +2,6 @@
 
 import { useCallback, useSyncExternalStore, useState } from "react";
 import { useParams } from "next/navigation";
-import { useTranslations } from "next-intl";
 import { Button } from "@progress/kendo-react-buttons";
 import { Dialog, DialogActionsBar } from "@progress/kendo-react-dialogs";
 import { useQueryClient } from "@tanstack/react-query";
@@ -21,9 +20,10 @@ import { MasterTransactionId, ModuleId } from "@/lib/utils";
 import { usePermissionStore } from "@/stores/permission-store";
 import { useUserSettingDefaults } from "@/hooks/use-settings";
 import { ChartOfAccountTable } from "./components/chartofaccount-table";
+import { useNamespaceTranslations } from "@/hooks/use-form-translations";
 
 export default function ChartOfAccountMasterPage() {
-  const t = useTranslations("chartOfAccountPage");
+  const t = useNamespaceTranslations("chartOfAccount");
   const moduleId = ModuleId.master;
   const transactionId = MasterTransactionId.chartOfAccount;
 
@@ -172,7 +172,7 @@ export default function ChartOfAccountMasterPage() {
           <ChartArea className="h-5 w-5 text-rose-500" />
           {t("title")}
         </h1>
-        <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+        <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-200">
           {t("description")}
         </p>
       </div>
@@ -222,25 +222,25 @@ export default function ChartOfAccountMasterPage() {
               : "Create Chart Of Account"
           }
           onClose={handleCloseDialog}
-          width={640}
+          width={896}
         >
           {viewMode && selectedItem ? (
-            <div className="space-y-4 py-2">
+            <div className="max-h-[90vh] overflow-auto space-y-4 py-2">
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="text-slate-500 dark:text-slate-400">
+                  <span className="text-slate-500 dark:text-slate-200">
                     GL Code
                   </span>
                   <p className="font-medium">{selectedItem.glCode}</p>
                 </div>
                 <div>
-                  <span className="text-slate-500 dark:text-slate-400">
+                  <span className="text-slate-500 dark:text-slate-200">
                     GL Name
                   </span>
                   <p className="font-medium">{selectedItem.glName}</p>
                 </div>
                 <div>
-                  <span className="text-slate-500 dark:text-slate-400">
+                  <span className="text-slate-500 dark:text-slate-200">
                     Account Type
                   </span>
                   <p className="font-medium">
@@ -248,7 +248,7 @@ export default function ChartOfAccountMasterPage() {
                   </p>
                 </div>
                 <div>
-                  <span className="text-slate-500 dark:text-slate-400">
+                  <span className="text-slate-500 dark:text-slate-200">
                     Account Group
                   </span>
                   <p className="font-medium">
@@ -256,13 +256,13 @@ export default function ChartOfAccountMasterPage() {
                   </p>
                 </div>
                 <div className="col-span-2">
-                  <span className="text-slate-500 dark:text-slate-400">
+                  <span className="text-slate-500 dark:text-slate-200">
                     Remarks
                   </span>
                   <p className="font-medium">{selectedItem.remarks || "—"}</p>
                 </div>
                 <div>
-                  <span className="text-slate-500 dark:text-slate-400">
+                  <span className="text-slate-500 dark:text-slate-200">
                     Active
                   </span>
                   <p className="font-medium">
@@ -277,7 +277,7 @@ export default function ChartOfAccountMasterPage() {
               </DialogActionsBar>
             </div>
           ) : (
-            <>
+            <div className="max-h-[90vh] overflow-auto">
               <ChartOfAccountForm
                 key={selectedItem?.glId ?? "new"}
                 initialData={selectedItem}
@@ -287,7 +287,7 @@ export default function ChartOfAccountMasterPage() {
                 isLoading={saveMutation.isPending}
                 isViewMode={viewMode}
               />
-            </>
+            </div>
           )}
         </Dialog>
       )}

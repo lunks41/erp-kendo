@@ -1,7 +1,7 @@
 import * as z from "zod"
 
 export const gstSchema = z.object({
-  gstId: z.number(),
+  gstId: z.number().optional(),
 
   gstCode: z
     .string()
@@ -11,7 +11,7 @@ export const gstSchema = z.object({
     .string()
     .min(2, { message: "Gst name must be at least 2 characters" })
     .max(150, { message: "Gst name cannot exceed 150 characters" }),
-  gstCategoryId: z.number().min(1, { message: "Gst category is required" }),
+  gstCategoryId: z.number().min(0, { message: "GST category ID must be 0 or greater" }),
   isActive: z.boolean(),
   remarks: z
     .string()

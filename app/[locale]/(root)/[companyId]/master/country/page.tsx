@@ -2,7 +2,6 @@
 
 import { useCallback, useMemo, useSyncExternalStore, useState } from "react";
 import { useParams } from "next/navigation";
-import { useTranslations } from "next-intl";
 import { Button } from "@progress/kendo-react-buttons";
 import { Dialog, DialogActionsBar } from "@progress/kendo-react-dialogs";
 import { useQueryClient } from "@tanstack/react-query";
@@ -21,9 +20,10 @@ import { MasterTransactionId, ModuleId } from "@/lib/utils";
 import { usePermissionStore } from "@/stores/permission-store";
 import { useUserSettingDefaults } from "@/hooks/use-settings";
 import { CountryTable } from "./components/country-table";
+import { useNamespaceTranslations } from "@/hooks/use-form-translations";
 
 export default function CountryMasterPage() {
-  const t = useTranslations("countryPage");
+  const t = useNamespaceTranslations("country");
   const moduleId = ModuleId.master;
   const transactionId = MasterTransactionId.country;
 
@@ -55,7 +55,8 @@ export default function CountryMasterPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<ICountry | null>(null);
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
-  const [pendingSaveData, setPendingSaveData] = useState<Partial<ICountry> | null>(null);
+  const [pendingSaveData, setPendingSaveData] =
+    useState<Partial<ICountry> | null>(null);
   const [selectedItem, setSelectedItem] = useState<ICountry | null>(null);
   const [viewMode, setViewMode] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -140,7 +141,10 @@ export default function CountryMasterPage() {
     setSelectedItem(null);
   }, []);
 
-  const handlePageChange = useCallback((page: number) => setCurrentPage(page), []);
+  const handlePageChange = useCallback(
+    (page: number) => setCurrentPage(page),
+    [],
+  );
   const handlePageSizeChange = useCallback((size: number) => {
     setPageSize(size);
     setCurrentPage(1);
@@ -220,24 +224,36 @@ export default function CountryMasterPage() {
             <div className="space-y-4 py-2">
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="text-slate-500 dark:text-slate-400">Code</span>
+                  <span className="text-slate-500 dark:text-slate-400">
+                    Code
+                  </span>
                   <p className="font-medium">{selectedItem.countryCode}</p>
                 </div>
                 <div>
-                  <span className="text-slate-500 dark:text-slate-400">Name</span>
+                  <span className="text-slate-500 dark:text-slate-400">
+                    Name
+                  </span>
                   <p className="font-medium">{selectedItem.countryName}</p>
                 </div>
                 <div>
-                  <span className="text-slate-500 dark:text-slate-400">Phone Code</span>
+                  <span className="text-slate-500 dark:text-slate-400">
+                    Phone Code
+                  </span>
                   <p className="font-medium">{selectedItem.phoneCode || "—"}</p>
                 </div>
                 <div className="col-span-2">
-                  <span className="text-slate-500 dark:text-slate-400">Remarks</span>
+                  <span className="text-slate-500 dark:text-slate-400">
+                    Remarks
+                  </span>
                   <p className="font-medium">{selectedItem.remarks || "—"}</p>
                 </div>
                 <div>
-                  <span className="text-slate-500 dark:text-slate-400">Active</span>
-                  <p className="font-medium">{selectedItem.isActive ? "Yes" : "No"}</p>
+                  <span className="text-slate-500 dark:text-slate-400">
+                    Active
+                  </span>
+                  <p className="font-medium">
+                    {selectedItem.isActive ? "Yes" : "No"}
+                  </p>
                 </div>
               </div>
               <DialogActionsBar>

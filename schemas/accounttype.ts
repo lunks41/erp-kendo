@@ -1,7 +1,7 @@
 import * as z from "zod"
 
 export const accountTypeSchema = z.object({
-  accTypeId: z.number(),
+  accTypeId: z.number().optional(),
   accTypeCode: z
     .string()
     .min(1, { message: "account type code is required" })

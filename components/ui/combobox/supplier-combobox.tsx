@@ -17,7 +17,8 @@ import type { ISupplierLookup } from "@/interfaces/lookup";
  * For very large lists (e.g. customers, COA), consider Filtering with Remote Data + Virtualization.
  */
 export interface SupplierComboboxProps {
-  value?: ISupplierLookup | null;
+  /** Selected item or partial { supplierId } for resolution from data */
+  value?: ISupplierLookup | { supplierId?: number } | null;
   onChange?: (value: ISupplierLookup | null) => void;
   onBlur?: () => void;
   isDisable?: boolean;

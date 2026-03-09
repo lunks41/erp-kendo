@@ -206,7 +206,7 @@ export default function Main({
       docItemNo: nextItemNo,
     };
 
-    const next = [...current, newRow];
+    const next = [newRow, ...current]; //current is the existing rows as below
     form.setValue("data_details", next as ArInvoiceDtSchemaType[], {
       shouldDirty: true,
     });

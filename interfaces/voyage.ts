@@ -1,4 +1,5 @@
 export interface IVoyage {
+  companyId?: number
   voyageId: number
   voyageNo: string
   referenceNo: string

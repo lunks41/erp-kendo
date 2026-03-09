@@ -2,7 +2,6 @@
 
 import { useCallback, useMemo, useSyncExternalStore, useState } from "react";
 import { useParams } from "next/navigation";
-import { useTranslations } from "next-intl";
 import { Button } from "@progress/kendo-react-buttons";
 import { Dialog, DialogActionsBar } from "@progress/kendo-react-dialogs";
 import { useQueryClient } from "@tanstack/react-query";
@@ -22,9 +21,10 @@ import { MasterTransactionId, ModuleId } from "@/lib/utils";
 import { usePermissionStore } from "@/stores/permission-store";
 import { useUserSettingDefaults } from "@/hooks/use-settings";
 import { PortTable } from "./components/port-table";
+import { useNamespaceTranslations } from "@/hooks/use-form-translations";
 
 export default function PortMasterPage() {
-  const t = useTranslations("portPage");
+  const t = useNamespaceTranslations("port");
   const moduleId = ModuleId.master;
   const transactionId = MasterTransactionId.port;
 

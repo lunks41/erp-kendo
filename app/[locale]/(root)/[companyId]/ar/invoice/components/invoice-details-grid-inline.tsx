@@ -68,17 +68,16 @@ export function InvoiceDetailsGridInline({
 
   const handleValueChange = useCallback(
     (itemNo: number, field: string, value: string | number | Date | null) => {
-      // We only need itemNo for lookup in the parent handler.
-      // dataIndex is set to -1 so the parent will always find by itemNo.
+      const dataIndex = data.findIndex((d) => d.itemNo === itemNo);
       const minimalItem = { itemNo } as InvoiceDetailRow;
       onItemChangeAction({
         dataItem: minimalItem,
         field,
         value,
-        dataIndex: -1,
+        dataIndex: dataIndex >= 0 ? dataIndex : -1,
       });
     },
-    [onItemChangeAction],
+    [onItemChangeAction, data],
   );
 
   const handleDelete = useCallback(

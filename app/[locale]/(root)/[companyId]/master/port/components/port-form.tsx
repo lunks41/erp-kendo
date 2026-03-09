@@ -1,12 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useNamespaceTranslations } from "@/hooks/use-form-translations";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { PortRegionCombobox } from "@/components/ui/combobox/port-region-combobox";
-import { FormInput, FormSwitch, FormTextArea } from "@/components/ui/form";
-import { usePortregionLookup } from "@/hooks/use-lookup";
-import type { IPortRegionLookup } from "@/interfaces/lookup";
+import { FormInput, FormCheckbox, FormTextArea } from "@/components/ui/form";
 import type { IPort } from "@/interfaces/port";
 import { formatDateTime } from "@/lib/date-utils";
 import { portSchema, type PortSchemaType } from "@/schemas/port";
@@ -32,8 +30,8 @@ export function PortForm({
   isLoading = false,
   isViewMode = false,
 }: PortFormProps) {
-  const t = useTranslations("portForm");
-  const tc = useTranslations("common");
+  const t = useNamespaceTranslations("port");
+  const tc = useNamespaceTranslations("common");
   const { decimals } = useAuthStore();
   const datetimeFormat = decimals[0]?.longDateFormat ?? "dd/MM/yyyy HH:mm:ss";
   const isEdit = !!initialData?.portId;
@@ -60,8 +58,6 @@ export function PortForm({
   });
 
   const portRegionId = watch("portRegionId");
-  const portRegionIdNum = Number(portRegionId) || 0;
-  const { data: portRegionData = [] } = usePortregionLookup();
 
   useEffect(() => {
     if (!initialData) return;
@@ -76,7 +72,7 @@ export function PortForm({
     });
   }, [initialData, reset]);
 
-  const handlePortRegionChange = (value: IPortRegionLookup | null) => {
+  const handlePortRegionChange = (value: { portRegionId?: number } | null) => {
     setValue("portRegionId", value?.portRegionId ?? 0, {
       shouldValidate: true,
     });
@@ -88,22 +84,6 @@ export function PortForm({
       companyId: Number(companyId),
     });
   };
-
-  const portRegionValue: IPortRegionLookup | null =
-    portRegionIdNum > 0
-      ? (portRegionData.find((r) => r.portRegionId === portRegionIdNum) ??
-        (initialData && Number(initialData.portRegionId) === portRegionIdNum
-          ? {
-              portRegionId: portRegionIdNum,
-              portRegionCode: initialData.portRegionCode ?? "",
-              portRegionName: initialData.portRegionName ?? "",
-            }
-          : {
-              portRegionId: portRegionIdNum,
-              portRegionCode: "",
-              portRegionName: "",
-            }))
-      : null;
 
   return (
     <form onSubmit={handleSubmit(onFormSubmit)} className="flex flex-col gap-3">
@@ -128,12 +108,7 @@ export function PortForm({
           valid={!errors.portName}
         />
         <PortRegionCombobox
-          value={
-            portRegionValue ??
-            (portRegionId
-              ? { portRegionId, portRegionCode: "", portRegionName: "" }
-              : null)
-          }
+          value={portRegionId ? { portRegionId } : null}
           onChange={handlePortRegionChange}
           isDisable={isLoading}
           placeholder={t("selectPortRegion")}
@@ -154,7 +129,7 @@ export function PortForm({
         <FormTextArea
           control={control}
           name="remarks"
-          label={t("remarks")}
+          label={tc("remarks")}
           isDisable={isViewMode}
           rows={3}
           className="sm:col-span-2"
@@ -162,14 +137,11 @@ export function PortForm({
           valid={!errors.remarks}
         />
 
-        <FormSwitch
+        <FormCheckbox
           control={control}
           name="isActive"
-          label={t("activeStatus")}
-          isDisable={isLoading}
-          onLabel={t("onLabel")}
-          offLabel={t("offLabel")}
-          className="sm:col-span-2"
+          label={tc("activeStatus")}
+          disabled={isLoading}
         />
       </div>
 
@@ -180,14 +152,14 @@ export function PortForm({
             onClick={() => setAuditTrailOpen((o) => !o)}
             className="flex w-full items-center justify-between gap-2 px-2.5 py-1.5 text-left text-xs font-medium text-slate-600 dark:text-slate-400"
           >
-            <span>{t("viewAuditTrail")}</span>
+            <span>{tc("viewAuditTrail")}</span>
             <span className="flex items-center gap-1">
               <span className="rounded px-1.5 py-0.5 text-[10px] font-medium text-slate-500 dark:text-slate-400">
-                {t("created")}
+                {tc("created")}
               </span>
               <span className="text-slate-400 dark:text-slate-500">•</span>
               <span className="rounded px-1.5 py-0.5 text-[10px] font-medium text-slate-500 dark:text-slate-400">
-                {t("modified")}
+                {tc("modified")}
               </span>
               {auditTrailOpen ? (
                 <ChevronUp className="h-3.5 w-3.5" />
@@ -200,27 +172,29 @@ export function PortForm({
             <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 border-t border-slate-200 px-2.5 py-2 dark:border-slate-700">
               <div className="flex flex-col gap-0.5">
                 <span className="text-[10px] font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
-                  {t("createdBy")}
+                  {tc("createdBy")}
                 </span>
                 <div className="flex flex-wrap items-center gap-1">
                   <span className="inline-flex rounded px-1.5 py-0.5 text-[11px] font-medium text-slate-700 dark:text-slate-300">
                     {initialData.createBy || "—"}
                   </span>
                   <span className="text-[11px] text-slate-500 dark:text-slate-400">
-                    {formatDateTime(initialData.createDate, datetimeFormat) || "—"}
+                    {formatDateTime(initialData.createDate, datetimeFormat) ||
+                      "—"}
                   </span>
                 </div>
               </div>
               <div className="flex flex-col gap-0.5">
                 <span className="text-[10px] font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
-                  {t("lastModifiedBy")}
+                  {tc("lastModifiedBy")}
                 </span>
                 <div className="flex flex-wrap items-center gap-1">
                   <span className="inline-flex rounded px-1.5 py-0.5 text-[11px] font-medium text-slate-700 dark:text-slate-300">
                     {initialData.editBy || "—"}
                   </span>
                   <span className="text-[11px] text-slate-500 dark:text-slate-400">
-                    {formatDateTime(initialData.editDate, datetimeFormat) || "—"}
+                    {formatDateTime(initialData.editDate, datetimeFormat) ||
+                      "—"}
                   </span>
                 </div>
               </div>

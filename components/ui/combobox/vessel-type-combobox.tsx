@@ -17,7 +17,8 @@ import type { IVesselTypeLookup } from "@/interfaces/lookup";
  * For very large lists (e.g. customers, COA), consider Filtering with Remote Data + Virtualization.
  */
 export interface VesselTypeComboboxProps {
-  value?: IVesselTypeLookup | null;
+  /** Selected item or partial { vesselTypeId } for resolution from data */
+  value?: IVesselTypeLookup | { vesselTypeId?: number } | null;
   onChange?: (value: IVesselTypeLookup | null) => void;
   onBlur?: () => void;
   isDisable?: boolean;

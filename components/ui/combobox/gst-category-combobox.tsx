@@ -17,7 +17,8 @@ import type { IGstCategoryLookup } from "@/interfaces/lookup";
  * For very large lists (e.g. customers, COA), consider Filtering with Remote Data + Virtualization.
  */
 export interface GstCategoryComboboxProps {
-  value?: IGstCategoryLookup | null;
+  /** Selected item or partial { gstCategoryId } for resolution from data */
+  value?: IGstCategoryLookup | { gstCategoryId?: number } | null;
   onChange?: (value: IGstCategoryLookup | null) => void;
   onBlur?: () => void;
   isDisable?: boolean;

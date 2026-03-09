@@ -2,7 +2,6 @@
 
 import { useCallback, useSyncExternalStore, useState } from "react";
 import { useParams } from "next/navigation";
-import { useTranslations } from "next-intl";
 import { Button } from "@progress/kendo-react-buttons";
 import { Dialog, DialogActionsBar } from "@progress/kendo-react-dialogs";
 import { useQueryClient } from "@tanstack/react-query";
@@ -21,9 +20,10 @@ import { MasterTransactionId, ModuleId } from "@/lib/utils";
 import { usePermissionStore } from "@/stores/permission-store";
 import { useUserSettingDefaults } from "@/hooks/use-settings";
 import { VesselTable } from "./components/vessel-table";
+import { useNamespaceTranslations } from "@/hooks/use-form-translations";
 
 export default function VesselMasterPage() {
-  const t = useTranslations("vesselPage");
+  const t = useNamespaceTranslations("vessel");
   const moduleId = ModuleId.master;
   const transactionId = MasterTransactionId.vessel;
 
@@ -55,7 +55,8 @@ export default function VesselMasterPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<IVessel | null>(null);
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
-  const [pendingSaveData, setPendingSaveData] = useState<Partial<IVessel> | null>(null);
+  const [pendingSaveData, setPendingSaveData] =
+    useState<Partial<IVessel> | null>(null);
   const [selectedItem, setSelectedItem] = useState<IVessel | null>(null);
   const [viewMode, setViewMode] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -140,7 +141,10 @@ export default function VesselMasterPage() {
     setSelectedItem(null);
   }, []);
 
-  const handlePageChange = useCallback((page: number) => setCurrentPage(page), []);
+  const handlePageChange = useCallback(
+    (page: number) => setCurrentPage(page),
+    [],
+  );
   const handlePageSizeChange = useCallback((size: number) => {
     setPageSize(size);
     setCurrentPage(1);
@@ -220,36 +224,56 @@ export default function VesselMasterPage() {
             <div className="space-y-4 py-2">
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="text-slate-500 dark:text-slate-400">Code</span>
+                  <span className="text-slate-500 dark:text-slate-400">
+                    Code
+                  </span>
                   <p className="font-medium">{selectedItem.vesselCode}</p>
                 </div>
                 <div>
-                  <span className="text-slate-500 dark:text-slate-400">Name</span>
+                  <span className="text-slate-500 dark:text-slate-400">
+                    Name
+                  </span>
                   <p className="font-medium">{selectedItem.vesselName}</p>
                 </div>
                 <div>
-                  <span className="text-slate-500 dark:text-slate-400">Type</span>
-                  <p className="font-medium">{selectedItem.vesselTypeName || "—"}</p>
+                  <span className="text-slate-500 dark:text-slate-400">
+                    Type
+                  </span>
+                  <p className="font-medium">
+                    {selectedItem.vesselTypeName || "—"}
+                  </p>
                 </div>
                 <div>
-                  <span className="text-slate-500 dark:text-slate-400">Call Sign</span>
+                  <span className="text-slate-500 dark:text-slate-400">
+                    Call Sign
+                  </span>
                   <p className="font-medium">{selectedItem.callSign || "—"}</p>
                 </div>
                 <div>
-                  <span className="text-slate-500 dark:text-slate-400">IMO Code</span>
+                  <span className="text-slate-500 dark:text-slate-400">
+                    IMO Code
+                  </span>
                   <p className="font-medium">{selectedItem.imoCode || "—"}</p>
                 </div>
                 <div>
-                  <span className="text-slate-500 dark:text-slate-400">GRT</span>
+                  <span className="text-slate-500 dark:text-slate-400">
+                    GRT
+                  </span>
                   <p className="font-medium">{selectedItem.grt || "—"}</p>
                 </div>
                 <div className="col-span-2">
-                  <span className="text-slate-500 dark:text-slate-400">Remarks</span>
+                  <span className="text-slate-500 dark:text-slate-400">
+                    Remarks
+                  </span>
                   <p className="font-medium">{selectedItem.remarks || "—"}</p>
                 </div>
                 <div>
-                  <span className="text-slate-500 dark:text-slate-400">Active</span>
-                  <p className="font-medium">{selectedItem.isActive ? "Yes" : "No"}</p>
+                  <span className="text-slate-500 dark:text-slate-400">
+                    Active
+                  </span>
+                  <p className="font-medium">
+                    {selectedItem.isActive ? "Yes" : "No"}
+                  </p>
                 </div>
               </div>
               <DialogActionsBar>

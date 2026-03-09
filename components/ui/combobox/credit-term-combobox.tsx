@@ -17,7 +17,8 @@ import type { ICreditTermLookup } from "@/interfaces/lookup";
  * For very large lists (e.g. customers, COA), consider Filtering with Remote Data + Virtualization.
  */
 export interface CreditTermComboboxProps {
-  value?: ICreditTermLookup | null;
+  /** Selected item or partial { creditTermId } for resolution from data */
+  value?: ICreditTermLookup | { creditTermId?: number } | null;
   onChange?: (value: ICreditTermLookup | null) => void;
   onBlur?: () => void;
   isDisable?: boolean;

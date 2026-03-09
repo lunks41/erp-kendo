@@ -3,8 +3,8 @@ import { z } from "zod"
 export const accountSetupSchema = z.object({
   accSetupCode: z.string().min(1, { message: "Code is required" }),
   accSetupName: z.string().min(1, { message: "Name is required" }),
-  accSetupId: z.number().min(0, { message: "ID must be 0 or greater" }),
-  accSetupCategoryId: z.number().min(1, { message: "Category is required" }),
+  accSetupId: z.number().optional(),
+  accSetupCategoryId: z.number().min(0, { message: "Category ID must be 0 or greater" }),
   isActive: z.boolean(),
   remarks: z.string().optional(),
 })

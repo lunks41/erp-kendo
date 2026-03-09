@@ -1,7 +1,7 @@
 import * as z from "zod"
 
 export const landingTypeSchema = z.object({
-  landingTypeId: z.number(),
+  landingTypeId: z.number().optional(),
   landingTypeCode: z
     .string()
     .min(1, { message: "landing type code is required" })

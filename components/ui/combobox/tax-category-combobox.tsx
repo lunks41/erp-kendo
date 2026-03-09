@@ -17,7 +17,8 @@ import type { ITaxCategoryLookup } from "@/interfaces/lookup";
  * For very large lists (e.g. customers, COA), consider Filtering with Remote Data + Virtualization.
  */
 export interface TaxCategoryComboboxProps {
-  value?: ITaxCategoryLookup | null;
+  /** Selected item or partial { taxCategoryId } for resolution from data */
+  value?: ITaxCategoryLookup | { taxCategoryId?: number } | null;
   onChange?: (value: ITaxCategoryLookup | null) => void;
   onBlur?: () => void;
   isDisable?: boolean;

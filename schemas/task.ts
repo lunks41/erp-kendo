@@ -1,7 +1,7 @@
 import * as z from "zod"
 
 export const taskSchema = z.object({
-  taskId: z.number(),
+  taskId: z.number().optional(),
   taskCode: z
     .string()
     .min(1, { message: "task code is required" })

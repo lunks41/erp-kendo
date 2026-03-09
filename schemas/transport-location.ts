@@ -1,7 +1,7 @@
 import * as z from "zod"
 
 export const transportLocationSchema = z.object({
-  transportLocationId: z.number(),
+  transportLocationId: z.number().optional(),
   transportLocationCode: z
     .string()
     .min(1, { message: "transport location code is required" })

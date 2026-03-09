@@ -17,7 +17,8 @@ import type { IBankLookup } from "@/interfaces/lookup";
  * For very large lists (e.g. customers, COA), consider Filtering with Remote Data + Virtualization.
  */
 export interface BankComboboxProps {
-  value?: IBankLookup | null;
+  /** Selected item or partial { bankId } for resolution from data */
+  value?: IBankLookup | { bankId?: number } | null;
   onChange?: (value: IBankLookup | null) => void;
   onBlur?: () => void;
   isDisable?: boolean;
