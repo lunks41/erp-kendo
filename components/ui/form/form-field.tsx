@@ -20,7 +20,13 @@ export function FormField({
 }: FormFieldProps) {
   return (
     <div className={className}>
-      <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-100">
+      <label
+        className={`mb-1.5 block text-sm font-medium ${
+          isRequired
+            ? "text-rose-600 dark:text-rose-400"
+            : "text-slate-700 dark:text-slate-100"
+        }`}
+      >
         {label}
         {isRequired && <span className="text-rose-500"> *</span>}
       </label>

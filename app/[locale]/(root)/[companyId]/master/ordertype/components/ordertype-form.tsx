@@ -10,7 +10,7 @@ import { formatDateTime } from "@/lib/date-utils";
 import { orderTypeSchema, type OrderTypeSchemaType } from "@/schemas/ordertype";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@progress/kendo-react-buttons";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { useAuthStore } from "@/stores/auth-store";
 
 export interface OrderTypeFormProps {
@@ -40,7 +40,6 @@ export function OrderTypeForm({
     control,
     handleSubmit,
     setValue,
-    watch,
     reset,
     formState: { errors },
   } = useForm<OrderTypeSchemaType>({
@@ -69,7 +68,7 @@ export function OrderTypeForm({
       isActive: initialData.isActive ?? true,
     });
   }, [initialData, reset]);
-  const orderTypeCategoryId = watch("orderTypeCategoryId");
+  const orderTypeCategoryId = useWatch({ control, name: "orderTypeCategoryId" });
   const handleOrderTypeCategoryChange = (
     v: { orderTypeCategoryId?: number } | null,
   ) => {

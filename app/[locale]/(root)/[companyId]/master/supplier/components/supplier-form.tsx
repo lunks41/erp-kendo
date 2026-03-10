@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { ISupplier } from "@/interfaces/supplier";
 import { supplierSchema } from "@/schemas/supplier";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 
 import {
@@ -80,15 +80,14 @@ export default function SupplierForm({
   const {
     control,
     setValue,
-    watch,
     reset,
     formState: { errors },
   } = form;
-  const currencyId = Number(watch("currencyId")) || 0;
-  const bankId = Number(watch("bankId")) || 0;
-  const creditTermId = Number(watch("creditTermId")) || 0;
-  const accSetupId = Number(watch("accSetupId")) || 0;
-  const customerId = Number(watch("customerId")) || 0;
+  const currencyId = Number(useWatch({ control, name: "currencyId" })) || 0;
+  const bankId = Number(useWatch({ control, name: "bankId" })) || 0;
+  const creditTermId = Number(useWatch({ control, name: "creditTermId" })) || 0;
+  const accSetupId = Number(useWatch({ control, name: "accSetupId" })) || 0;
+  const customerId = Number(useWatch({ control, name: "customerId" })) || 0;
 
   useEffect(() => {
     reset(

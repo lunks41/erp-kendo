@@ -13,7 +13,7 @@ import {
 } from "@/schemas/portregion";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@progress/kendo-react-buttons";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { useAuthStore } from "@/stores/auth-store";
 
 export interface PortRegionFormProps {
@@ -44,7 +44,6 @@ export function PortRegionForm({
     control,
     handleSubmit,
     setValue,
-    watch,
     reset,
     formState: { errors },
   } = useForm<PortRegionSchemaType>({
@@ -59,7 +58,7 @@ export function PortRegionForm({
     },
   });
 
-  const countryId = watch("countryId");
+  const countryId = useWatch({ control, name: "countryId" });
 
   useEffect(() => {
     if (!initialData) return;

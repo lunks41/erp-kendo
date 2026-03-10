@@ -10,7 +10,7 @@ import { formatDateTime } from "@/lib/date-utils";
 import { portSchema, type PortSchemaType } from "@/schemas/port";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@progress/kendo-react-buttons";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { useAuthStore } from "@/stores/auth-store";
 
 export interface PortFormProps {
@@ -41,7 +41,6 @@ export function PortForm({
     control,
     handleSubmit,
     setValue,
-    watch,
     reset,
     formState: { errors },
   } = useForm<PortSchemaType>({
@@ -57,7 +56,7 @@ export function PortForm({
     },
   });
 
-  const portRegionId = watch("portRegionId");
+  const portRegionId = useWatch({ control, name: "portRegionId" });
 
   useEffect(() => {
     if (!initialData) return;

@@ -13,7 +13,7 @@ import {
 } from "@/schemas/geolocation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@progress/kendo-react-buttons";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { useAuthStore } from "@/stores/auth-store";
 
 export interface GeoLocationFormProps {
@@ -44,7 +44,6 @@ export function GeoLocationForm({
     control,
     handleSubmit,
     setValue,
-    watch,
     reset,
     formState: { errors },
   } = useForm<GeoLocationSchemaType>({
@@ -71,7 +70,7 @@ export function GeoLocationForm({
     });
   }, [initialData, reset]);
 
-  const portId = watch("portId");
+  const portId = useWatch({ control, name: "portId" });
   const handlePortChange = (v: { portId?: number } | null) => {
     setValue("portId", v?.portId ?? 0, { shouldValidate: true });
   };

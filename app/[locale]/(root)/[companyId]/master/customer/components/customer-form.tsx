@@ -4,7 +4,7 @@ import { useEffect, useMemo } from "react";
 import { ICustomer } from "@/interfaces/customer";
 import { customerSchema } from "@/schemas/customer";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 
 import {
@@ -68,21 +68,21 @@ export default function CustomerForm({
     control,
     handleSubmit,
     setValue,
-    watch,
     reset,
     formState: { errors },
   } = form;
-  const bankId = Number(watch("bankId")) || 0;
-  const currencyId = Number(watch("currencyId")) || 0;
-  const creditTermId = Number(watch("creditTermId")) || 0;
-  const accSetupId = Number(watch("accSetupId")) || 0;
-  const parentCustomerId = Number(watch("parentCustomerId")) || 0;
-  const supplierId = Number(watch("supplierId")) || 0;
+  const bankId = Number(useWatch({ control, name: "bankId" })) || 0;
+  const currencyId = Number(useWatch({ control, name: "currencyId" })) || 0;
+  const creditTermId = Number(useWatch({ control, name: "creditTermId" })) || 0;
+  const accSetupId = Number(useWatch({ control, name: "accSetupId" })) || 0;
+  const parentCustomerId = Number(useWatch({ control, name: "parentCustomerId" })) || 0;
+  const supplierId = Number(useWatch({ control, name: "supplierId" })) || 0;
+  const customerCode = useWatch({ control, name: "customerCode" });
 
   const { data: customerData = [] } = useCustomerLookup();
 
   const customerCodeValue = useMemo(() => {
-    const code = String(watch("customerCode") ?? "").trim();
+    const code = String(customerCode ?? "").trim();
     if (!code) return null;
     const found = customerData.find(
       (c) => String(c.customerCode ?? "").toLowerCase() === code.toLowerCase()
@@ -96,7 +96,7 @@ export default function CustomerForm({
       creditTermId: 0,
       bankId: 0,
     };
-  }, [watch("customerCode"), customerData, initialData?.customerName]);
+  }, [customerCode, customerData, initialData?.customerName]);
 
   useEffect(() => {
     reset(

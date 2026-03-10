@@ -9,7 +9,7 @@ import {
 import { useAuthStore } from "@/stores/auth-store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { Button } from "@progress/kendo-react-buttons";
 import { Badge } from "@progress/kendo-react-indicators";
 import {
@@ -97,8 +97,8 @@ export function CustomerAddressForm({
           customerId: customerId,
         },
   });
-  const { control, setValue, watch } = form;
-  const countryId = Number(watch("countryId")) || 0;
+  const { control, setValue } = form;
+  const countryId = Number(useWatch({ control, name: "countryId" })) || 0;
   const { data: countryData = [] } = useCountryLookup();
   const countryValue = useMemo(
     () =>

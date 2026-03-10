@@ -10,7 +10,7 @@ import { formatDateTime } from "@/lib/date-utils";
 import { vesselSchema, type VesselSchemaType } from "@/schemas/vessel";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@progress/kendo-react-buttons";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { useAuthStore } from "@/stores/auth-store";
 
 export interface VesselFormProps {
@@ -41,7 +41,6 @@ export function VesselForm({
     control,
     handleSubmit,
     setValue,
-    watch,
     reset,
     formState: { errors },
   } = useForm<VesselSchemaType>({
@@ -64,7 +63,7 @@ export function VesselForm({
     },
   });
 
-  const vesselTypeId = watch("vesselTypeId");
+  const vesselTypeId = useWatch({ control, name: "vesselTypeId" });
 
   useEffect(() => {
     if (!initialData) return;

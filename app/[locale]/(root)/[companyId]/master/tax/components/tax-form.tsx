@@ -10,7 +10,7 @@ import { formatDateTime } from "@/lib/date-utils";
 import { taxSchema, type TaxSchemaType } from "@/schemas/tax";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@progress/kendo-react-buttons";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { useAuthStore } from "@/stores/auth-store";
 
 export interface TaxFormProps {
@@ -40,7 +40,6 @@ export function TaxForm({
     control,
     handleSubmit,
     setValue,
-    watch,
     reset,
     formState: { errors },
   } = useForm<TaxSchemaType>({
@@ -65,7 +64,7 @@ export function TaxForm({
       isActive: initialData.isActive ?? true,
     });
   }, [initialData, reset]);
-  const taxCategoryId = watch("taxCategoryId");
+  const taxCategoryId = useWatch({ control, name: "taxCategoryId" });
   const handleTaxCategoryChange = (v: { taxCategoryId?: number } | null) => {
     setValue("taxCategoryId", v?.taxCategoryId ?? 0, { shouldValidate: true });
   };

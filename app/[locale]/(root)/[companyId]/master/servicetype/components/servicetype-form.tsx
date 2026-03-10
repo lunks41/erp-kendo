@@ -13,7 +13,7 @@ import {
 } from "@/schemas/servicetype";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@progress/kendo-react-buttons";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { useAuthStore } from "@/stores/auth-store";
 
 export interface ServiceTypeFormProps {
@@ -43,7 +43,6 @@ export function ServiceTypeForm({
     control,
     handleSubmit,
     setValue,
-    watch,
     reset,
     formState: { errors },
   } = useForm<ServiceTypeSchemaType>({
@@ -68,7 +67,7 @@ export function ServiceTypeForm({
       isActive: initialData.isActive ?? true,
     });
   }, [initialData, reset]);
-  const serviceTypeCategoryId = watch("serviceTypeCategoryId");
+  const serviceTypeCategoryId = useWatch({ control, name: "serviceTypeCategoryId" });
   const handleServiceTypeCategoryChange = (
     v: { serviceTypeCategoryId?: number } | null,
   ) => {

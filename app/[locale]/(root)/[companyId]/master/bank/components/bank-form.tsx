@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { IBank } from "@/interfaces/bank";
 import { bankSchema } from "@/schemas/bank";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 
 import { CurrencyCombobox } from "@/components/ui/combobox";
@@ -65,11 +65,10 @@ export default function BankForm({
   const {
     control,
     setValue,
-    watch,
     reset,
     formState: { errors },
   } = form;
-  const currencyId = Number(watch("currencyId")) || 0;
+  const currencyId = Number(useWatch({ control, name: "currencyId" })) || 0;
 
   useEffect(() => {
     reset(

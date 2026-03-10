@@ -10,7 +10,7 @@ import { formatDateTime } from "@/lib/date-utils";
 import { gstSchema, type GstSchemaType } from "@/schemas/gst";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@progress/kendo-react-buttons";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { useAuthStore } from "@/stores/auth-store";
 
 export interface GstFormProps {
@@ -41,7 +41,6 @@ export function GstForm({
     control,
     handleSubmit,
     setValue,
-    watch,
     reset,
     formState: { errors },
   } = useForm<GstSchemaType>({
@@ -68,7 +67,7 @@ export function GstForm({
     });
   }, [initialData, reset]);
 
-  const gstCategoryId = watch("gstCategoryId");
+  const gstCategoryId = useWatch({ control, name: "gstCategoryId" });
   const handleGstCategoryChange = (v: { gstCategoryId?: number } | null) => {
     setValue("gstCategoryId", v?.gstCategoryId ?? 0, { shouldValidate: true });
   };

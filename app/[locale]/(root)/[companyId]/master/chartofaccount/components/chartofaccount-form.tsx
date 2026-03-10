@@ -23,7 +23,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@progress/kendo-react-buttons";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 
 const defaultBooleans = {
   isSysControl: false,
@@ -65,7 +65,6 @@ export function ChartOfAccountForm({
     control,
     handleSubmit,
     setValue,
-    watch,
     reset,
     formState: { errors },
   } = useForm<ChartOfAccountSchemaType>({
@@ -86,11 +85,11 @@ export function ChartOfAccountForm({
     },
   });
 
-  const accTypeId = watch("accTypeId");
-  const accGroupId = watch("accGroupId");
-  const coaCategoryId1 = watch("coaCategoryId1");
-  const coaCategoryId2 = watch("coaCategoryId2");
-  const coaCategoryId3 = watch("coaCategoryId3");
+  const accTypeId = useWatch({ control, name: "accTypeId" });
+  const accGroupId = useWatch({ control, name: "accGroupId" });
+  const coaCategoryId1 = useWatch({ control, name: "coaCategoryId1" });
+  const coaCategoryId2 = useWatch({ control, name: "coaCategoryId2" });
+  const coaCategoryId3 = useWatch({ control, name: "coaCategoryId3" });
 
   useEffect(() => {
     if (!initialData) return;
@@ -187,29 +186,29 @@ export function ChartOfAccountForm({
         <AccountTypeCombobox
           value={accTypeId ? { accTypeId } : null}
           onChange={handleAccountTypeChange}
-          label={t("accountType")}
+          label={tc("accountType")}
           isRequired
           isDisable={isViewMode || isLoading}
-          placeholder={t("selectAccountType")}
+          placeholder={tc("selectAccountType")}
           error={errors.accTypeId?.message}
         />
         <AccountGroupCombobox
           value={accGroupId ? { accGroupId } : null}
           onChange={handleAccountGroupChange}
-          label={t("accountGroup")}
+          label={tc("accountGroup")}
           isRequired
           isDisable={isViewMode || isLoading}
-          placeholder={t("selectAccountGroup")}
+          placeholder={tc("selectAccountGroup")}
           error={errors.accGroupId?.message}
         />
         <COACategoryCombobox
           variant={1}
           value={coaCategoryId1 ? { coaCategoryId: coaCategoryId1 } : null}
           onChange={handleCategory1Change}
-          label={t("category1")}
+          label={tc("category1")}
           isRequired
           isDisable={isViewMode || isLoading}
-          placeholder={t("selectCategory1")}
+          placeholder={tc("selectCategory1")}
           error={errors.coaCategoryId1?.message}
         />
         <COACategoryCombobox
@@ -219,9 +218,9 @@ export function ChartOfAccountForm({
             coaCategoryId2 != null ? { coaCategoryId: coaCategoryId2 } : null
           }
           onChange={handleCategory2Change}
-          label={t("category2")}
+          label={tc("category2")}
           isDisable={isViewMode || isLoading}
-          placeholder={t("selectCategory2")}
+          placeholder={tc("selectCategory2")}
         />
         <COACategoryCombobox
           variant={3}
@@ -230,9 +229,9 @@ export function ChartOfAccountForm({
             coaCategoryId3 != null ? { coaCategoryId: coaCategoryId3 } : null
           }
           onChange={handleCategory3Change}
-          label={t("category3")}
+          label={tc("category3")}
           isDisable={isViewMode || isLoading}
-          placeholder={t("selectCategory3")}
+          placeholder={tc("selectCategory3")}
         />
 
         <FormNumericInput

@@ -11,7 +11,7 @@ import { formatDateTime } from "@/lib/date-utils";
 import { voyageSchema, type VoyageSchemaType } from "@/schemas/voyage";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@progress/kendo-react-buttons";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { useAuthStore } from "@/stores/auth-store";
 
 export interface VoyageFormProps {
@@ -41,7 +41,6 @@ export function VoyageForm({
     control,
     handleSubmit,
     setValue,
-    watch,
     reset,
     formState: { errors },
   } = useForm<VoyageSchemaType>({
@@ -68,8 +67,8 @@ export function VoyageForm({
       isActive: initialData.isActive ?? true,
     });
   }, [initialData, reset]);
-  const vesselId = watch("vesselId");
-  const bargeId = watch("bargeId");
+  const vesselId = useWatch({ control, name: "vesselId" });
+  const bargeId = useWatch({ control, name: "bargeId" });
   const handleVesselChange = (v: { vesselId?: number } | null) => {
     setValue("vesselId", v?.vesselId ?? 0, { shouldValidate: true });
   };

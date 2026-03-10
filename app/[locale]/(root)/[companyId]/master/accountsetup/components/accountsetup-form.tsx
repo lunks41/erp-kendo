@@ -13,7 +13,7 @@ import {
 } from "@/schemas/accountsetup";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@progress/kendo-react-buttons";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { useAuthStore } from "@/stores/auth-store";
 
 export interface AccountSetupFormProps {
@@ -44,7 +44,6 @@ export function AccountSetupForm({
     control,
     handleSubmit,
     setValue,
-    watch,
     reset,
     formState: { errors },
   } = useForm<AccountSetupSchemaType>({
@@ -71,7 +70,7 @@ export function AccountSetupForm({
     });
   }, [initialData, reset]);
 
-  const accSetupCategoryId = watch("accSetupCategoryId");
+  const accSetupCategoryId = useWatch({ control, name: "accSetupCategoryId" });
   const handleCategoryChange = (v: { accSetupCategoryId?: number } | null) => {
     setValue("accSetupCategoryId", v?.accSetupCategoryId ?? 0, {
       shouldValidate: true,
