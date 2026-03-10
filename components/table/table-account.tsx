@@ -96,7 +96,6 @@ export function AccountBaseTable<T extends object>({
   hideDelete = false,
   hideCheckbox = true,
 }: AccountBaseTableProps<T>) {
-  const t = useTranslations("grid");
   const tc = useTranslations("common");
   const queryClient = useQueryClient();
   const updateLayoutMutation = useUpdateGridLayout();
@@ -121,7 +120,9 @@ export function AccountBaseTable<T extends object>({
 
   const hasActions = showActions && !!(onEditAction || onDeleteAction);
   const defaultColumnsState = useMemo(() => {
-    const fields = hasActions ? ["__actions", ...baseColumnFields] : baseColumnFields;
+    const fields = hasActions
+      ? ["__actions", ...baseColumnFields]
+      : baseColumnFields;
     const hiddenFields = new Set(
       columns.filter((c) => c.hidden).map((c) => c.field),
     );
@@ -137,17 +138,37 @@ export function AccountBaseTable<T extends object>({
       layout as GridLayoutLike | undefined,
       fields,
     );
-    return parsed ?? fields.map((field, idx) => ({ id: field, field, hidden: hiddenFields.has(field), orderIndex: idx }));
-  }, [layout, baseColumnFields, columns, hasActions, moduleId, transactionId, tableName]);
+    return (
+      parsed ??
+      fields.map((field, idx) => ({
+        id: field,
+        field,
+        hidden: hiddenFields.has(field),
+        orderIndex: idx,
+      }))
+    );
+  }, [
+    layout,
+    baseColumnFields,
+    columns,
+    hasActions,
+    moduleId,
+    transactionId,
+    tableName,
+  ]);
 
-  const columnsStateRef = useRef<GridColumnsStateChangeEvent["columnsState"] | null>(null);
+  const columnsStateRef = useRef<
+    GridColumnsStateChangeEvent["columnsState"] | null
+  >(null);
   const [columnsState, setColumnsState] = useState<
     GridColumnsStateChangeEvent["columnsState"] | undefined
   >(undefined);
 
   const handleDeleteWrapped = useCallback(
     (dataItem: T) => {
-      const id = String((dataItem as Record<string, unknown>)[accessorId] ?? "");
+      const id = String(
+        (dataItem as Record<string, unknown>)[accessorId] ?? "",
+      );
       onDeleteAction?.(id);
     },
     [accessorId, onDeleteAction],
@@ -176,7 +197,9 @@ export function AccountBaseTable<T extends object>({
     if (!moduleId || !transactionId || !tableName) return;
     const companyId = getCompanyIdFromSession();
     if (!companyId) return;
-    const fields = hasActions ? ["__actions", ...baseColumnFields] : baseColumnFields;
+    const fields = hasActions
+      ? ["__actions", ...baseColumnFields]
+      : baseColumnFields;
     const hiddenFields = new Set(
       columns.filter((c) => c.hidden).map((c) => c.field),
     );
@@ -254,13 +277,13 @@ export function AccountBaseTable<T extends object>({
   const canSaveLayout = !!(moduleId && transactionId && tableName);
 
   const kendoColumns = useMemo(() => {
-      const actionCol =
+    const actionCol =
       hasActions && ActionCellComponent ? (
         <GridColumn
           key="__actions"
           id="__actions"
           field="__actions"
-          title={t("actions")}
+          title={tc("actions")}
           width={150}
           locked
           sortable={false}
@@ -307,7 +330,7 @@ export function AccountBaseTable<T extends object>({
     });
 
     return actionCol ? [actionCol, ...dataCols] : dataCols;
-  }, [columns, hasActions, ActionCellComponent, t]);
+  }, [columns, hasActions, ActionCellComponent, tc]);
 
   const gridPageSize = 9999; // Show all rows - no effective pagination
 
@@ -334,8 +357,8 @@ export function AccountBaseTable<T extends object>({
       >
         {kendoColumns}
         <GridToolbar>
-          <GridCsvExportButton>{t("excel")}</GridCsvExportButton>
-          <GridPdfExportButton>{t("pdf")}</GridPdfExportButton>
+          <GridCsvExportButton>{tc("excel")}</GridCsvExportButton>
+          <GridPdfExportButton>{tc("pdf")}</GridPdfExportButton>
           {canSaveLayout && (
             <>
               <Button
@@ -343,22 +366,22 @@ export function AccountBaseTable<T extends object>({
                 fillMode="flat"
                 onClick={handleSaveLayout}
                 disabled={updateLayoutMutation.isPending}
-                title={t("saveLayout")}
+                title={tc("saveLayout")}
                 className="flex items-center gap-1"
               >
                 <Save className="h-4 w-4" />
-                {t("saveLayout")}
+                {tc("saveLayout")}
               </Button>
               <Button
                 type="button"
                 fillMode="flat"
                 onClick={handleDefaultLayout}
                 disabled={updateLayoutMutation.isPending}
-                title={t("defaultLayout")}
+                title={tc("defaultLayout")}
                 className="flex items-center gap-1"
               >
                 <LayoutGrid className="h-4 w-4" />
-                {t("defaultLayout")}
+                {tc("defaultLayout")}
               </Button>
             </>
           )}

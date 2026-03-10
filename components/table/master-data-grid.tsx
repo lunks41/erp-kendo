@@ -1,43 +1,43 @@
 "use client";
 
-import { useMemo, useCallback, useRef, useState, useEffect } from "react";
-import { useTranslations } from "next-intl";
+import { useNamespaceTranslations } from "@/hooks/use-form-translations";
+import { useGetGridLayout, useUpdateGridLayout } from "@/hooks/use-settings";
+import { getCompanyIdFromSession } from "@/lib/api-client";
+import {
+  buildDefaultColumnsState,
+  normalizeLayout,
+  parseGridLayoutToColumnsState,
+  serializeColumnsStateToLayout,
+  type GridLayoutLike,
+} from "@/lib/grid-layout-utils";
+import type { State } from "@progress/kendo-data-query";
+import { process } from "@progress/kendo-data-query";
+import { Button } from "@progress/kendo-react-buttons";
+import type {
+  GridColumnMenuProps,
+  GridColumnProps,
+  GridColumnsStateChangeEvent,
+  GridDataStateChangeEvent,
+  GridPageChangeEvent,
+} from "@progress/kendo-react-grid";
 import {
   Grid,
   GridColumn,
-  GridToolbar,
-  GridToolbarSpacer,
-  GridSearchBox,
+  GridColumnMenuColumnsChooser,
+  GridColumnMenuFilter,
+  GridColumnMenuGroup,
+  GridColumnMenuSort,
   GridCsvExportButton,
   GridPdfExportButton,
-  GridColumnMenuSort,
-  GridColumnMenuFilter,
-  GridColumnMenuColumnsChooser,
-  GridColumnMenuGroup,
+  GridSearchBox,
+  GridToolbar,
+  GridToolbarSpacer,
 } from "@progress/kendo-react-grid";
-import type {
-  GridPageChangeEvent,
-  GridColumnsStateChangeEvent,
-  GridColumnProps,
-  GridColumnMenuProps,
-  GridDataStateChangeEvent,
-} from "@progress/kendo-react-grid";
-import { process } from "@progress/kendo-data-query";
-import type { State } from "@progress/kendo-data-query";
-import { Button } from "@progress/kendo-react-buttons";
-import { Plus, RotateCcw, Save, LayoutGrid, Search, X } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useGetGridLayout, useUpdateGridLayout } from "@/hooks/use-settings";
-import {
-  buildDefaultColumnsState,
-  parseGridLayoutToColumnsState,
-  serializeColumnsStateToLayout,
-  normalizeLayout,
-  type GridLayoutLike,
-} from "@/lib/grid-layout-utils";
-import { getCompanyIdFromSession } from "@/lib/api-client";
-import { createActionCell } from "./master-action-cell";
+import { LayoutGrid, Plus, RotateCcw, Save, Search, X } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { GridTooltipCell } from "./grid-tooltip-cell";
+import { createActionCell } from "./master-action-cell";
 
 export interface MasterDataGridActionHandlers<T = unknown> {
   onView?: (dataItem: T) => void;
@@ -179,8 +179,7 @@ export function MasterDataGrid<T extends object>({
   onSearchClear,
 }: MasterDataGridProps<T>) {
   const effectiveTableHeight = tableHeight ?? DEFAULT_TABLE_HEIGHT;
-  const t = useTranslations("grid");
-  const tc = useTranslations("common");
+  const tc = useNamespaceTranslations("common");
   const { onView, onEdit, onDelete } = actions;
   const hasActions = !!(onView || onEdit || onDelete);
 
@@ -555,7 +554,7 @@ export function MasterDataGrid<T extends object>({
       key="__actions"
       id="__actions"
       field="__actions"
-      title={t("actions")}
+      title={tc("actions")}
       width={130}
       locked
       sortable={false}
@@ -617,9 +616,9 @@ export function MasterDataGrid<T extends object>({
               </Button>
             )}
             {onRefresh && (
-              <Button onClick={onRefresh} title={t("refresh")}>
+              <Button onClick={onRefresh} title={tc("refresh")}>
                 <RotateCcw size={18} className="mr-1.5 inline" />
-                {t("refresh")}
+                {tc("refresh")}
               </Button>
             )}
           </div>
@@ -647,7 +646,7 @@ export function MasterDataGrid<T extends object>({
                       onSearchClear?.();
                     }}
                     className="absolute right-3 top-1/2 -translate-y-1/2 rounded p-1 text-slate-500 hover:bg-slate-200 hover:text-slate-700 dark:text-slate-300 dark:hover:bg-slate-600 dark:hover:text-white"
-                    title={t("clearSearch")}
+                    title={tc("clearSearch")}
                   >
                     <X className="h-4 w-4" />
                   </button>
@@ -657,10 +656,10 @@ export function MasterDataGrid<T extends object>({
                 type="button"
                 themeColor="primary"
                 onClick={onSearchSubmit}
-                title={t("search")}
+                title={tc("search")}
               >
                 <Search size={18} className="mr-1.5 inline" />
-                {t("search")}
+                {tc("search")}
               </Button>
             </div>
           )}
@@ -716,25 +715,25 @@ export function MasterDataGrid<T extends object>({
         >
           {orderedColumns}
           <GridToolbar>
-            <GridCsvExportButton>{t("excel")}</GridCsvExportButton>
-            <GridPdfExportButton>{t("pdf")}</GridPdfExportButton>
+            <GridCsvExportButton>{tc("excel")}</GridCsvExportButton>
+            <GridPdfExportButton>{tc("pdf")}</GridPdfExportButton>
             {canSaveLayout && (
               <>
                 <Button
                   onClick={handleSaveLayout}
-                  title={t("saveLayout")}
+                  title={tc("saveLayout")}
                   disabled={updateLayoutMutation.isPending}
                 >
                   <Save size={18} className="mr-1.5 inline" />
-                  {t("saveLayout")}
+                  {tc("saveLayout")}
                 </Button>
                 <Button
                   onClick={handleDefaultLayout}
-                  title={t("defaultLayout")}
+                  title={tc("defaultLayout")}
                   disabled={updateLayoutMutation.isPending}
                 >
                   <LayoutGrid size={18} className="mr-1.5 inline" />
-                  {t("defaultLayout")}
+                  {tc("defaultLayout")}
                 </Button>
               </>
             )}

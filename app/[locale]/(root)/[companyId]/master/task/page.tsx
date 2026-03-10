@@ -24,6 +24,7 @@ import { useNamespaceTranslations } from "@/hooks/use-form-translations";
 
 export default function TaskMasterPage() {
   const t = useNamespaceTranslations("task");
+  const tc = useNamespaceTranslations("common");
   const moduleId = ModuleId.master;
   const transactionId = MasterTransactionId.task;
   const queryClient = useQueryClient();

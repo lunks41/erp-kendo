@@ -104,7 +104,12 @@
     "confirmCancelTitle": "Confirm Cancel",
     "confirmResetTitle": "Confirm Reset",
     "confirmTitle": "Confirm",
-    "yesCancelLabel": "Yes, Cancel"
+    "yesCancelLabel": "Yes, Cancel",
+    "refresh": "Refresh",
+    "saveLayout": "Save layout",
+    "defaultLayout": "Default layout",
+    "excel": "Excel",
+    "pdf": "PDF"
   },
   "auth": {
     "login": "Login",
@@ -491,13 +496,6 @@
     "entityTypeCode": "Entity Type Code",
     "entityTypeName": "Entity Type Name",
     "searchPlaceholder": "Search entity types..."
-  },
-  "grid": {
-    "refresh": "Refresh",
-    "saveLayout": "Save layout",
-    "defaultLayout": "Default layout",
-    "excel": "Excel",
-    "pdf": "PDF"
   },
   "sidebarMenu": {
     "master": "Master",

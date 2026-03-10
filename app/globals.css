@@ -46,12 +46,15 @@ body {
 .k-searchbox {
   font-size: 0.8125rem !important;
 }
+
 .k-grid-header th {
   padding: 0.2rem 0.5rem;
 }
+
 .k-grid td {
   padding: 0.2rem 0.5rem;
 }
+
 .k-toolbar .k-button {
   padding: 0.25rem 0.5rem;
 }
@@ -62,6 +65,7 @@ body {
 .k-combobox .k-input-wrap {
   min-height: 2.25rem !important;
 }
+
 .k-textbox .k-input-inner,
 .k-numerictextbox .k-input-inner,
 .k-combobox .k-input-inner {
@@ -77,60 +81,73 @@ body {
   box-shadow: none !important;
   background-color: var(--background) !important;
 }
+
 .k-checkbox-wrap:hover,
 .k-checkbox-wrap:hover::before {
   border: none !important;
   box-shadow: none !important;
 }
+
 .k-checkbox-wrap.k-focus,
 .k-checkbox-wrap.k-focus::before,
-.k-ripple-container .k-checkbox:focus + .k-checkbox-wrap,
-.k-ripple-container .k-checkbox.k-focus + .k-checkbox-wrap {
+.k-ripple-container .k-checkbox:focus+.k-checkbox-wrap,
+.k-ripple-container .k-checkbox.k-focus+.k-checkbox-wrap {
   border: none !important;
   box-shadow: 0 0 0 1px rgb(59 130 246) !important;
 }
+
 .k-checkbox-wrap:not(.k-focus)::before {
   box-shadow: none !important;
 }
+
 .dark .k-checkbox-wrap,
 .dark .k-checkbox-wrap::before {
   border: none !important;
   box-shadow: none !important;
 }
+
 .dark .k-checkbox-wrap {
   background-color: rgb(30 41 59) !important;
 }
+
 .dark .k-checkbox-wrap:hover,
 .dark .k-checkbox-wrap:hover::before {
   border: none !important;
   box-shadow: none !important;
 }
+
 .dark .k-checkbox-wrap.k-focus,
 .dark .k-checkbox-wrap.k-focus::before,
-.dark .k-ripple-container .k-checkbox:focus + .k-checkbox-wrap,
-.dark .k-ripple-container .k-checkbox.k-focus + .k-checkbox-wrap {
+.dark .k-ripple-container .k-checkbox:focus+.k-checkbox-wrap,
+.dark .k-ripple-container .k-checkbox.k-focus+.k-checkbox-wrap {
   border: none !important;
   box-shadow: 0 0 0 1px rgb(96 165 250) !important;
 }
+
 .dark .k-checkbox-wrap:not(.k-focus)::before {
   box-shadow: none !important;
 }
+
 /* Remove any theme 3D/emboss on the checkbox input and its pseudo-elements */
 .k-checkbox,
 .k-checkbox::before,
 .k-checkbox::after {
   box-shadow: none !important;
 }
+
 .k-checkbox-wrap * {
   box-shadow: none !important;
 }
+
 .k-checkbox-wrap.k-focus *,
 .k-checkbox-wrap.k-focus::before {
   box-shadow: none !important;
 }
+
 .k-checkbox-wrap.k-focus {
   box-shadow: 0 0 0 1px rgb(59 130 246) !important;
 }
+
 .dark .k-checkbox-wrap.k-focus {
   box-shadow: 0 0 0 1px rgb(96 165 250) !important;
 }
@@ -144,8 +161,10 @@ body {
   min-height: 1.125rem !important;
   border: 1px solid rgb(148 163 184) !important;
   box-shadow: none !important;
-  background-color: rgb(226 232 240) !important; /* slate-200, flat fill */
+  background-color: rgb(226 232 240) !important;
+  /* slate-200, flat fill */
 }
+
 .k-switch .k-switch-thumb,
 .k-switch.k-switch-sm .k-switch-thumb {
   width: 0.875rem !important;
@@ -155,19 +174,23 @@ body {
   border: 1px solid rgb(148 163 184) !important;
   box-shadow: none !important;
 }
+
 .k-switch.k-switch-on .k-switch-track {
   border-color: rgb(148 163 184) !important;
   box-shadow: none !important;
 }
+
 .dark .k-switch .k-switch-track,
 .dark .k-switch.k-switch-sm .k-switch-track {
   border-color: rgb(71 85 105) !important;
   background-color: rgb(51 65 85) !important;
 }
+
 .dark .k-switch .k-switch-thumb,
 .dark .k-switch.k-switch-sm .k-switch-thumb {
   border-color: rgb(71 85 105) !important;
 }
+
 .dark .k-switch.k-switch-on .k-switch-track {
   border-color: rgb(71 85 105) !important;
 }
@@ -180,7 +203,8 @@ body {
 
 /* Uniform row height for grid tables (tooltip + same row height) */
 .k-grid-container .k-table-td {
-  min-height: 1.75rem; /* 28px – compact rows */
+  min-height: 1.75rem;
+  /* 28px – compact rows */
   height: 1.75rem;
   vertical-align: middle;
 }
@@ -192,15 +216,19 @@ body {
 .dark .k-searchbox,
 .dark .k-searchbar,
 .dark .k-picker {
-  background-color: rgb(30 41 59) !important; /* slate-800 */
-  color: rgb(248 250 252) !important; /* slate-50 */
-  border-color: rgb(71 85 105) !important; /* slate-600 */
+  background-color: rgb(30 41 59) !important;
+  /* slate-800 */
+  color: rgb(248 250 252) !important;
+  /* slate-50 */
+  border-color: rgb(71 85 105) !important;
+  /* slate-600 */
 }
 
 .dark .k-input::placeholder,
 .dark .k-input-inner::placeholder,
 .dark .k-searchbox::placeholder {
-  color: rgb(148 163 184) !important; /* slate-400 */
+  color: rgb(148 163 184) !important;
+  /* slate-400 */
 }
 
 .dark .k-dropdownlist .k-input-inner,
@@ -231,10 +259,11 @@ body {
 }
 
 /* Dark mode: Kendo form labels and edit fields in modal */
-.dark .k-form-field > label,
+.dark .k-form-field>label,
 .dark .k-label,
 .dark .k-edit-label {
-  color: rgb(226 232 240) !important; /* slate-200 */
+  color: rgb(226 232 240) !important;
+  /* slate-200 */
 }
 
 .dark .k-edit-field,
@@ -248,9 +277,12 @@ body {
 .dark .k-grid-content,
 .dark .k-grid-table,
 .dark .k-grid .k-table {
-  background-color: rgb(30 41 59) !important; /* slate-800 */
-  color: rgb(248 250 252) !important; /* slate-50 */
-  border-color: rgb(71 85 105) !important; /* slate-600 */
+  background-color: rgb(30 41 59) !important;
+  /* slate-800 */
+  color: rgb(248 250 252) !important;
+  /* slate-50 */
+  border-color: rgb(71 85 105) !important;
+  /* slate-600 */
 }
 
 .dark .k-grid-header,
@@ -258,7 +290,8 @@ body {
 .dark .k-grid-header th,
 .dark .k-grid thead th,
 .dark .k-table-th {
-  background-color: rgb(51 65 85) !important; /* slate-700 */
+  background-color: rgb(51 65 85) !important;
+  /* slate-700 */
   color: rgb(248 250 252) !important;
   border-color: rgb(71 85 105) !important;
 }
@@ -273,7 +306,8 @@ body {
 
 .dark .k-grid .k-table-tbody tr:hover .k-table-td,
 .dark .k-grid .k-table-tbody tr.k-hover .k-table-td {
-  background-color: rgb(51 65 85) !important; /* slate-700 hover */
+  background-color: rgb(51 65 85) !important;
+  /* slate-700 hover */
 }
 
 .dark .k-grid-toolbar,
@@ -304,7 +338,8 @@ body {
 /* Dark mode: Action column icons - contrast (slate-200) */
 .dark .k-grid .k-table-td .k-button .k-icon,
 .dark .k-grid .k-table-td .k-button svg {
-  color: rgb(226 232 240) !important; /* slate-200 */
+  color: rgb(226 232 240) !important;
+  /* slate-200 */
 }
 
 .dark .k-grid .k-table-td .k-button:hover .k-icon,
@@ -316,7 +351,8 @@ body {
 .k-button.k-primary,
 .k-button-solid-primary,
 .k-button-solid-base.k-primary {
-  background-color: #2f6abb !important; /* dark fluent blue */
+  background-color: #2f6abb !important;
+  /* dark fluent blue */
   border-color: #2f6abb !important;
   color: #ffffff !important;
 }
@@ -324,7 +360,8 @@ body {
 .k-button.k-primary:hover,
 .k-button-solid-primary:hover,
 .k-button-solid-base.k-primary:hover {
-  background-color: #2f6abb !important; /* slightly darker on hover */
+  background-color: #2f6abb !important;
+  /* slightly darker on hover */
   border-color: #2f6abb !important;
   color: #ffffff !important;
 }
@@ -339,7 +376,8 @@ body {
 
 /* Dialog: modern UI – rounded corners, soft shadow, subtle border */
 .k-dialog {
-  border: 1px solid rgb(229 231 235) !important; /* neutral-200 */
+  border: 1px solid rgb(229 231 235) !important;
+  /* neutral-200 */
   border-radius: 12px !important;
   box-shadow:
     0 25px 50px -12px rgb(0 0 0 / 0.25),
@@ -348,7 +386,8 @@ body {
 }
 
 .dark .k-dialog {
-  border-color: rgb(71 85 105) !important; /* slate-600 */
+  border-color: rgb(71 85 105) !important;
+  /* slate-600 */
   box-shadow:
     0 25px 50px -12px rgb(0 0 0 / 0.5),
     0 0 0 1px rgb(71 85 105 / 0.5) !important;
@@ -358,7 +397,8 @@ body {
 .k-window-titlebar,
 .k-dialog-titlebar,
 .k-dialog .k-window-titlebar {
-  background: linear-gradient(180deg, #3a7bd5 0%, #2f6abb 100%) !important; /* fluent blue */
+  background: linear-gradient(180deg, #3a7bd5 0%, #2f6abb 100%) !important;
+  /* fluent blue */
   color: #ffffff !important;
   border-bottom: 1px solid rgb(0 31 82 / 0.4) !important;
   padding: 1rem 1.25rem !important;
@@ -385,13 +425,15 @@ body {
   padding: 1rem 1.25rem !important;
   border-top: 1px solid rgb(229 231 235) !important;
   border-radius: 0 0 12px 12px !important;
-  background-color: rgb(249 250 251) !important; /* neutral-50 */
+  background-color: rgb(249 250 251) !important;
+  /* neutral-50 */
 }
 
 .dark .k-dialog-actions,
 .dark .k-dialog .k-dialog-actions {
   border-top-color: rgb(71 85 105) !important;
-  background-color: rgb(30 41 59) !important; /* slate-800 */
+  background-color: rgb(30 41 59) !important;
+  /* slate-800 */
 }
 
 .dark .k-window-titlebar,

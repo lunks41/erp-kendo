@@ -85,7 +85,31 @@
     "operational": "運航用",
     "payableAccount": "買掛勘定",
     "receivableAccount": "売掛勘定",
-    "universal": "共通"
+    "universal": "共通",
+    "dialogViewTitle": "{item} を表示",
+    "dialogEditTitle": "{item} を編集",
+    "dialogCreateTitle": "{item} を作成",
+    "confirmSaveUpdateTitle": "{item} を更新",
+    "confirmSaveCreateTitle": "{item} を作成",
+    "confirmDeleteTitle": "{item} を削除",
+    "confirmSaveUpdateMessage": "「{name}」を更新してもよろしいですか？",
+    "confirmSaveCreateMessage": "このアイテムを作成してもよろしいですか？",
+    "confirmDeleteMessage": "「{name}」を削除してもよろしいですか？この操作は元に戻せません。",
+    "confirmDeleteDefaultMessage": "このアイテムを削除してもよろしいですか？",
+    "addNewItemDescription": "システムデータベースに新しい {item} を追加します。",
+    "yesLabel": "はい",
+    "noLabel": "いいえ",
+    "confirmSaveTitle": "保存の確認",
+    "confirmDeleteTitleDefault": "削除の確認",
+    "confirmCancelTitle": "キャンセルの確認",
+    "confirmResetTitle": "リセットの確認",
+    "confirmTitle": "確認",
+    "yesCancelLabel": "はい、キャンセルします",
+    "refresh": "更新",
+    "saveLayout": "レイアウトを保存",
+    "defaultLayout": "デフォルトレイアウト",
+    "excel": "Excel",
+    "pdf": "PDF"
   },
   "auth": {
     "login": "ログイン",
@@ -472,13 +496,6 @@
     "entityTypeCode": "エンティティタイプコード",
     "entityTypeName": "エンティティタイプ名",
     "searchPlaceholder": "エンティティタイプを検索..."
-  },
-  "grid": {
-    "refresh": "更新",
-    "saveLayout": "レイアウトを保存",
-    "defaultLayout": "デフォルトレイアウト",
-    "excel": "Excel",
-    "pdf": "PDF"
   },
   "sidebarMenu": {
     "master": "マスタ",

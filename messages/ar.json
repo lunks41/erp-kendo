@@ -85,7 +85,31 @@
     "operational": "تشغيلي",
     "payableAccount": "حساب الدفع",
     "receivableAccount": "حساب القبض",
-    "universal": "عالمي"
+    "universal": "عالمي",
+    "dialogViewTitle": "عرض {item}",
+    "dialogEditTitle": "تعديل {item}",
+    "dialogCreateTitle": "إنشاء {item}",
+    "confirmSaveUpdateTitle": "تحديث {item}",
+    "confirmSaveCreateTitle": "إنشاء {item}",
+    "confirmDeleteTitle": "حذف {item}",
+    "confirmSaveUpdateMessage": "هل أنت متأكد من رغبتك في تحديث \"{name}\"؟",
+    "confirmSaveCreateMessage": "هل أنت متأكد من رغبتك في إنشاء هذا العنصر؟",
+    "confirmDeleteMessage": "هل أنت متأكد من رغبتك في حذف \"{name}\"؟ لا يمكن التراجع عن هذا الإجراء.",
+    "confirmDeleteDefaultMessage": "هل أنت متأكد من رغبتك في حذف هذا العنصر؟",
+    "addNewItemDescription": "إضافة {item} جديد إلى قاعدة بيانات النظام.",
+    "yesLabel": "نعم",
+    "noLabel": "لا",
+    "confirmSaveTitle": "تأكيد الحفظ",
+    "confirmDeleteTitleDefault": "تأكيد الحذف",
+    "confirmCancelTitle": "تأكيد الإلغاء",
+    "confirmResetTitle": "تعيد إعادة التعيين",
+    "confirmTitle": "تأكيد",
+    "yesCancelLabel": "نعم، إلغاء",
+    "refresh": "تحديث",
+    "saveLayout": "حفظ التخطيط",
+    "defaultLayout": "التخطيط الافتراضي",
+    "excel": "Excel",
+    "pdf": "PDF"
   },
   "auth": {
     "login": "تسجيل الدخول",
@@ -472,13 +496,6 @@
     "entityTypeCode": "رمز نوع الكيان",
     "entityTypeName": "اسم نوع الكيان",
     "searchPlaceholder": "بحث عن أنواع كيانات..."
-  },
-  "grid": {
-    "refresh": "تحديث",
-    "saveLayout": "حفظ التخطيط",
-    "defaultLayout": "التخطيط الافتراضي",
-    "excel": "Excel",
-    "pdf": "PDF"
   },
   "sidebarMenu": {
     "master": "الرئيسية",
