@@ -181,7 +181,7 @@ function LandingTypeTableInner(props: LandingTypeTableProps) {
       moduleId={moduleId}
       transactionId={transactionId}
       tableName={TableName.landingType}
-      addButtonLabel={t("addLandingType")}
+      addButtonLabel={tc("add")}
     />
   );
 }

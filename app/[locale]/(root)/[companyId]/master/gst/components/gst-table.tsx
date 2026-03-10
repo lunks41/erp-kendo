@@ -172,7 +172,7 @@ function GstTableInner(props: GstTableProps) {
       moduleId={moduleId}
       transactionId={transactionId}
       tableName={TableName.gst}
-      addButtonLabel={t("addGst")}
+      addButtonLabel={tc("add")}
     />
   );
 }

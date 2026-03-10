@@ -505,7 +505,7 @@ function ChartOfAccountTableInner(props: ChartOfAccountTableProps) {
       moduleId={moduleId}
       transactionId={transactionId}
       tableName={TableName.chartOfAccount}
-      addButtonLabel={addButtonLabel ?? t("addChartOfAccount")}
+      addButtonLabel={addButtonLabel ?? tc("add")}
     />
   );
 }

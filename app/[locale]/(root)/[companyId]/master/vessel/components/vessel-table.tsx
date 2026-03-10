@@ -221,7 +221,7 @@ function VesselTableInner(props: VesselTableProps) {
       moduleId={moduleId}
       transactionId={transactionId}
       tableName={TableName.vessel}
-      addButtonLabel={addButtonLabel ?? t("addVessel")}
+      addButtonLabel={addButtonLabel ?? tc("add")}
     />
   );
 }

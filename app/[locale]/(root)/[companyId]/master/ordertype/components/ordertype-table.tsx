@@ -176,7 +176,7 @@ function OrderTypeTableInner(props: OrderTypeTableProps) {
       moduleId={moduleId}
       transactionId={transactionId}
       tableName={TableName.orderType}
-      addButtonLabel={t("addOrderType")}
+      addButtonLabel={tc("add")}
     />
   );
 }

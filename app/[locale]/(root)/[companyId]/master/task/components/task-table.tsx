@@ -170,7 +170,7 @@ function TaskTableInner(props: TaskTableProps) {
       moduleId={moduleId}
       transactionId={transactionId}
       tableName={TableName.task}
-      addButtonLabel={t("addTask")}
+      addButtonLabel={tc("add")}
     />
   );
 }

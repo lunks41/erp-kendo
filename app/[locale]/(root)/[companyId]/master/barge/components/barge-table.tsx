@@ -176,7 +176,7 @@ function BargeTableInner(props: BargeTableProps) {
       moduleId={moduleId}
       transactionId={transactionId}
       tableName={TableName.barge}
-      addButtonLabel={t("addBarge")}
+      addButtonLabel={tc("add")}
     />
   );
 }

@@ -180,7 +180,7 @@ function VoyageTableInner(props: VoyageTableProps) {
       moduleId={moduleId}
       transactionId={transactionId}
       tableName={TableName.voyage}
-      addButtonLabel={t("addVoyage")}
+      addButtonLabel={tc("add")}
     />
   );
 }

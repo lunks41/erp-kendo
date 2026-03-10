@@ -145,7 +145,7 @@ function EntityTypeTableInner(props: EntityTypeTableProps) {
       moduleId={moduleId}
       transactionId={transactionId}
       tableName={TableName.entityTypes}
-      addButtonLabel={t("addEntityType")}
+      addButtonLabel={tc("add")}
     />
   );
 }

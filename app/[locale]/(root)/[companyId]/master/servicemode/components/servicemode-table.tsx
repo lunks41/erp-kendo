@@ -181,7 +181,7 @@ function ServiceModeTableInner(props: ServiceModeTableProps) {
       moduleId={moduleId}
       transactionId={transactionId}
       tableName={TableName.serviceMode}
-      addButtonLabel={t("addServiceMode")}
+      addButtonLabel={tc("add")}
     />
   );
 }

@@ -150,11 +150,7 @@ export function EntityTypeForm({
           {tc("cancel")}
         </Button>
         <Button type="submit" themeColor="primary" disabled={isLoading}>
-          {isLoading
-            ? t("saving")
-            : isEdit
-              ? t("updateEntityType")
-              : t("createEntityType")}
+          {isLoading ? tc("saving") : isEdit ? tc("update") : tc("create")}
         </Button>
       </div>
     </form>

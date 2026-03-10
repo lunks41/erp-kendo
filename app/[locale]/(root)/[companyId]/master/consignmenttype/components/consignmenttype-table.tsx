@@ -188,7 +188,7 @@ function ConsignmentTypeTableInner(props: ConsignmentTypeTableProps) {
       moduleId={moduleId}
       transactionId={transactionId}
       tableName={TableName.consignmentType}
-      addButtonLabel={t("addConsignmentType")}
+      addButtonLabel={tc("add")}
     />
   );
 }

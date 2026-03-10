@@ -173,7 +173,7 @@ function ChargeTableInner(props: ChargeTableProps) {
       moduleId={moduleId}
       transactionId={transactionId}
       tableName={TableName.charge}
-      addButtonLabel={t("addCharge")}
+      addButtonLabel={tc("add")}
     />
   );
 }

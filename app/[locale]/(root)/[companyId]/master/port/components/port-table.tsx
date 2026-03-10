@@ -221,7 +221,7 @@ function PortTableInner(props: PortTableProps) {
       moduleId={moduleId}
       transactionId={transactionId}
       tableName={TableName.port}
-      addButtonLabel={addButtonLabel ?? t("addPort")}
+      addButtonLabel={addButtonLabel ?? tc("add")}
     />
   );
 }

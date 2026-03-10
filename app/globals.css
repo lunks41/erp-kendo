@@ -47,10 +47,10 @@ body {
   font-size: 0.8125rem !important;
 }
 .k-grid-header th {
-  padding: 0.35rem 0.5rem;
+  padding: 0.2rem 0.5rem;
 }
 .k-grid td {
-  padding: 0.35rem 0.5rem;
+  padding: 0.2rem 0.5rem;
 }
 .k-toolbar .k-button {
   padding: 0.25rem 0.5rem;
@@ -180,8 +180,8 @@ body {
 
 /* Uniform row height for grid tables (tooltip + same row height) */
 .k-grid-container .k-table-td {
-  min-height: 2.25rem; /* 36px / h-9 */
-  height: 2.25rem;
+  min-height: 1.75rem; /* 28px – compact rows */
+  height: 1.75rem;
   vertical-align: middle;
 }
 
@@ -337,27 +337,69 @@ body {
   color: #ffffff !important;
 }
 
-/* Dialog/window title bar: dark blue with white text */
+/* Dialog: modern UI – rounded corners, soft shadow, subtle border */
+.k-dialog {
+  border: 1px solid rgb(229 231 235) !important; /* neutral-200 */
+  border-radius: 12px !important;
+  box-shadow:
+    0 25px 50px -12px rgb(0 0 0 / 0.25),
+    0 0 0 1px rgb(0 0 0 / 0.05) !important;
+  overflow: hidden;
+}
+
+.dark .k-dialog {
+  border-color: rgb(71 85 105) !important; /* slate-600 */
+  box-shadow:
+    0 25px 50px -12px rgb(0 0 0 / 0.5),
+    0 0 0 1px rgb(71 85 105 / 0.5) !important;
+}
+
+/* Dialog title bar: modern header with rounded top, subtle separation */
 .k-window-titlebar,
 .k-dialog-titlebar,
 .k-dialog .k-window-titlebar {
-  background-color: #2f6abb !important;
+  background: linear-gradient(180deg, #3a7bd5 0%, #2f6abb 100%) !important; /* fluent blue */
   color: #ffffff !important;
-  border-bottom: 1px solid #2f6abb !important;
+  border-bottom: 1px solid rgb(0 31 82 / 0.4) !important;
+  padding: 1rem 1.25rem !important;
+  border-radius: 12px 12px 0 0 !important;
 }
 
 .k-window-title,
 .k-dialog .k-window-title {
   color: #ffffff !important;
   font-weight: 600 !important;
+  font-size: 1rem !important;
+  letter-spacing: -0.01em !important;
+}
+
+/* Dialog body: comfortable padding */
+.k-dialog .k-window-content,
+.k-dialog .k-dialog-content {
+  padding: 1.25rem 1.25rem !important;
+}
+
+/* Dialog actions bar: subtle top border, aligned padding */
+.k-dialog-actions,
+.k-dialog .k-dialog-actions {
+  padding: 1rem 1.25rem !important;
+  border-top: 1px solid rgb(229 231 235) !important;
+  border-radius: 0 0 12px 12px !important;
+  background-color: rgb(249 250 251) !important; /* neutral-50 */
+}
+
+.dark .k-dialog-actions,
+.dark .k-dialog .k-dialog-actions {
+  border-top-color: rgb(71 85 105) !important;
+  background-color: rgb(30 41 59) !important; /* slate-800 */
 }
 
 .dark .k-window-titlebar,
 .dark .k-dialog-titlebar,
 .dark .k-dialog .k-window-titlebar {
-  background-color: #2f6abb !important;
+  background: linear-gradient(180deg, #3a7bd5 0%, #2f6abb 100%) !important;
   color: #ffffff !important;
-  border-bottom: 1px solid #001f52 !important;
+  border-bottom-color: rgb(0 31 82 / 0.5) !important;
 }
 
 .dark .k-window-title,

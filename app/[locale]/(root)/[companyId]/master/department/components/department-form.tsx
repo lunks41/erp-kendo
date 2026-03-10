@@ -6,7 +6,10 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import { FormInput, FormCheckbox, FormTextArea } from "@/components/ui/form";
 import type { IDepartment } from "@/interfaces/department";
 import { formatDateTime } from "@/lib/date-utils";
-import { departmentSchema, type DepartmentSchemaType } from "@/schemas/department";
+import {
+  departmentSchema,
+  type DepartmentSchemaType,
+} from "@/schemas/department";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@progress/kendo-react-buttons";
 import { useForm } from "react-hook-form";
@@ -32,8 +35,7 @@ export function DepartmentForm({
   const t = useNamespaceTranslations("department");
   const tc = useNamespaceTranslations("common");
   const { decimals } = useAuthStore();
-  const datetimeFormat =
-    decimals[0]?.longDateFormat ?? "dd/MM/yyyy HH:mm:ss";
+  const datetimeFormat = decimals[0]?.longDateFormat ?? "dd/MM/yyyy HH:mm:ss";
   const isEdit = !!initialData?.departmentId;
   const [auditTrailOpen, setAuditTrailOpen] = useState(false);
 
@@ -72,10 +74,7 @@ export function DepartmentForm({
   };
 
   return (
-    <form
-      onSubmit={handleSubmit(onFormSubmit)}
-      className="flex flex-col gap-3"
-    >
+    <form onSubmit={handleSubmit(onFormSubmit)} className="flex flex-col gap-3">
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <FormInput
           control={control}
@@ -150,10 +149,8 @@ export function DepartmentForm({
                     {initialData.createBy || "—"}
                   </span>
                   <span className="text-[11px] text-slate-500 dark:text-slate-400">
-                    {formatDateTime(
-                      initialData.createDate,
-                      datetimeFormat
-                    ) || "—"}
+                    {formatDateTime(initialData.createDate, datetimeFormat) ||
+                      "—"}
                   </span>
                 </div>
               </div>
@@ -166,10 +163,8 @@ export function DepartmentForm({
                     {initialData.editBy || "—"}
                   </span>
                   <span className="text-[11px] text-slate-500 dark:text-slate-400">
-                    {formatDateTime(
-                      initialData.editDate,
-                      datetimeFormat
-                    ) || "—"}
+                    {formatDateTime(initialData.editDate, datetimeFormat) ||
+                      "—"}
                   </span>
                 </div>
               </div>
@@ -188,7 +183,7 @@ export function DepartmentForm({
           {tc("cancel")}
         </Button>
         <Button type="submit" themeColor="primary" disabled={isLoading}>
-          {isLoading ? tc("saving") : isEdit ? t("updateDepartment") : t("createDepartment")}
+          {isLoading ? tc("saving") : isEdit ? tc("update") : tc("create")}
         </Button>
       </div>
     </form>

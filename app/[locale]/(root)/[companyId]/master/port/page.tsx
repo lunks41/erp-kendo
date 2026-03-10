@@ -282,11 +282,6 @@ export default function PortMasterPage() {
             </div>
           ) : (
             <>
-              {!selectedPort && (
-                <p className="mb-4 text-sm text-slate-500 dark:text-slate-400">
-                  Add a new port to the system database.
-                </p>
-              )}
               <PortForm
                 key={selectedPort?.portId ?? "new"}
                 initialData={selectedPort}

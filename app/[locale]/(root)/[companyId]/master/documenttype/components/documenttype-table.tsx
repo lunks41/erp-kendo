@@ -211,7 +211,7 @@ function DocumentTypeTableInner(props: DocumentTypeTableProps) {
       moduleId={moduleId}
       transactionId={transactionId}
       tableName={TableName.documentType}
-      addButtonLabel={addButtonLabel ?? t("addDocumentType")}
+      addButtonLabel={addButtonLabel ?? tc("add")}
     />
   );
 }

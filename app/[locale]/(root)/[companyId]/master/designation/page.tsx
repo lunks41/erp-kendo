@@ -258,11 +258,6 @@ export default function DesignationMasterPage() {
             </div>
           ) : (
             <>
-              {!selectedItem && (
-                <p className="mb-4 text-sm text-slate-500 dark:text-slate-400">
-                  Add a new designation to the system database.
-                </p>
-              )}
               <DesignationForm
                 key={selectedItem?.designationId ?? "new"}
                 initialData={selectedItem}

@@ -208,7 +208,7 @@ function PortRegionTableInner(props: PortRegionTableProps) {
       moduleId={moduleId}
       transactionId={transactionId}
       tableName={TableName.portRegion}
-      addButtonLabel={addButtonLabel ?? t("addPortRegion")}
+      addButtonLabel={addButtonLabel ?? tc("add")}
     />
   );
 }

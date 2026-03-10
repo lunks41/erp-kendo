@@ -172,11 +172,7 @@ export function CargoTypeForm({
           {tc("cancel")}
         </Button>
         <Button type="submit" themeColor="primary" disabled={isLoading}>
-          {isLoading
-            ? t("saving")
-            : isEdit
-              ? t("updateCargoType")
-              : t("createCargoType")}
+          {isLoading ? tc("saving") : isEdit ? tc("update") : tc("create")}
         </Button>
       </div>
     </form>

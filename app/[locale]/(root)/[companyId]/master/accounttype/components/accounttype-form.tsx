@@ -201,11 +201,7 @@ export function AccountTypeForm({
           {tc("cancel")}
         </Button>
         <Button type="submit" themeColor="primary" disabled={isLoading}>
-          {isLoading
-            ? t("saving")
-            : isEdit
-              ? t("updateAccountType")
-              : t("createAccountType")}
+          {isLoading ? tc("saving") : isEdit ? tc("update") : tc("create")}
         </Button>
       </div>
     </form>

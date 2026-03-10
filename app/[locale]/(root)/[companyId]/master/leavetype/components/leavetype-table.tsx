@@ -176,7 +176,7 @@ function LeaveTypeTableInner(props: LeaveTypeTableProps) {
       moduleId={moduleId}
       transactionId={transactionId}
       tableName={TableName.leaveType}
-      addButtonLabel={t("addLeaveType")}
+      addButtonLabel={tc("add")}
     />
   );
 }

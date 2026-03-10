@@ -178,7 +178,7 @@ function CreditTermTableInner(props: CreditTermTableProps) {
       moduleId={moduleId}
       transactionId={transactionId}
       tableName={TableName.creditTerm}
-      addButtonLabel={t("addCreditTerm")}
+      addButtonLabel={tc("add")}
     />
   );
 }

@@ -191,11 +191,7 @@ export function ChargeForm({
           {tc("cancel")}
         </Button>
         <Button type="submit" themeColor="primary" disabled={isLoading}>
-          {isLoading
-            ? t("saving")
-            : isEdit
-              ? t("updateCharge")
-              : t("createCharge")}
+          {isLoading ? tc("saving") : isEdit ? tc("update") : tc("create")}
         </Button>
       </div>
     </form>

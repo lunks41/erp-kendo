@@ -176,7 +176,7 @@ function JobStatusTableInner(props: JobStatusTableProps) {
       moduleId={moduleId}
       transactionId={transactionId}
       tableName={TableName.jobStatus}
-      addButtonLabel={t("addJobStatus")}
+      addButtonLabel={tc("add")}
     />
   );
 }

@@ -1,9 +1,9 @@
-\"use client\";
+'use client';
 
-import { useMemo, useState } from \"react\";
-import { Check, X, CircleCheck, CircleX } from \"lucide-react\";
-import { ISupplier, ISupplierFilter } from \"@/interfaces/supplier\";
-import { useAuthStore } from \"@/stores/auth-store\";
+import { useMemo, useState } from "react";
+import { Check, X, CircleCheck, CircleX } from "lucide-react";
+import { ISupplier, ISupplierFilter } from "@/interfaces/supplier";
+import { useAuthStore } from "@/stores/auth-store";
 import { Loader } from "@progress/kendo-react-indicators";
 import type { MasterDataGridColumn } from "@/components/table";
 import { MasterDataGrid } from "@/components/table";

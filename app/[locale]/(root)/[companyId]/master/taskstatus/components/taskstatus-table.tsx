@@ -176,7 +176,7 @@ function TaskStatusTableInner(props: TaskStatusTableProps) {
       moduleId={moduleId}
       transactionId={transactionId}
       tableName={TableName.taskStatus}
-      addButtonLabel={t("addTaskStatus")}
+      addButtonLabel={tc("add")}
     />
   );
 }

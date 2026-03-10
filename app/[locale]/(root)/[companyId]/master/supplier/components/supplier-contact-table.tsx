@@ -8,6 +8,7 @@ import { MasterDataGrid } from "@/components/table";
 import { ISupplierContact } from "@/interfaces/supplier";
 import { formatDateTime } from "@/lib/date-utils";
 import { TableName } from "@/lib/utils";
+import { useNamespaceTranslations } from "@/hooks/use-form-translations";
 import { useAuthStore } from "@/stores/auth-store";
 
 export interface SupplierContactTableProps {
@@ -68,6 +69,7 @@ export function SupplierContactTable({
   canView = true,
   canCreate = true,
 }: SupplierContactTableProps) {
+  const tc = useNamespaceTranslations("common");
   const { decimals } = useAuthStore();
   const datetimeFormat =
     decimals[0]?.longDateFormat ?? "dd/MM/yyyy HH:mm:ss";
@@ -231,7 +233,7 @@ export function SupplierContactTable({
       tableName={TableName.supplierContact}
       onAdd={canCreate ? onCreateAction : undefined}
       onRefresh={onRefreshAction}
-      addButtonLabel="Add Contact"
+      addButtonLabel={tc("add")}
     />
   );
 }

@@ -186,7 +186,7 @@ function TransportModeTableInner(props: TransportModeTableProps) {
       moduleId={moduleId}
       transactionId={transactionId}
       tableName={TableName.transportMode}
-      addButtonLabel={t("addTransportMode")}
+      addButtonLabel={tc("add")}
     />
   );
 }

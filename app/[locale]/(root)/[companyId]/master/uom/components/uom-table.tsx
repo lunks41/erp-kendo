@@ -170,7 +170,7 @@ function UomTableInner(props: UomTableProps) {
       moduleId={moduleId}
       transactionId={transactionId}
       tableName={TableName.uom}
-      addButtonLabel={t("addUom")}
+      addButtonLabel={tc("add")}
     />
   );
 }

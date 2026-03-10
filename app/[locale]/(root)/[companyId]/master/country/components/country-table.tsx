@@ -208,7 +208,7 @@ function CountryTableInner(props: CountryTableProps) {
       moduleId={moduleId}
       transactionId={transactionId}
       tableName={TableName.country}
-      addButtonLabel={addButtonLabel ?? t("addCountry")}
+      addButtonLabel={addButtonLabel ?? tc("add")}
     />
   );
 }

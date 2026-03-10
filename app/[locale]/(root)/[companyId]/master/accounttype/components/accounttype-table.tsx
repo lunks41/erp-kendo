@@ -176,7 +176,7 @@ function AccountTypeTableInner(props: AccountTypeTableProps) {
       moduleId={moduleId}
       transactionId={transactionId}
       tableName={TableName.accountType}
-      addButtonLabel={t("addAccountType")}
+      addButtonLabel={tc("add")}
     />
   );
 }

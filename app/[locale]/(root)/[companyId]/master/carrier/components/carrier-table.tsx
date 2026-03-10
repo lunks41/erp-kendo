@@ -176,7 +176,7 @@ function CarrierTableInner(props: CarrierTableProps) {
       moduleId={moduleId}
       transactionId={transactionId}
       tableName={TableName.carrier}
-      addButtonLabel={t("addCarrier")}
+      addButtonLabel={tc("add")}
     />
   );
 }

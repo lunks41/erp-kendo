@@ -176,7 +176,7 @@ function CargoTypeTableInner(props: CargoTypeTableProps) {
       moduleId={moduleId}
       transactionId={transactionId}
       tableName={TableName.cargoType}
-      addButtonLabel={t("addCargoType")}
+      addButtonLabel={tc("add")}
     />
   );
 }

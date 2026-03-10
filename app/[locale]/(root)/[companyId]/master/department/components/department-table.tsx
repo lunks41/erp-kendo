@@ -203,7 +203,7 @@ function DepartmentTableInner(props: DepartmentTableProps) {
       moduleId={moduleId}
       transactionId={transactionId}
       tableName={TableName.department}
-      addButtonLabel={addButtonLabel ?? t("addDepartment")}
+      addButtonLabel={addButtonLabel ?? tc("add")}
     />
   );
 }

@@ -196,11 +196,7 @@ export function ConsignmentTypeForm({
           {tc("cancel")}
         </Button>
         <Button type="submit" themeColor="primary" disabled={isLoading}>
-          {isLoading
-            ? t("saving")
-            : isEdit
-              ? t("updateConsignmentType")
-              : t("createConsignmentType")}
+          {isLoading ? tc("saving") : isEdit ? tc("update") : tc("create")}
         </Button>
       </div>
     </form>

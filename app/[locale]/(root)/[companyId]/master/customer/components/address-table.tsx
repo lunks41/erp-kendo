@@ -8,6 +8,7 @@ import { MasterDataGrid } from "@/components/table";
 import { ICustomerAddress } from "@/interfaces/customer";
 import { formatDateTime } from "@/lib/date-utils";
 import { TableName } from "@/lib/utils";
+import { useNamespaceTranslations } from "@/hooks/use-form-translations";
 import { useAuthStore } from "@/stores/auth-store";
 
 export interface AddresssTableProps {
@@ -64,6 +65,7 @@ export function AddresssTable({
   canView = true,
   canCreate = true,
 }: AddresssTableProps) {
+  const tc = useNamespaceTranslations("common");
   const { decimals } = useAuthStore();
   const datetimeFormat = decimals[0]?.longDateFormat ?? "dd/MM/yyyy HH:mm:ss";
 
@@ -231,7 +233,7 @@ export function AddresssTable({
       tableName={TableName.customerAddress}
       onAdd={canCreate ? onCreateAction : undefined}
       onRefresh={onRefreshAction}
-      addButtonLabel="Add Address"
+      addButtonLabel={tc("add")}
     />
   );
 }

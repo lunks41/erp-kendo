@@ -183,7 +183,7 @@ function GeoLocationTableInner(props: GeoLocationTableProps) {
       moduleId={moduleId}
       transactionId={transactionId}
       tableName={TableName.geoLocation}
-      addButtonLabel={t("addGeoLocation")}
+      addButtonLabel={tc("add")}
     />
   );
 }

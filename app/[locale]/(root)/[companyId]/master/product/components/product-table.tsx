@@ -176,7 +176,7 @@ function ProductTableInner(props: ProductTableProps) {
       moduleId={moduleId}
       transactionId={transactionId}
       tableName={TableName.product}
-      addButtonLabel={t("addProduct")}
+      addButtonLabel={tc("add")}
     />
   );
 }

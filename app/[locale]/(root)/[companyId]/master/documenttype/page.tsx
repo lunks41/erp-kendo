@@ -258,11 +258,6 @@ export default function DocumentTypeMasterPage() {
             </div>
           ) : (
             <>
-              {!selectedItem && (
-                <p className="mb-4 text-sm text-slate-500 dark:text-slate-400">
-                  Add a new document type to the system database.
-                </p>
-              )}
               <DocumentTypeForm
                 key={selectedItem?.documentTypeId ?? "new"}
                 initialData={selectedItem}

@@ -258,11 +258,6 @@ export default function CategoryMasterPage() {
             </div>
           ) : (
             <>
-              {!selectedItem && (
-                <p className="mb-4 text-sm text-slate-500 dark:text-slate-400">
-                  Add a new category to the system database.
-                </p>
-              )}
               <CategoryForm
                 key={selectedItem?.categoryId ?? "new"}
                 initialData={selectedItem}

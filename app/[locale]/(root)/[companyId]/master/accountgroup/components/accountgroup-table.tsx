@@ -177,7 +177,7 @@ function AccountGroupTableInner(props: AccountGroupTableProps) {
       moduleId={moduleId}
       transactionId={transactionId}
       tableName={TableName.accountGroup}
-      addButtonLabel={t("addAccountGroup")}
+      addButtonLabel={tc("add")}
     />
   );
 }

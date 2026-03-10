@@ -178,7 +178,7 @@ function CurrencyTableInner(props: CurrencyTableProps) {
       moduleId={moduleId}
       transactionId={transactionId}
       tableName={TableName.currency}
-      addButtonLabel={t("addCurrency")}
+      addButtonLabel={tc("add")}
     />
   );
 }

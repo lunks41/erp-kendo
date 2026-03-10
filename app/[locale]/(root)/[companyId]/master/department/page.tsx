@@ -220,8 +220,8 @@ export default function DepartmentMasterPage() {
           title={
             selectedDepartment
               ? viewMode
-                ? t("viewDepartment")
-                : t("updateDepartment")
+                ? t("view")
+                : t("update")
               : t("createDepartment")
           }
           onClose={handleCloseDialog}
@@ -271,11 +271,6 @@ export default function DepartmentMasterPage() {
             </div>
           ) : (
             <>
-              {!selectedDepartment && (
-                <p className="mb-4 text-sm text-slate-500 dark:text-slate-400">
-                  Add a new department to the system database.
-                </p>
-              )}
               <DepartmentForm
                 key={selectedDepartment?.departmentId ?? "new"}
                 initialData={selectedDepartment}
@@ -298,7 +293,7 @@ export default function DepartmentMasterPage() {
         }}
         onConfirm={handleSaveConfirm}
         type="save"
-        title={selectedDepartment ? t("updateDepartment") : t("createDepartment")}
+        title={selectedDepartment ? t("update") : t("createDepartment")}
         message={
           selectedDepartment
             ? `Are you sure you want to update department "${selectedDepartment.departmentName}"?`

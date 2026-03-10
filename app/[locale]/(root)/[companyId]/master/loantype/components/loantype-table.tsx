@@ -163,7 +163,7 @@ function LoanTypeTableInner(props: LoanTypeTableProps) {
       moduleId={moduleId}
       transactionId={transactionId}
       tableName={TableName.loanType}
-      addButtonLabel={t("addLoanType")}
+      addButtonLabel={tc("add")}
     />
   );
 }

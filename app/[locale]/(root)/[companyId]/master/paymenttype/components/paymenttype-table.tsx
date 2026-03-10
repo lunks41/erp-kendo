@@ -181,7 +181,7 @@ function PaymentTypeTableInner(props: PaymentTypeTableProps) {
       moduleId={moduleId}
       transactionId={transactionId}
       tableName={TableName.paymentType}
-      addButtonLabel={t("addPaymentType")}
+      addButtonLabel={tc("add")}
     />
   );
 }

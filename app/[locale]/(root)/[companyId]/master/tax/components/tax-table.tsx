@@ -170,7 +170,7 @@ function TaxTableInner(props: TaxTableProps) {
       moduleId={moduleId}
       transactionId={transactionId}
       tableName={TableName.tax}
-      addButtonLabel={t("addTax")}
+      addButtonLabel={tc("add")}
     />
   );
 }

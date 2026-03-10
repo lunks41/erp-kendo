@@ -266,11 +266,6 @@ export default function PortRegionMasterPage() {
             </div>
           ) : (
             <>
-              {!selectedItem && (
-                <p className="mb-4 text-sm text-slate-500 dark:text-slate-400">
-                  Add a new port region and link it to a country.
-                </p>
-              )}
               <PortRegionForm
                 key={selectedItem?.portRegionId ?? "new"}
                 initialData={selectedItem}

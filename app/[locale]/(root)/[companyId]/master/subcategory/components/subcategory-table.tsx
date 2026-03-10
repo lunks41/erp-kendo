@@ -181,7 +181,7 @@ function SubCategoryTableInner(props: SubCategoryTableProps) {
       moduleId={moduleId}
       transactionId={transactionId}
       tableName={TableName.subCategory}
-      addButtonLabel={t("addSubCategory")}
+      addButtonLabel={tc("add")}
     />
   );
 }

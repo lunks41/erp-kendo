@@ -206,7 +206,7 @@ function DesignationTableInner(props: DesignationTableProps) {
       moduleId={moduleId}
       transactionId={transactionId}
       tableName={TableName.designation}
-      addButtonLabel={addButtonLabel ?? t("addDesignation")}
+      addButtonLabel={addButtonLabel ?? tc("add")}
     />
   );
 }

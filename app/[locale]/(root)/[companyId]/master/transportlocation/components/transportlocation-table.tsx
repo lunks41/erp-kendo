@@ -186,7 +186,7 @@ function TransportLocationTableInner(props: TransportLocationTableProps) {
       moduleId={moduleId}
       transactionId={transactionId}
       tableName={TableName.transportLocation}
-      addButtonLabel={t("addTransportLocation")}
+      addButtonLabel={tc("add")}
     />
   );
 }

@@ -202,7 +202,7 @@ function CategoryTableInner(props: CategoryTableProps) {
       moduleId={moduleId}
       transactionId={transactionId}
       tableName={TableName.category}
-      addButtonLabel={addButtonLabel ?? t("addCategory")}
+      addButtonLabel={addButtonLabel ?? tc("add")}
     />
   );
 }

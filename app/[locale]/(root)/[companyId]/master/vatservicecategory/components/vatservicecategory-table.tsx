@@ -187,7 +187,7 @@ function VATServiceCategoryTableInner(props: VATServiceCategoryTableProps) {
       moduleId={moduleId}
       transactionId={transactionId}
       tableName={TableName.vatServiceCategory}
-      addButtonLabel={t("addVATServiceCategory")}
+      addButtonLabel={tc("add")}
     />
   );
 }

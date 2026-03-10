@@ -284,11 +284,6 @@ export default function VesselMasterPage() {
             </div>
           ) : (
             <>
-              {!selectedItem && (
-                <p className="mb-4 text-sm text-slate-500 dark:text-slate-400">
-                  Add a new vessel to the system.
-                </p>
-              )}
               <VesselForm
                 key={selectedItem?.vesselId ?? "new"}
                 initialData={selectedItem}

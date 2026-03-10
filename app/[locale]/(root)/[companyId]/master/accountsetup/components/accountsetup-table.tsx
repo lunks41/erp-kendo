@@ -179,7 +179,7 @@ function AccountSetupTableInner(props: AccountSetupTableProps) {
       moduleId={moduleId}
       transactionId={transactionId}
       tableName={TableName.accountSetup}
-      addButtonLabel={t("addAccountSetup")}
+      addButtonLabel={tc("add")}
     />
   );
 }

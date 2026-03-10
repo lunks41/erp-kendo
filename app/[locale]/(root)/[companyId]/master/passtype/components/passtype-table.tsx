@@ -176,7 +176,7 @@ function PassTypeTableInner(props: PassTypeTableProps) {
       moduleId={moduleId}
       transactionId={transactionId}
       tableName={TableName.passType}
-      addButtonLabel={t("addPassType")}
+      addButtonLabel={tc("add")}
     />
   );
 }

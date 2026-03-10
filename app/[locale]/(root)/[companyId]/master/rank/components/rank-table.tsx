@@ -170,7 +170,7 @@ function RankTableInner(props: RankTableProps) {
       moduleId={moduleId}
       transactionId={transactionId}
       tableName={TableName.rank}
-      addButtonLabel={t("addRank")}
+      addButtonLabel={tc("add")}
     />
   );
 }

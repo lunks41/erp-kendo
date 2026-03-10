@@ -176,7 +176,7 @@ function SupplyTypeTableInner(props: SupplyTypeTableProps) {
       moduleId={moduleId}
       transactionId={transactionId}
       tableName={TableName.supplyType}
-      addButtonLabel={t("addSupplyType")}
+      addButtonLabel={tc("add")}
     />
   );
 }

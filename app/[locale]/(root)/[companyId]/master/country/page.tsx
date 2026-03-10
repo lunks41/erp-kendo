@@ -264,11 +264,6 @@ export default function CountryMasterPage() {
             </div>
           ) : (
             <>
-              {!selectedItem && (
-                <p className="mb-4 text-sm text-slate-500 dark:text-slate-400">
-                  Add a new country to the system database.
-                </p>
-              )}
               <CountryForm
                 key={selectedItem?.countryId ?? "new"}
                 initialData={selectedItem}

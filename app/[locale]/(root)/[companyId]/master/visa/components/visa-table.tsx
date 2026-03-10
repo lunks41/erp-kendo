@@ -171,7 +171,7 @@ function VisaTableInner(props: VisaTableProps) {
       moduleId={moduleId}
       transactionId={transactionId}
       tableName={TableName.visa}
-      addButtonLabel={t("addVisa")}
+      addButtonLabel={tc("add")}
     />
   );
 }
