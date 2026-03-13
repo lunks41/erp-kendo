@@ -1,0 +1,38 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find \"C:\\\\Project\\\\my-app\\\\.claude\\\\worktrees\\\\distracted-tu/app/\\\\[locale\\\\]/\\(root\\)/\\\\[companyId\\\\]\" -type d)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(where npm:*)",
+      "Bash(command -v npm)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5000)",
+      "Bash(powershell -Command \"netstat -ano | findstr '':5000''\")",
+      "Bash(powershell -Command \"Start-Process ''chrome'' ''http://localhost:5000/en/login''\")",
+      "Bash(start chrome:*)",
+      "Bash(powershell -Command \"Get-Process -Id \\(Get-NetTCPConnection -LocalPort 5000 -ErrorAction SilentlyContinue\\).OwningProcess -ErrorAction SilentlyContinue | Select-Object Id, ProcessName, CPU\")",
+      "Bash(kill %1)",
+      "Bash(pkill -f \"next dev\")",
+      "Bash(powershell -Command \"Get-Process -Id 29112 | Select-Object Name, Id, MainWindowTitle\")",
+      "Bash(powershell -Command \"Invoke-WebRequest -Uri ''http://localhost:5000'' -UseBasicParsing -TimeoutSec 5 | Select-Object -ExpandProperty StatusCode\")",
+      "Bash(\"/c/Program Files/nodejs/npm.cmd\" install)",
+      "Bash(powershell -Command \"Stop-Process -Id 29112 -Force\")",
+      "Bash(while read:*)",
+      "Bash(do powershell:*)",
+      "Bash(done rm:*)",
+      "Bash(powershell -Command \":*)",
+      "Bash(powershell -Command \"Stop-Process -Id \\(Get-NetTCPConnection -LocalPort 5000 -ErrorAction SilentlyContinue\\).OwningProcess -Force -ErrorAction SilentlyContinue; Remove-Item -Recurse -Force ''C:\\\\Project\\\\my-app\\\\.next'' -ErrorAction SilentlyContinue; Write-Host done\")",
+      "Bash(ls \"C:\\\\Project\\\\my-app\\\\node_modules\\\\@progress\\\\kendo-react-grid\\\\dist\"\" && grep -c \"GridCsvExportButton\" \"C:Projectmy-appnode_modules@progresskendo-react-griddistnpmmain.js\" 2>/dev/null || echo \"not found \")",
+      "Bash(grep -n \"export\\\\|BargeCell\" /c/Project/my-app/app/[locale]/\\\\\\(root\\\\\\)/[companyId]/ar/invoice/components/invoice-details-table-cells.tsx)",
+      "Bash(ls /c/Project/my-app/app/[locale]/\\\\\\(root\\\\\\)/[companyId]/)",
+      "Bash(\"/c/Program Files/nodejs/npx.cmd\" kendo-ui-license activate)",
+      "Bash(\"/c/Program Files/nodejs/npx.cmd\" kendo-ui-license install)",
+      "Bash(\"/c/Program Files/nodejs/npx.cmd\" kendo-ui-license --help)",
+      "Bash(netstat -ano)",
+      "Bash(findstr \":5000\")",
+      "Bash(findstr \"LISTENING\")",
+      "Bash(powershell -Command \"Stop-Process -Id 28460 -Force\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5000/en/1/ar/invoice)",
+      "WebFetch(domain:www.telerik.com)"
+    ]
+  }
+}

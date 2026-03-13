@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { NumericTextBox, Input } from "@progress/kendo-react-inputs";
 import { DatePicker } from "@progress/kendo-react-dateinputs";
 import type { IArInvoiceDt } from "@/interfaces/ar-invoice";
@@ -47,6 +48,31 @@ export function InvoiceDetailReadOnlyNumber({
   );
 }
 
+// Isolated editor: local state prevents parent re-renders from resetting the input
+// while the user is typing. Commits to parent only on blur.
+function NumberCellEditor({
+  initialValue,
+  decimals,
+  onCommit,
+}: {
+  initialValue: number | null;
+  decimals: number;
+  onCommit: (value: number) => void;
+}) {
+  const [localVal, setLocalVal] = useState<number | null>(initialValue);
+  return (
+    <NumericTextBox
+      className={EDIT_INPUT_CLASS}
+      value={localVal}
+      format={`n${decimals}`}
+      min={0}
+      spinners={false}
+      onChange={(e) => setLocalVal(e.value ?? null)}
+      onBlur={() => onCommit(localVal ?? 0)}
+    />
+  );
+}
+
 export function InvoiceDetailNumberCell({
   dataItem,
   field,
@@ -59,14 +85,13 @@ export function InvoiceDetailNumberCell({
     | undefined;
 
   if (isEditing && onValueChange) {
+    // key on itemNo+field remounts the editor (resets local state) only when switching rows.
     return (
-      <NumericTextBox
-        className={EDIT_INPUT_CLASS}
-        value={value ?? null}
-        format={`n${decimals}`}
-        min={0}
-        spinners={false}
-        onChange={(e) => onValueChange(field, e.value ?? 0)}
+      <NumberCellEditor
+        key={`${dataItem.itemNo}-${field}`}
+        initialValue={value ?? null}
+        decimals={decimals}
+        onCommit={(v) => onValueChange(field, v)}
       />
     );
   }
@@ -74,6 +99,24 @@ export function InvoiceDetailNumberCell({
     <div className="text-right">
       {value != null ? formatNumber(value, decimals) : "—"}
     </div>
+  );
+}
+
+function TextCellEditor({
+  initialValue,
+  onCommit,
+}: {
+  initialValue: string;
+  onCommit: (value: string) => void;
+}) {
+  const [localVal, setLocalVal] = useState(initialValue);
+  return (
+    <Input
+      className={EDIT_INPUT_CLASS}
+      value={localVal}
+      onChange={(e) => setLocalVal(e.value ?? "")}
+      onBlur={() => onCommit(localVal)}
+    />
   );
 }
 
@@ -89,10 +132,10 @@ export function InvoiceDetailTextCell({
 
   if (isEditing && onValueChange) {
     return (
-      <Input
-        className={EDIT_INPUT_CLASS}
-        value={value}
-        onChange={(e) => onValueChange(field, e.value ?? "")}
+      <TextCellEditor
+        key={`${dataItem.itemNo}-${field}`}
+        initialValue={value}
+        onCommit={(v) => onValueChange(field, v)}
       />
     );
   }
