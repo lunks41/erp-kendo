@@ -16,7 +16,9 @@ import { recalculateAndSetHeaderTotals } from "@/helpers/ar-invoice-calculations
 import type { IArInvoiceDt } from "@/interfaces/ar-invoice";
 import type { ArInvoiceDtSchemaType } from "@/schemas/ar-invoice";
 import { getDefaultValues } from "./invoice-defaultvalues";
-import { clientDateFormat } from "@/lib/date-utils";
+import { clientDateFormat, formatDateForApi } from "@/lib/date-utils";
+import { getData } from "@/lib/api-client";
+import { BasicSetting } from "@/lib/api-routes";
 
 interface MainProps {
   form: UseFormReturn<ArInvoiceHdSchemaType>;
@@ -103,6 +105,50 @@ export default function Main({
     recalculateHeaderTotals,
   ]);
 
+  /** Fetch GST percentage from API based on gstId + accountDate, then update the row */
+  const fetchGstPercentage = useCallback(
+    async (itemNo: number, gstId: number) => {
+      const accountDate = form.getValues("accountDate");
+      if (!accountDate || !gstId) return;
+
+      const dt = formatDateForApi(accountDate);
+      if (!dt) return;
+
+      try {
+        const res = await getData(
+          `${BasicSetting.getGstPercentage}/${gstId}/${dt}`,
+        );
+        const gstPercentage = (res?.data as number) ?? 0;
+
+        // Re-read current details (may have changed since async call started)
+        const current = (form.getValues("data_details") ?? []) as IArInvoiceDt[];
+        const idx = current.findIndex((d) => d.itemNo === itemNo);
+        if (idx === -1) return;
+
+        const exhRate = Number(form.getValues("exhRate") ?? 0) || 0;
+        const amtDec = dec.amtDec ?? 2;
+        const locAmtDec = dec.locAmtDec ?? 2;
+
+        const row = { ...current[idx], gstPercentage };
+        const lineTotAmt = Number(row.totAmt ?? 0);
+        const gstAmt = roundTo((lineTotAmt * gstPercentage) / 100, amtDec);
+        row.gstAmt = gstAmt;
+        row.gstLocalAmt = roundTo(gstAmt * exhRate, locAmtDec);
+
+        const next = [...current];
+        next[idx] = row;
+
+        form.setValue("data_details", next as ArInvoiceDtSchemaType[], {
+          shouldDirty: true,
+        });
+        recalculateHeaderTotals();
+      } catch (error) {
+        console.error("Error fetching GST percentage:", error);
+      }
+    },
+    [dec, form, recalculateHeaderTotals],
+  );
+
   const handleItemChange = useCallback(
     ({ dataItem, field, value, dataIndex }: InvoiceDetailItemChangePayload) => {
       const current = (form.getValues("data_details") ?? []) as IArInvoiceDt[];
@@ -148,8 +194,26 @@ export default function Main({
         rowWithCalcs.totLocalAmt = lineTotLocalAmt;
       }
 
-      // When GST percentage changes, recalculate GST amounts
-      if (field === "gstPercentage") {
+      // When gstId changes, fetch the correct percentage from the API (date-dependent)
+      if (field === "gstId") {
+        const gstId = Number(value) || 0;
+        if (gstId > 0) {
+          fetchGstPercentage(dataItem.itemNo, gstId);
+        } else {
+          // GST cleared — reset GST fields
+          rowWithCalcs.gstPercentage = 0;
+          rowWithCalcs.gstAmt = 0;
+          rowWithCalcs.gstLocalAmt = 0;
+        }
+      }
+
+      // Recalculate GST amounts whenever gstPercentage changes OR
+      // when totAmt changes (from qty/price/totAmt edits) and gstPercentage > 0
+      if (
+        field === "gstPercentage" ||
+        ((field === "qty" || field === "unitPrice" || field === "totAmt") &&
+          Number(rowWithCalcs.gstPercentage ?? 0) > 0)
+      ) {
         const lineTotAmt = Number(rowWithCalcs.totAmt ?? 0);
         const gstPercentage = Number(rowWithCalcs.gstPercentage ?? 0);
         const gstAmt = roundTo((lineTotAmt * gstPercentage) / 100, amtDec);
@@ -165,7 +229,7 @@ export default function Main({
       });
       recalculateHeaderTotals();
     },
-    [dec, form, recalculateHeaderTotals],
+    [dec, form, recalculateHeaderTotals, fetchGstPercentage],
   );
 
   const handleEdit = useCallback((detail: IArInvoiceDt) => {

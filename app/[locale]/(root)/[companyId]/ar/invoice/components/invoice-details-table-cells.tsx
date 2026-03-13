@@ -380,7 +380,8 @@ export function InvoiceDetailGstCell({
         onChange={(v) => {
           onValueChange("gstId", v?.gstId ?? 0);
           onValueChange("gstName", v?.gstName ?? "");
-          onValueChange("gstPercentage", v?.gstPercentage ?? 0);
+          // gstPercentage is fetched from the API (date-dependent) via handleItemChange
+          // when gstId changes — do NOT set it from the combobox lookup here.
         }}
         placeholder="Select GST..."
         className="w-full min-w-0"

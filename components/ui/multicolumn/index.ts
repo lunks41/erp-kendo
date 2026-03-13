@@ -1,2 +1,6 @@
 export { ChartOfAccountMultiColumn } from "./chart-of-account-multicolumn"
 export type { ChartOfAccountMultiColumnProps } from "./chart-of-account-multicolumn"
+export { CustomerMultiColumn } from "./customer-multicolumn"
+export type { CustomerMultiColumnProps } from "./customer-multicolumn"
+export { SupplierMultiColumn } from "./supplier-multicolumn"
+export type { SupplierMultiColumnProps } from "./supplier-multicolumn"
