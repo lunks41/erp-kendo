@@ -107,12 +107,13 @@ export function InvoiceDetailDateCell({
 }: InvoiceDetailCellProps) {
   const raw = (dataItem as unknown as Record<string, unknown>)[field];
   const dateValue = raw instanceof Date ? raw : raw ? new Date(String(raw)) : null;
+  const isValidDate = dateValue instanceof Date && !isNaN(dateValue.getTime());
 
   if (isEditing && onValueChange) {
     return (
       <DatePicker
         className="w-full"
-        value={dateValue}
+        value={isValidDate ? dateValue : null}
         onChange={(e) => onValueChange(field, e.value ?? null)}
         format="dd/MM/yyyy"
       />
@@ -120,7 +121,7 @@ export function InvoiceDetailDateCell({
   }
   return (
     <div className="text-right">
-      {dateValue ? format(dateValue, "dd/MM/yyyy") : "—"}
+      {isValidDate ? format(dateValue!, "dd/MM/yyyy") : "—"}
     </div>
   );
 }

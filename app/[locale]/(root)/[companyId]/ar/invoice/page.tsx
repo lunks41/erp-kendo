@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import { format } from "date-fns";
 import { Copy, List, Printer, RotateCcw, Save, Trash2 } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -41,7 +41,6 @@ import Other from "./components/other";
 
 export default function InvoicePage() {
   const params = useParams();
-  const searchParams = useSearchParams();
   const companyId = params.companyId as string;
   const moduleId = ModuleId.ar;
   const transactionId = ARTransactionId.invoice;
