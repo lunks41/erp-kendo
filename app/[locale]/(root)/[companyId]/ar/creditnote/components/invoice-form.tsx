@@ -6,7 +6,7 @@ import { useAuthStore } from "@/stores/auth-store";
 import type { UseFormReturn } from "react-hook-form";
 import type { ArInvoiceHdSchemaType } from "@/schemas/ar-invoice";
 import type { IMandatoryFields, IVisibleFields } from "@/interfaces/setting";
-import { FormInput, FormTextArea, FormNumericInput } from "@/components/ui/form";
+import { FormInput, FormTextArea, FormNumericInput, REQUIRED_FIELD_BOX_CLASS } from "@/components/ui/form";
 import { CustomerCombobox } from "@/components/ui/combobox/customer-combobox";
 import { CurrencyCombobox } from "@/components/ui/combobox/currency-combobox";
 import { CreditTermCombobox } from "@/components/ui/combobox/credit-term-combobox";
@@ -77,7 +77,7 @@ export default function InvoiceForm({
                   format={dateFormat}
                   fillMode="outline"
                   rounded="medium"
-                  className="w-full"
+                  className={`w-full ${REQUIRED_FIELD_BOX_CLASS}`}
                 />
               )}
             />

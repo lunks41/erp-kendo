@@ -38,6 +38,7 @@ export function UserLogTable(props: UserLogTableProps) {
         field: "isLogin",
         title: "Login",
         width: 90,
+        minWidth: 90,
         cells: {
           data: (p) => {
             const login = (p.dataItem as IUserLog).isLogin;
@@ -55,6 +56,7 @@ export function UserLogTable(props: UserLogTableProps) {
         field: "loginDate",
         title: "Login Date",
         width: 150,
+        minWidth: 150,
         cells: {
           data: (p) => {
             const val = (p.dataItem as IUserLog).loginDate;

@@ -78,6 +78,7 @@ function VesselTableInner(props: VesselTableProps) {
         field: "isActive",
         title: tc("active"),
         width: 100,
+        minWidth: 100,
         cells: {
           data: (props) => {
             const isActive = (props.dataItem as IVessel).isActive;
@@ -108,12 +109,14 @@ function VesselTableInner(props: VesselTableProps) {
         field: "createBy",
         title: tc("createdBy"),
         width: 100,
+        minWidth: 100,
         media: "(min-width: 992px)",
       },
       {
         field: "createDate",
         title: tc("createdDate"),
         width: 180,
+        minWidth: 180,
         cells: {
           data: (props) => {
             const val = (props.dataItem as IVessel).createDate;
@@ -134,12 +137,14 @@ function VesselTableInner(props: VesselTableProps) {
         field: "editBy",
         title: tc("editedBy"),
         width: 100,
+        minWidth: 100,
         media: "(min-width: 1200px)",
       },
       {
         field: "editDate",
         title: tc("editedDate"),
         width: 180,
+        minWidth: 180,
         media: "(min-width: 1200px)",
         cells: {
           data: (props) => {

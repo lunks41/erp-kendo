@@ -60,6 +60,7 @@ export function UserTable({
         field: "isActive",
         title: "Status",
         width: 90,
+        minWidth: 90,
         cells: {
           data: (props) => {
             const active = (props.dataItem as IUser).isActive;
@@ -83,6 +84,7 @@ export function UserTable({
         field: "isLocked",
         title: "Locked",
         width: 90,
+        minWidth: 90,
         cells: {
           data: (props) => {
             const locked = (props.dataItem as IUser).isLocked;
@@ -107,6 +109,7 @@ export function UserTable({
         field: "createDate",
         title: "Create Date",
         width: 130,
+        minWidth: 130,
         cells: {
           data: (props) => {
             const val = (props.dataItem as IUser).createDate;

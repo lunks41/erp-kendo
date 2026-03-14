@@ -383,6 +383,7 @@ export function InvoiceDetailsGridInline({
         field="itemNo"
         title="Item No"
         width={80}
+        minWidth={80}
         cells={{
           data: (props: CellProps) => (
             <td
@@ -405,6 +406,7 @@ export function InvoiceDetailsGridInline({
         field="docItemNo"
         title="Doc Item No"
         width={90}
+        minWidth={90}
         cells={{
           data: (props: CellProps) => (
             <td
@@ -427,6 +429,7 @@ export function InvoiceDetailsGridInline({
         field="__actions"
         title="Actions"
         width={100}
+        minWidth={100}
         locked
         sortable={false}
         filterable={false}
@@ -437,6 +440,7 @@ export function InvoiceDetailsGridInline({
         field="seqNo"
         title="Seq No"
         width={60}
+        minWidth={60}
         cells={{
           data: (props: CellProps) => (
             <td
@@ -460,6 +464,7 @@ export function InvoiceDetailsGridInline({
           field="productName"
           title="Product"
           width={200}
+          minWidth={200}
           cells={{
             data: (props: CellProps) => (
               <td
@@ -486,6 +491,7 @@ export function InvoiceDetailsGridInline({
         field="glName"
         title="Account"
         width={220}
+        minWidth={220}
         cells={{
           data: (props: CellProps) => (
             <td
@@ -512,6 +518,7 @@ export function InvoiceDetailsGridInline({
           field="departmentName"
           title="Department"
           width={200}
+          minWidth={200}
           cells={{
             data: (props: CellProps) => (
               <td
@@ -539,6 +546,7 @@ export function InvoiceDetailsGridInline({
           field="qty"
           title="Qty"
           width={70}
+          minWidth={70}
           cells={{
             data: (props: CellProps) => (
               <td
@@ -563,6 +571,7 @@ export function InvoiceDetailsGridInline({
           field="billQTY"
           title="Bill Qty"
           width={70}
+          minWidth={70}
           cells={{
             data: (props: CellProps) => (
               <td
@@ -591,6 +600,7 @@ export function InvoiceDetailsGridInline({
           field="uomName"
           title="UOM"
           width={140}
+          minWidth={140}
           cells={{
             data: (props: CellProps) => (
               <td
@@ -618,6 +628,7 @@ export function InvoiceDetailsGridInline({
           field="unitPrice"
           title="Price"
           width={100}
+          minWidth={100}
           cells={{
             data: (props: CellProps) => (
               <td
@@ -645,6 +656,7 @@ export function InvoiceDetailsGridInline({
         field="totAmt"
         title="Amount"
         width={110}
+        minWidth={110}
         cells={{
           data: (props: CellProps) => (
             <td
@@ -665,6 +677,7 @@ export function InvoiceDetailsGridInline({
         field="totLocalAmt"
         title="Local Amount"
         width={110}
+        minWidth={110}
         cells={{
           data: (props: CellProps) => (
             <td
@@ -688,6 +701,7 @@ export function InvoiceDetailsGridInline({
           field="gstName"
           title="GST"
           width={140}
+          minWidth={140}
           cells={{
             data: (props: CellProps) => (
               <td
@@ -711,6 +725,7 @@ export function InvoiceDetailsGridInline({
           field="gstPercentage"
           title="GST %"
           width={80}
+          minWidth={80}
           cells={{
             data: (props: CellProps) => (
               <td
@@ -734,6 +749,7 @@ export function InvoiceDetailsGridInline({
           field="gstAmt"
           title="GST Amount"
           width={100}
+          minWidth={100}
           cells={{
             data: (props: CellProps) => (
               <td
@@ -754,6 +770,7 @@ export function InvoiceDetailsGridInline({
           field="gstLocalAmt"
           title="GST Local"
           width={100}
+          minWidth={100}
           cells={{
             data: (props: CellProps) => (
               <td
@@ -778,6 +795,7 @@ export function InvoiceDetailsGridInline({
           field="remarks"
           title="Remarks"
           width={120}
+          minWidth={120}
           cells={{
             data: (props: CellProps) => (
               <td
@@ -804,6 +822,7 @@ export function InvoiceDetailsGridInline({
         field="vesselName"
         title="Vessel"
         width={140}
+        minWidth={140}
         cells={{
           data: (props: CellProps) => (
             <td
@@ -827,6 +846,7 @@ export function InvoiceDetailsGridInline({
         field="portName"
         title="Port"
         width={140}
+        minWidth={140}
         cells={{
           data: (props: CellProps) => (
             <td
@@ -852,6 +872,7 @@ export function InvoiceDetailsGridInline({
               field="bargeName"
               title="Barge"
               width={140}
+              minWidth={140}
               cells={{
                 data: (props: CellProps) => (
                   <td
@@ -877,12 +898,14 @@ export function InvoiceDetailsGridInline({
         field="supplierName"
         title="Supplier"
         width={120}
+        minWidth={120}
       />,
       <GridColumn
         key="apInvoiceNo"
         field="apInvoiceNo"
         title="AP Invoice No"
         width={120}
+        minWidth={120}
       />,
       itemNoColumn,
       docItemNoColumn,
@@ -891,6 +914,7 @@ export function InvoiceDetailsGridInline({
         field="deliveryDate"
         title="Delivery Date"
         width={120}
+        minWidth={120}
         cells={{
           data: (props: CellProps) => (
             <td
@@ -914,6 +938,7 @@ export function InvoiceDetailsGridInline({
         field="supplyDate"
         title="Supply Date"
         width={120}
+        minWidth={120}
         cells={{
           data: (props: CellProps) => (
             <td
@@ -939,6 +964,7 @@ export function InvoiceDetailsGridInline({
               field="debitNoteNo"
               title="Debit Note No"
               width={110}
+              minWidth={110}
               cells={{
                 data: (props: CellProps) => (
                   <td

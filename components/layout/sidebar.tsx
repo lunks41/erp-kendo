@@ -59,7 +59,6 @@ import {
   Key,
   Award,
   CircleDot,
-  Pencil,
   Clock,
 } from "lucide-react";
 import type { IUserTransactionRights } from "@/interfaces/auth";
@@ -86,6 +85,24 @@ function getModuleIcon(moduleCode: string): React.ComponentType<{ className?: st
     document: FileText,
     dashboard: LayoutDashboard,
     inquiry: Search,
+  };
+  return map[code] ?? FolderKanban;
+}
+
+// Icon mapping for Master sub-categories (AdmTransactionCategory: Region, Product, Finance, etc.)
+function getCategoryIcon(transCategoryCode: string): React.ComponentType<{ className?: string }> {
+  const code = transCategoryCode.toLowerCase().replace(/\s+/g, "");
+  const map: Record<string, React.ComponentType<{ className?: string }>> = {
+    region: MapPin,
+    product: Box,
+    customer: Users,
+    "customer/vendor": Users,
+    finance: Wallet,
+    glcode: ChartArea,
+    category: FolderKanban,
+    employee: Users,
+    other: CircleDot,
+    others: CircleDot,
   };
   return map[code] ?? FolderKanban;
 }
@@ -204,12 +221,22 @@ export interface DynamicMenuItem {
   icon: React.ComponentType<{ className?: string }>;
 }
 
+/** Category sub-group for Master module (AdmTransactionCategory) */
+export interface DynamicMenuCategory {
+  title: string;
+  transCategoryCode: string;
+  seqNo: number;
+  items: DynamicMenuItem[];
+}
+
 export interface DynamicMenuGroup {
   title: string;
   url: string;
   moduleCode: string;
   icon: React.ComponentType<{ className?: string }>;
   items: DynamicMenuItem[];
+  /** When set (e.g. for Master), sidebar shows category subheaders and items under each */
+  categoryGroups?: DynamicMenuCategory[];
 }
 
 function buildDynamicMenu(transactions: IUserTransactionRights[]): DynamicMenuGroup[] {
@@ -231,15 +258,47 @@ function buildDynamicMenu(transactions: IUserTransactionRights[]): DynamicMenuGr
       });
     }
     const group = menuMap.get(key)!;
-    group.items.push({
+    const item: DynamicMenuItem = {
       title: t.transactionName,
       url: `/${moduleCode}/${t.transactionCode.toLowerCase()}`,
       transactionCode,
       icon: getTransactionIcon(t.transactionCode),
-    });
+    };
+    group.items.push(item);
+
+    // For Master module, also group by AdmTransactionCategory for sidebar sub-grouping
+    if (moduleCode === "master" && t.transCategoryId !== undefined) {
+      if (!group.categoryGroups) group.categoryGroups = [];
+      const catSeq = t.transCatSeqNo ?? t.transCategoryId ?? 999;
+      const catName =
+        (t.transCategoryName && t.transCategoryName.trim()) ||
+        (t.transCategoryCode && t.transCategoryCode.trim())
+          ? (t.transCategoryName || t.transCategoryCode || "").trim()
+          : "Other";
+      const catCode = (t.transCategoryCode || "").trim() || "other";
+      let cat = group.categoryGroups.find((c) => c.transCategoryCode === catCode);
+      if (!cat) {
+        cat = {
+          title: catName,
+          transCategoryCode: catCode,
+          seqNo: catSeq,
+          items: [],
+        };
+        group.categoryGroups.push(cat);
+      }
+      cat.items.push(item);
+    }
   });
 
-  return Array.from(menuMap.values()).filter((g) => g.items.length > 0);
+  // Sort category groups by seqNo (AdmTransactionCategory.SeqNo / transCatSeqNo)
+  const out = Array.from(menuMap.values()).filter((g) => g.items.length > 0);
+  out.forEach((g) => {
+    if (g.categoryGroups && g.categoryGroups.length > 0) {
+      g.categoryGroups.sort((a, b) => a.seqNo - b.seqNo);
+    }
+  });
+
+  return out;
 }
 
 function useUserTransactions() {
@@ -273,7 +332,7 @@ function useUserTransactions() {
     return () => {
       cancelled = true;
     };
-  }, [currentCompany?.companyId, user?.userId, getUserTransactions]);
+  }, [currentCompany, currentCompany?.companyId, user, user?.userId, getUserTransactions]);
 
   return { transactions, isLoading };
 }
@@ -288,6 +347,10 @@ export function Sidebar({ companyId }: SidebarProps) {
   const pathname = usePathname();
   const { transactions, isLoading } = useUserTransactions();
   const [openModule, setOpenModule] = useState<string | null>(null);
+  /** Categories user has explicitly collapsed */
+  const [closedCategoryKeys, setClosedCategoryKeys] = useState<Set<string>>(new Set());
+  /** Categories user has explicitly expanded (overrides default closed when on another page) */
+  const [userOpenedCategoryKeys, setUserOpenedCategoryKeys] = useState<Set<string>>(new Set());
 
   const dynamicMenu = useMemo(() => buildDynamicMenu(transactions), [transactions]);
 
@@ -309,18 +372,117 @@ export function Sidebar({ companyId }: SidebarProps) {
     [companyId]
   );
 
-  // Expand module that contains current path
-  useEffect(() => {
-    if (!pathname) return;
+  // Derive which module contains current path (avoids setState in effect)
+  const moduleContainingPath = useMemo(() => {
+    if (!pathname) return null;
     for (const group of dynamicMenu) {
       for (const item of group.items) {
-        if (pathname === getUrl(item.url) || pathname.startsWith(getUrl(item.url) + "/")) {
-          setOpenModule((m) => m ?? group.title);
-          return;
+        const href = getUrl(item.url);
+        if (pathname === href || pathname.startsWith(href + "/")) return group.title;
+      }
+    }
+    return null;
+  }, [pathname, dynamicMenu, getUrl]);
+
+  // User can toggle; when null we use path-derived module
+  const isModuleOpen = useCallback(
+    (groupTitle: string) => openModule !== null ? openModule === groupTitle : moduleContainingPath === groupTitle,
+    [openModule, moduleContainingPath]
+  );
+
+  const toggleModule = useCallback((groupTitle: string) => {
+    setOpenModule((m) => (m === groupTitle ? null : groupTitle));
+  }, []);
+
+  const categoryKey = useCallback((groupTitle: string, transCategoryCode: string) => `${groupTitle}|${transCategoryCode}`, []);
+
+  /** Which category (in Master) contains the current path – used to keep only that one open by default */
+  const categoryContainingPathKey = useMemo(() => {
+    if (!pathname) return null;
+    for (const group of dynamicMenu) {
+      if (!group.categoryGroups?.length) continue;
+      for (const cat of group.categoryGroups) {
+        for (const item of cat.items) {
+          const href = getUrl(item.url);
+          if (pathname === href || pathname.startsWith(href + "/")) return categoryKey(group.title, cat.transCategoryCode);
         }
       }
     }
-  }, [pathname, dynamicMenu, getUrl]);
+    return null;
+  }, [pathname, dynamicMenu, getUrl, categoryKey]);
+
+  /** By default, close all Master categories except the one containing the current path (when not on Master, close all) */
+  const defaultClosedCategoryKeys = useMemo(() => {
+    const set = new Set<string>();
+    const group = dynamicMenu.find((g) => g.title === "Master");
+    if (!group?.categoryGroups?.length) return set;
+    for (const cat of group.categoryGroups) {
+      const key = categoryKey("Master", cat.transCategoryCode);
+      if (categoryContainingPathKey === null || key !== categoryContainingPathKey) set.add(key);
+    }
+    return set;
+  }, [dynamicMenu, categoryContainingPathKey, categoryKey]);
+
+  /** Effective closed = default (from path) + user closed, minus user opened */
+  const effectiveClosedCategoryKeys = useMemo(() => {
+    const closed = new Set([...defaultClosedCategoryKeys, ...closedCategoryKeys]);
+    userOpenedCategoryKeys.forEach((k) => closed.delete(k));
+    return closed;
+  }, [defaultClosedCategoryKeys, closedCategoryKeys, userOpenedCategoryKeys]);
+
+  const isCategoryOpen = useCallback(
+    (groupTitle: string, transCategoryCode: string) =>
+      !effectiveClosedCategoryKeys.has(categoryKey(groupTitle, transCategoryCode)),
+    [effectiveClosedCategoryKeys, categoryKey]
+  );
+
+  const toggleCategory = useCallback((groupTitle: string, transCategoryCode: string) => {
+    const key = categoryKey(groupTitle, transCategoryCode);
+    const isOpen = !effectiveClosedCategoryKeys.has(key);
+    if (isOpen) {
+      setClosedCategoryKeys((prev) => {
+        const next = new Set(prev);
+        next.add(key);
+        return next;
+      });
+      setUserOpenedCategoryKeys((prev) => {
+        const next = new Set(prev);
+        next.delete(key);
+        return next;
+      });
+    } else {
+      setClosedCategoryKeys((prev) => {
+        const next = new Set(prev);
+        next.delete(key);
+        return next;
+      });
+      setUserOpenedCategoryKeys((prev) => {
+        const next = new Set(prev);
+        next.add(key);
+        return next;
+      });
+    }
+  }, [categoryKey, effectiveClosedCategoryKeys]);
+
+  /** When user clicks a menu link, close all other categories so only the current one stays open */
+  const closeOtherCategoriesExcept = useCallback(
+    (groupTitle: string, keepCategoryCode: string) => {
+      const group = dynamicMenu.find((g) => g.title === groupTitle);
+      if (!group?.categoryGroups?.length) return;
+      const keepKey = categoryKey(groupTitle, keepCategoryCode);
+      setClosedCategoryKeys((prev) => {
+        const next = new Set(prev);
+        for (const cat of group.categoryGroups!) {
+          const key = categoryKey(groupTitle, cat.transCategoryCode);
+          if (key === keepKey) next.delete(key);
+          else next.add(key);
+        }
+        return next;
+      });
+      setUserOpenedCategoryKeys(new Set());
+    },
+    [dynamicMenu, categoryKey]
+  );
 
   const dashboardHref = getUrl("");
   const isDashboardActive =
@@ -348,10 +510,11 @@ export function Sidebar({ companyId }: SidebarProps) {
       </div>
 
       <nav className="flex-1 space-y-0.5 overflow-y-auto p-3">
-        {/* Dashboard / Home - always first */}
+        {/* Dashboard / Home - always first; clicking it closes any expanded module */}
         <div className="mb-2">
           <Link
             href={companyId ? `/${companyId}` : "#"}
+            onClick={() => setOpenModule(null)}
             className={`flex items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-medium transition-colors ${
               isDashboardActive
                 ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300"
@@ -371,13 +534,13 @@ export function Sidebar({ companyId }: SidebarProps) {
           </div>
         ) : (
           dynamicMenu.map((group) => {
-            const isOpen = openModule === group.title;
+            const isOpen = isModuleOpen(group.title);
             const GroupIcon = group.icon;
             return (
               <div key={group.title} className="space-y-0.5">
                 <button
                   type="button"
-                  onClick={() => setOpenModule((m) => (m === group.title ? null : group.title))}
+                  onClick={() => toggleModule(group.title)}
                   className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium text-slate-700 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
                 >
                   <GroupIcon className="h-4 w-4 shrink-0 opacity-80" />
@@ -388,29 +551,77 @@ export function Sidebar({ companyId }: SidebarProps) {
                 </button>
                 {isOpen && group.items.length > 0 && (
                   <div className="ml-3 space-y-0.5 border-l border-slate-200/80 pl-2 dark:border-slate-700/80">
-                    {group.items.map((item) => {
-                      const href = getUrl(item.url);
-                      const isActive =
-                        pathname === href || pathname?.startsWith(href + "/");
-                      const ItemIcon = item.icon;
-                      return (
-                        <Link
-                          key={item.url}
-                          href={href}
-                          className={`flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors ${
-                            isActive
-                              ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300"
-                              : "text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
-                          }`}
-                        >
-                          <ItemIcon className="h-3.5 w-3.5 shrink-0 opacity-80" />
-                          <span className="flex-1 truncate">{getMenuLabel(item.transactionCode, item.title)}</span>
-                          <ChevronRight
-                            className={`h-3 w-3 shrink-0 ${isActive ? "opacity-100" : "opacity-50"}`}
-                          />
-                        </Link>
-                      );
-                    })}
+                    {group.categoryGroups && group.categoryGroups.length > 0
+                      ? group.categoryGroups.map((cat) => {
+                          const catOpen = isCategoryOpen(group.title, cat.transCategoryCode);
+                          const CatIcon = getCategoryIcon(cat.transCategoryCode);
+                          return (
+                            <div key={cat.transCategoryCode} className="space-y-0.5">
+                              <button
+                                type="button"
+                                onClick={() => toggleCategory(group.title, cat.transCategoryCode)}
+                                className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium text-slate-700 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+                              >
+                                <CatIcon className="h-4 w-4 shrink-0 opacity-80" />
+                                <span className="flex-1">{cat.title}</span>
+                                <ChevronRight
+                                  className={`h-3.5 w-3.5 shrink-0 transition-transform ${catOpen ? "rotate-90" : ""}`}
+                                />
+                              </button>
+                              {catOpen && (
+                                <div className="ml-3 space-y-0.5 border-l border-slate-200/80 pl-2 dark:border-slate-700/80">
+                                  {cat.items.map((item) => {
+                                    const href = getUrl(item.url);
+                                    const isActive =
+                                      pathname === href || pathname?.startsWith(href + "/");
+                                    const ItemIcon = item.icon;
+                                    return (
+                                      <Link
+                                        key={item.url}
+                                        href={href}
+                                        onClick={() => closeOtherCategoriesExcept(group.title, cat.transCategoryCode)}
+                                        className={`flex items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-medium transition-colors ${
+                                          isActive
+                                            ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300"
+                                            : "text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
+                                        }`}
+                                      >
+                                        <ItemIcon className="h-3.5 w-3.5 shrink-0 opacity-80" />
+                                        <span className="flex-1 truncate">{getMenuLabel(item.transactionCode, item.title)}</span>
+                                        <ChevronRight
+                                          className={`h-3 w-3 shrink-0 ${isActive ? "opacity-100" : "opacity-50"}`}
+                                        />
+                                      </Link>
+                                    );
+                                  })}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })
+                      : group.items.map((item) => {
+                          const href = getUrl(item.url);
+                          const isActive =
+                            pathname === href || pathname?.startsWith(href + "/");
+                          const ItemIcon = item.icon;
+                          return (
+                            <Link
+                              key={item.url}
+                              href={href}
+                              className={`flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors ${
+                                isActive
+                                  ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300"
+                                  : "text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
+                              }`}
+                            >
+                              <ItemIcon className="h-3.5 w-3.5 shrink-0 opacity-80" />
+                              <span className="flex-1 truncate">{getMenuLabel(item.transactionCode, item.title)}</span>
+                              <ChevronRight
+                                className={`h-3 w-3 shrink-0 ${isActive ? "opacity-100" : "opacity-50"}`}
+                              />
+                            </Link>
+                          );
+                        })}
                   </div>
                 )}
               </div>

@@ -18,8 +18,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 
 interface InvoiceTableProps {
-  onInvoiceSelect: (invoice: IArInvoiceHd | undefined) => void;
-  onFilterChange: (filters: IArInvoiceFilter) => void;
+  onInvoiceSelectAction: (invoice: IArInvoiceHd | undefined) => void;
+  onFilterChangeAction: (filters: IArInvoiceFilter) => void;
   initialFilters?: IArInvoiceFilter;
   pageSize: number;
   onCloseAction?: () => void;
@@ -30,8 +30,8 @@ interface InvoiceTableProps {
 const DEFAULT_PAGE_SIZE = 15;
 
 export default function InvoiceTable({
-  onInvoiceSelect,
-  onFilterChange,
+  onInvoiceSelectAction,
+  onFilterChangeAction,
   initialFilters,
   pageSize: _pageSize,
   onCloseAction,
@@ -123,7 +123,7 @@ export default function InvoiceTable({
     setSearchEndDate(isAllTime ? "" : (formatDateForApi(end) ?? defaultEnd));
     setHasSearched(true);
     setCurrentPage(1);
-    onFilterChange({
+    onFilterChangeAction({
       ...initialFilters,
       startDate: start,
       endDate: end,
@@ -177,92 +177,104 @@ export default function InvoiceTable({
   };
 
   const columns: MasterDataGridColumn[] = [
-    { field: "invoiceId", title: "Invoice Id", width: 90 },
-    { field: "invoiceNo", title: "Invoice No", width: 120 },
-    { field: "referenceNo", title: "Reference No", width: 120 },
-    { field: "suppInvoiceNo", title: "Supp Invoice No", width: 120 },
+    { field: "invoiceId", title: "Invoice Id", width: 90, minWidth: 90 },
+    { field: "invoiceNo", title: "Invoice No", width: 120, minWidth: 120 },
+    { field: "referenceNo", title: "Reference No", width: 120, minWidth: 120 },
+    { field: "suppInvoiceNo", title: "Supp Invoice No", width: 120, minWidth: 120 },
     {
       field: "accountDate",
       title: "Account Date",
       width: 110,
+      minWidth: 110,
       cells: { data: dateCell("accountDate") },
     },
     {
       field: "trnDate",
       title: "Trn Date",
       width: 110,
+      minWidth: 110,
       cells: { data: dateCell("trnDate") },
     },
     {
       field: "dueDate",
       title: "Due Date",
       width: 110,
+      minWidth: 110,
       cells: { data: dateCell("dueDate") },
     },
     {
       field: "deliveryDate",
       title: "Delivery Date",
       width: 110,
+      minWidth: 110,
       cells: { data: dateCell("deliveryDate") },
     },
-    { field: "customerCode", title: "Customer Code", width: 100 },
-    { field: "customerName", title: "Customer Name", width: 150 },
-    { field: "currencyCode", title: "Currency", width: 80 },
-    { field: "creditTermName", title: "Credit Term", width: 100 },
-    { field: "bankName", title: "Bank", width: 120 },
+    { field: "customerCode", title: "Customer Code", width: 100, minWidth: 100 },
+    { field: "customerName", title: "Customer Name", width: 150, minWidth: 150 },
+    { field: "currencyCode", title: "Currency", width: 80, minWidth: 80 },
+    { field: "creditTermName", title: "Credit Term", width: 100, minWidth: 100 },
+    { field: "bankName", title: "Bank", width: 120, minWidth: 120 },
     {
       field: "totAmt",
       title: "Total Amount",
       width: 100,
+      minWidth: 100,
       cells: { data: numericCell("totAmt", amtDec) },
     },
     {
       field: "gstAmt",
       title: "GST Amount",
       width: 100,
+      minWidth: 100,
       cells: { data: numericCell("gstAmt", amtDec) },
     },
     {
       field: "totAmtAftGst",
       title: "Total After GST",
       width: 110,
+      minWidth: 110,
       cells: { data: numericCell("totAmtAftGst", amtDec) },
     },
     {
       field: "totLocalAmt",
       title: "Local Amount",
       width: 100,
+      minWidth: 100,
       cells: { data: numericCell("totLocalAmt", locAmtDec) },
     },
     {
       field: "payAmt",
       title: "Payment",
       width: 100,
+      minWidth: 100,
       cells: { data: numericCell("payAmt", amtDec) },
     },
     {
       field: "balAmt",
       title: "Balance",
       width: 100,
+      minWidth: 100,
       cells: { data: numericCell("balAmt", amtDec) },
     },
-    { field: "remarks", title: "Remarks", width: 150 },
-    { field: "jobOrderNo", title: "Job Order", width: 120 },
-    { field: "vesselName", title: "Vessel", width: 100 },
-    { field: "portName", title: "Port", width: 100 },
-    { field: "serviceCategoryName", title: "Service Category", width: 130 },
-    { field: "createBy", title: "Create By", width: 90 },
+    { field: "remarks", title: "Remarks", width: 150, minWidth: 150 },
+    { field: "jobOrderNo", title: "Job Order", width: 120, minWidth: 120 },
+    { field: "vesselName", title: "Vessel", width: 100, minWidth: 100 },
+    { field: "portName", title: "Port", width: 100, minWidth: 100 },
+    { field: "serviceCategoryName", title: "Service Category", width: 130, minWidth: 130 },
+    { field: "createBy", title: "Create By", width: 90, minWidth: 90 },
     {
       field: "createDate",
       title: "Create Date",
       width: 130,
+      minWidth: 130,
       cells: { data: dateCell("createDate") },
     },
-    { field: "editBy", title: "Edit By", width: 90 },
+    { field: "editBy", title: "Edit By", width: 90, minWidth: 90 },
     {
       field: "editDate",
       title: "Edit Date",
       width: 130,
+      minWidth: 130,
       cells: { data: dateCell("editDate") },
     },
   ];
@@ -333,7 +345,7 @@ export default function InvoiceTable({
           setCurrentPage(1);
         }}
         serverSidePagination
-        actions={{ onView: (item) => onInvoiceSelect(item) }}
+        actions={{ onView: (item) => onInvoiceSelectAction(item) }}
         showView
         showEdit={false}
         showDelete={false}

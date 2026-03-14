@@ -45,6 +45,8 @@ export default function InvoiceDetailsTable({
     {
       field: "itemNo",
       title: "Item No",
+      width: 80,
+      minWidth: 80,
       cell: ({ dataItem }) => (
         <InvoiceDetailReadOnlyNumber dataItem={dataItem} field="itemNo" />
       ),
@@ -52,6 +54,8 @@ export default function InvoiceDetailsTable({
     {
       field: "seqNo",
       title: "Seq No",
+      width: 60,
+      minWidth: 60,
       cell: ({ dataItem }) => (
         <InvoiceDetailReadOnlyNumber dataItem={dataItem} field="seqNo" />
       ),
@@ -59,22 +63,24 @@ export default function InvoiceDetailsTable({
     {
       field: "docItemNo",
       title: "Doc Item No",
+      width: 90,
+      minWidth: 90,
       cell: ({ dataItem }) => (
         <InvoiceDetailReadOnlyNumber dataItem={dataItem} field="docItemNo" />
       ),
     },
     ...(visible?.m_ProductId
       ? [
-          { field: "productCode", title: "Product Code" },
-          { field: "productName", title: "Product" },
+          { field: "productCode", title: "Product Code", width: 100, minWidth: 100 },
+          { field: "productName", title: "Product", width: 200, minWidth: 200 },
         ]
       : []),
-    { field: "glCode", title: "Code" },
-    { field: "glName", title: "Account" },
+    { field: "glCode", title: "Code", width: 80, minWidth: 80 },
+    { field: "glName", title: "Account", width: 220, minWidth: 220 },
     ...(visible?.m_DepartmentId
       ? [
-          { field: "departmentCode", title: "Dept Code" },
-          { field: "departmentName", title: "Department" },
+          { field: "departmentCode", title: "Dept Code", width: 90, minWidth: 90 },
+          { field: "departmentName", title: "Department", width: 200, minWidth: 200 },
         ]
       : []),
     ...(visible?.m_QTY
@@ -82,6 +88,8 @@ export default function InvoiceDetailsTable({
           {
             field: "qty",
             title: "Qty",
+            width: 70,
+            minWidth: 70,
             cell: ({ dataItem }: { dataItem: IArInvoiceDt }) => (
               <InvoiceDetailNumberCell
                 dataItem={dataItem}
@@ -93,6 +101,8 @@ export default function InvoiceDetailsTable({
           {
             field: "billQTY",
             title: "Bill Qty",
+            width: 70,
+            minWidth: 70,
             cell: ({ dataItem }: { dataItem: IArInvoiceDt }) => (
               <InvoiceDetailNumberCell
                 dataItem={dataItem}
@@ -105,8 +115,8 @@ export default function InvoiceDetailsTable({
       : []),
     ...(visible?.m_UomId
       ? [
-          { field: "uomCode", title: "UOM Code" },
-          { field: "uomName", title: "UOM" },
+          { field: "uomCode", title: "UOM Code", width: 80, minWidth: 80 },
+          { field: "uomName", title: "UOM", width: 140, minWidth: 140 },
         ]
       : []),
     ...(visible?.m_UnitPrice
@@ -114,6 +124,8 @@ export default function InvoiceDetailsTable({
           {
             field: "unitPrice",
             title: "Price",
+            width: 100,
+            minWidth: 100,
             cell: ({ dataItem }: { dataItem: IArInvoiceDt }) => (
               <InvoiceDetailNumberCell
                 dataItem={dataItem}
@@ -127,6 +139,8 @@ export default function InvoiceDetailsTable({
     {
       field: "totAmt",
       title: "Amount",
+      width: 110,
+      minWidth: 110,
       cell: ({ dataItem }: { dataItem: IArInvoiceDt }) => (
         <InvoiceDetailAmountCell
           dataItem={dataItem}
@@ -138,6 +152,8 @@ export default function InvoiceDetailsTable({
     {
       field: "totLocalAmt",
       title: "Local Amount",
+      width: 110,
+      minWidth: 110,
       cell: ({ dataItem }: { dataItem: IArInvoiceDt }) => (
         <InvoiceDetailAmountCell
           dataItem={dataItem}
@@ -146,16 +162,20 @@ export default function InvoiceDetailsTable({
         />
       ),
     },
-    ...(visible?.m_Remarks !== false ? [{ field: "remarks", title: "Remarks" }] : []),
+    ...(visible?.m_Remarks !== false
+      ? [{ field: "remarks", title: "Remarks", width: 120, minWidth: 120 }]
+      : []),
     ...(visible?.m_DebitNoteNo !== false
-      ? [{ field: "debitNoteNo", title: "Debit Note No" }]
+      ? [{ field: "debitNoteNo", title: "Debit Note No", width: 110, minWidth: 110 }]
       : []),
     ...(visible?.m_GstId
       ? [
-          { field: "gstName", title: "GST" },
+          { field: "gstName", title: "GST", width: 140, minWidth: 140 },
           {
             field: "gstPercentage",
             title: "GST %",
+            width: 80,
+            minWidth: 80,
             cell: ({ dataItem }: { dataItem: IArInvoiceDt }) => (
               <InvoiceDetailNumberCell
                 dataItem={dataItem}
@@ -167,6 +187,8 @@ export default function InvoiceDetailsTable({
           {
             field: "gstAmt",
             title: "GST Amount",
+            width: 100,
+            minWidth: 100,
             cell: ({ dataItem }: { dataItem: IArInvoiceDt }) => (
               <InvoiceDetailAmountCell
                 dataItem={dataItem}
@@ -178,6 +200,8 @@ export default function InvoiceDetailsTable({
           {
             field: "gstLocalAmt",
             title: "GST Local",
+            width: 100,
+            minWidth: 100,
             cell: ({ dataItem }: { dataItem: IArInvoiceDt }) => (
               <InvoiceDetailAmountCell
                 dataItem={dataItem}
@@ -188,12 +212,12 @@ export default function InvoiceDetailsTable({
           },
         ]
       : []),
-    { field: "deliveryDate", title: "Delivery Date" },
-    { field: "supplyDate", title: "Supply Date" },
-    { field: "vesselName", title: "Vessel" },
-    { field: "portName", title: "Port" },
-    { field: "supplierName", title: "Supplier" },
-    { field: "apInvoiceNo", title: "AP Invoice No" },
+    { field: "deliveryDate", title: "Delivery Date", width: 120, minWidth: 120 },
+    { field: "supplyDate", title: "Supply Date", width: 120, minWidth: 120 },
+    { field: "vesselName", title: "Vessel", width: 140, minWidth: 140 },
+    { field: "portName", title: "Port", width: 140, minWidth: 140 },
+    { field: "supplierName", title: "Supplier", width: 120, minWidth: 120 },
+    { field: "apInvoiceNo", title: "AP Invoice No", width: 120, minWidth: 120 },
   ];
 
   return (
@@ -207,6 +231,7 @@ export default function InvoiceDetailsTable({
         emptyMessage="No invoice details found."
         accessorId="itemNo"
         onDeleteAction={handleDelete}
+        onBulkDeleteAction={handleBulkDelete}
         onEditAction={onEditAction}
         showHeader
         showActions

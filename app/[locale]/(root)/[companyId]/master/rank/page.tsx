@@ -24,6 +24,7 @@ import { RankTable } from "./components/rank-table";
 
 export default function RankMasterPage() {
   const t = useNamespaceTranslations("rank");
+  const tc = useNamespaceTranslations("common");
   const moduleId = ModuleId.master;
   const transactionId = MasterTransactionId.rank;
   const queryClient = useQueryClient();

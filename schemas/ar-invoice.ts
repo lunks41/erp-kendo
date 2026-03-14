@@ -24,6 +24,7 @@ export const ArInvoiceHdSchema = (
         : z.union([z.date(), z.string()]).optional(),
     dueDate: z.union([z.date(), z.string()]),
     customerId: z.number().min(1, "Customer is required"),
+    customerName: z.string().optional(),
 
     // Currency Fields
     currencyId: z.number().min(1, "Currency is required"),

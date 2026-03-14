@@ -42,14 +42,15 @@ function AccountGroupTableInner(props: AccountGroupTableProps) {
   const datetimeFormat = decimals[0]?.longDateFormat ?? "dd/MM/yyyy HH:mm:ss";
   const defaultColumns: MasterDataGridColumn[] = useMemo(
     () => [
-      { field: "accGroupId", title: "Id", width: 80, hidden: true },
+      { field: "accGroupId", title: "Id", width: 80, minWidth: 80, hidden: true },
       { field: "accGroupCode", title: tc("code"), width: 100, minWidth: 80 },
       { field: "accGroupName", title: tc("name"), flex: true, minWidth: 150 },
-      { field: "seqNo", title: t("seqNo"), width: 90 },
+      { field: "seqNo", title: t("seqNo"), width: 90, minWidth: 90 },
       {
         field: "isActive",
         title: tc("active"),
         width: 100,
+        minWidth: 100,
         cells: {
           data: (props) => {
             const isActive = (props.dataItem as IAccountGroup).isActive;
@@ -80,12 +81,14 @@ function AccountGroupTableInner(props: AccountGroupTableProps) {
         field: "createBy",
         title: tc("createdBy"),
         width: 100,
+        minWidth: 100,
         media: "(min-width: 992px)",
       },
       {
         field: "createDate",
         title: tc("createdDate"),
         width: 180,
+        minWidth: 180,
         cells: {
           data: (props) => (
             <td {...props.tdProps} className="k-table-td whitespace-nowrap">
@@ -102,12 +105,14 @@ function AccountGroupTableInner(props: AccountGroupTableProps) {
         field: "editBy",
         title: tc("editedBy"),
         width: 100,
+        minWidth: 100,
         media: "(min-width: 1200px)",
       },
       {
         field: "editDate",
         title: tc("editedDate"),
         width: 180,
+        minWidth: 180,
         cells: {
           data: (props) => (
             <td {...props.tdProps} className="k-table-td whitespace-nowrap">

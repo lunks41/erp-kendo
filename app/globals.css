@@ -59,17 +59,77 @@ body {
   padding: 0.25rem 0.5rem;
 }
 
-/* Form inputs and combobox: same height for alignment (Sequence No, Category 3, etc.) */
+/* Grid toolbar: reduce gap between buttons (Add Row, Excel, PDF, Save layout, Default layout) */
+.k-grid-toolbar,
+.k-grid .k-grid-toolbar {
+  gap: 0.25rem !important;
+}
+.k-grid-toolbar .k-button,
+.k-grid .k-grid-toolbar .k-button {
+  margin: 0 !important;
+}
+
+/* Grid toolbar buttons: uniform look – white background, light gray border, rounded (Excel, PDF, Save layout, Default layout) */
+.k-grid-toolbar .k-button,
+.k-grid .k-grid-toolbar .k-button {
+  background-color: #ffffff !important;
+  border: 1px solid rgb(226 232 240) !important;
+  border-radius: 6px !important;
+  color: rgb(51 65 85) !important;
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 0.375rem !important;
+}
+/* Keep icon + label in one row (override Kendo inner layout that can stack them vertically) */
+.k-grid-toolbar .k-button > *,
+.k-grid .k-grid-toolbar .k-button > * {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 0.375rem !important;
+}
+.k-grid-toolbar .k-button:hover:not(:disabled),
+.k-grid .k-grid-toolbar .k-button:hover:not(:disabled) {
+  background-color: rgb(248 250 252) !important;
+  border-color: rgb(203 213 225) !important;
+}
+
+/* Form inputs, combobox, datepicker: same height for alignment (Account Date, Customer, Due Date, etc.) */
 .k-textbox,
 .k-numerictextbox,
-.k-combobox .k-input-wrap {
+.k-combobox .k-input-wrap,
+.k-picker .k-input-wrap,
+.k-picker-wrap,
+.k-dateinput-wrap {
   min-height: 2.25rem !important;
 }
 
 .k-textbox .k-input-inner,
 .k-numerictextbox .k-input-inner,
-.k-combobox .k-input-inner {
+.k-combobox .k-input-inner,
+.k-picker .k-input-inner {
   min-height: 2.25rem !important;
+}
+
+/* Force date/time picker to match input height exactly (Kendo structure differs from combobox) */
+.k-picker,
+.k-dateinput {
+  min-height: 2.25rem !important;
+}
+
+.k-picker .k-picker-wrap,
+.k-picker .k-input-wrap,
+.k-dateinput .k-dateinput-wrap {
+  height: 2.25rem !important;
+  min-height: 2.25rem !important;
+}
+
+.k-picker .k-input-inner,
+.k-dateinput .k-input-inner {
+  height: 2.25rem !important;
+  min-height: 2.25rem !important;
+  box-sizing: border-box !important;
 }
 
 /* Checkbox: no outer border, flat design, focus ring only when focused */
@@ -355,6 +415,18 @@ html.dark .k-animation-container .k-list {
   background-color: rgb(30 41 59) !important;
   border-color: rgb(71 85 105) !important;
   color: rgb(248 250 252) !important;
+}
+
+.dark .k-grid-toolbar .k-button,
+.dark .k-grid .k-grid-toolbar .k-button {
+  background-color: rgb(51 65 85) !important;
+  border: 1px solid rgb(71 85 105) !important;
+  color: rgb(226 232 240) !important;
+}
+.dark .k-grid-toolbar .k-button:hover:not(:disabled),
+.dark .k-grid .k-grid-toolbar .k-button:hover:not(:disabled) {
+  background-color: rgb(71 85 105) !important;
+  border-color: rgb(100 116 139) !important;
 }
 
 .dark .k-pager,

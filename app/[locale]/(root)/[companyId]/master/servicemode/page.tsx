@@ -24,6 +24,7 @@ import { useNamespaceTranslations } from "@/hooks/use-form-translations";
 
 export default function ServiceModeMasterPage() {
   const t = useNamespaceTranslations("serviceMode");
+  const tc = useNamespaceTranslations("common");
   const moduleId = ModuleId.master;
   const transactionId = MasterTransactionId.serviceMode;
   const queryClient = useQueryClient();

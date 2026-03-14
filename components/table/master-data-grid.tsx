@@ -584,7 +584,7 @@ export function MasterDataGrid<T extends object>({
         field={field}
         title={title ?? field}
         width={flex ? undefined : width}
-        minWidth={(minWidth ?? (flex ? 120 : undefined)) as number | undefined}
+        minWidth={(minWidth ?? (flex ? 120 : width)) as number | undefined}
         locked={locked}
         hidden={hidden}
         sortable={colSortable ?? true}
@@ -720,20 +720,28 @@ export function MasterDataGrid<T extends object>({
             {canSaveLayout && (
               <>
                 <Button
+                  type="button"
+                  fillMode="flat"
                   onClick={handleSaveLayout}
                   title={tc("saveLayout")}
                   disabled={updateLayoutMutation.isPending}
                 >
-                  <Save size={18} className="mr-1.5 inline" />
-                  {tc("saveLayout")}
+                  <span className="inline-flex items-center gap-1.5">
+                    <Save className="h-4 w-4 shrink-0" />
+                    {tc("saveLayout")}
+                  </span>
                 </Button>
                 <Button
+                  type="button"
+                  fillMode="flat"
                   onClick={handleDefaultLayout}
                   title={tc("defaultLayout")}
                   disabled={updateLayoutMutation.isPending}
                 >
-                  <LayoutGrid size={18} className="mr-1.5 inline" />
-                  {tc("defaultLayout")}
+                  <span className="inline-flex items-center gap-1.5">
+                    <LayoutGrid className="h-4 w-4 shrink-0" />
+                    {tc("defaultLayout")}
+                  </span>
                 </Button>
               </>
             )}

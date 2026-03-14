@@ -24,18 +24,19 @@ export function AuditLogTable(props: AuditLogTableProps) {
 
   const columns: MasterDataGridColumn[] = useMemo(
     () => [
-      { field: "companyName", title: "Company", width: 120 },
-      { field: "moduleName", title: "Module", width: 100 },
-      { field: "transactionName", title: "Transaction", width: 120 },
-      { field: "documentNo", title: "Document No", width: 100 },
-      { field: "tableName", title: "Table", width: 100 },
-      { field: "modeName", title: "Mode", width: 80 },
-      { field: "remarks", title: "Remarks", flex: true },
-      { field: "createBy", title: "Create By", width: 100 },
+      { field: "companyName", title: "Company", width: 120, minWidth: 120 },
+      { field: "moduleName", title: "Module", width: 100, minWidth: 100 },
+      { field: "transactionName", title: "Transaction", width: 120, minWidth: 120 },
+      { field: "documentNo", title: "Document No", width: 100, minWidth: 100 },
+      { field: "tableName", title: "Table", width: 100, minWidth: 100 },
+      { field: "modeName", title: "Mode", width: 80, minWidth: 80 },
+      { field: "remarks", title: "Remarks", flex: true, minWidth: 100 },
+      { field: "createBy", title: "Create By", width: 100, minWidth: 100 },
       {
         field: "createDate",
         title: "Create Date",
         width: 140,
+        minWidth: 140,
         cells: {
           data: (p) => {
             const val = (p.dataItem as IAuditLog).createDate;

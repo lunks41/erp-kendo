@@ -38,6 +38,7 @@ export interface AccountBaseTableColumn<T = unknown> {
   field: string;
   title?: string;
   width?: number;
+  minWidth?: number;
   hidden?: boolean;
   /** Custom cell renderer - receives dataItem directly (Kendo style) */
   cell?: (props: {
@@ -299,7 +300,7 @@ export function AccountBaseTable<T extends object>({
         field: col.field,
         title: col.title ?? col.field,
         width: col.width ?? 120,
-        minWidth: 80,
+        minWidth: col.minWidth ?? col.width ?? 80,
         sortable: true,
         cells:
           col.cell && typeof col.cell === "function"
@@ -367,10 +368,11 @@ export function AccountBaseTable<T extends object>({
                 onClick={handleSaveLayout}
                 disabled={updateLayoutMutation.isPending}
                 title={tc("saveLayout")}
-                className="flex items-center gap-1"
               >
-                <Save className="h-4 w-4" />
-                {tc("saveLayout")}
+                <span className="inline-flex items-center gap-1.5">
+                  <Save className="h-4 w-4 shrink-0" />
+                  {tc("saveLayout")}
+                </span>
               </Button>
               <Button
                 type="button"
@@ -378,10 +380,11 @@ export function AccountBaseTable<T extends object>({
                 onClick={handleDefaultLayout}
                 disabled={updateLayoutMutation.isPending}
                 title={tc("defaultLayout")}
-                className="flex items-center gap-1"
               >
-                <LayoutGrid className="h-4 w-4" />
-                {tc("defaultLayout")}
+                <span className="inline-flex items-center gap-1.5">
+                  <LayoutGrid className="h-4 w-4 shrink-0" />
+                  {tc("defaultLayout")}
+                </span>
               </Button>
             </>
           )}

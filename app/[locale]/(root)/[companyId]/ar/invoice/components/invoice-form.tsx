@@ -12,6 +12,7 @@ import {
   FormInput,
   FormNumericInput,
   FormTextArea,
+  REQUIRED_FIELD_BOX_CLASS,
 } from "@/components/ui/form";
 import { setExchangeRate, setExchangeRateLocal } from "@/helpers/account";
 import {
@@ -140,7 +141,7 @@ export default function InvoiceForm({
         <div className="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
           {/* Row 1: Account Date, Customer, Reference No, Credit Terms, Due Date, Bank */}
           <div>
-            <label className="mb-0.5 block text-sm font-medium text-rose-600 dark:text-rose-400">
+            <label className="mb-1.5 block text-sm font-medium text-rose-600 dark:text-rose-400">
               Account Date <span className="text-rose-500">*</span>
             </label>
             <Controller
@@ -159,13 +160,14 @@ export default function InvoiceForm({
                   format={dateFormat}
                   fillMode="outline"
                   rounded="medium"
-                  className="w-full"
+                  size="medium"
+                  className={`w-full ${REQUIRED_FIELD_BOX_CLASS}`}
                 />
               )}
             />
           </div>
           <div>
-            <label className="mb-0.5 block text-sm font-medium text-rose-600 dark:text-rose-400">
+            <label className="mb-1.5 block text-sm font-medium text-rose-600 dark:text-rose-400">
               Customer <span className="text-rose-500">*</span>
             </label>
             <Controller
@@ -195,7 +197,7 @@ export default function InvoiceForm({
                   fillMode="outline"
                   rounded="medium"
                   size="medium"
-                  className="w-full"
+                  className={`w-full ${REQUIRED_FIELD_BOX_CLASS}`}
                 />
               )}
             />
@@ -227,7 +229,7 @@ export default function InvoiceForm({
             )}
           />
           <div>
-            <label className="mb-0.5 block text-sm font-medium">Due Date</label>
+            <label className="mb-1.5 block text-sm font-medium">Due Date</label>
             <Controller
               name="dueDate"
               control={form.control}
@@ -244,6 +246,7 @@ export default function InvoiceForm({
                   format={dateFormat}
                   fillMode="outline"
                   rounded="medium"
+                  size="medium"
                   className="w-full"
                 />
               )}

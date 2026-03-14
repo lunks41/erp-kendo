@@ -43,6 +43,7 @@ export function ErrorLogTable({
         field: "createDate",
         title: "Create Date",
         width: 140,
+        minWidth: 140,
         cells: {
           data: (props) => {
             const val = (props.dataItem as IErrorLog).createDate;

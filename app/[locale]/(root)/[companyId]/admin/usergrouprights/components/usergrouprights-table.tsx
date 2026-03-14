@@ -219,18 +219,21 @@ export function UserGroupRightsTable() {
               field="moduleName"
               title="Module"
               width={140}
+              minWidth={140}
               sortable={false}
             />
             <GridColumn
               field="transactionName"
               title="Transaction"
               width={160}
+              minWidth={160}
               sortable={false}
             />
             <GridColumn
               field="__selectAll"
               title="Select All"
               width={90}
+              minWidth={90}
               sortable={false}
               cells={{
                 data: (props: GridCellProps) => {
@@ -267,6 +270,7 @@ export function UserGroupRightsTable() {
               field="isRead"
               title="View"
               width={80}
+              minWidth={80}
               sortable={false}
               cells={{
                 data: (props: GridCellProps) => {
@@ -315,6 +319,7 @@ export function UserGroupRightsTable() {
                 field={field}
                 title={title}
                 width={width}
+                minWidth={width}
                 sortable={false}
                 cells={{
                   data: (props: GridCellProps) => {

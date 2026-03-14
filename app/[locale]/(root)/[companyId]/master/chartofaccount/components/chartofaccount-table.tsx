@@ -89,6 +89,7 @@ function ChartOfAccountTableInner(props: ChartOfAccountTableProps) {
         field: "isSysControl",
         title: t("systemControl"),
         width: 100,
+        minWidth: 100,
         media: "(min-width: 1100px)",
         cells: {
           data: (props) => {
@@ -119,6 +120,7 @@ function ChartOfAccountTableInner(props: ChartOfAccountTableProps) {
         field: "isJobSpecific",
         title: t("jobControl"),
         width: 100,
+        minWidth: 100,
         media: "(min-width: 1200px)",
         cells: {
           data: (props) => {
@@ -149,6 +151,7 @@ function ChartOfAccountTableInner(props: ChartOfAccountTableProps) {
         field: "isBankAccount",
         title: t("bankControl"),
         width: 100,
+        minWidth: 100,
         media: "(min-width: 1300px)",
         cells: {
           data: (props) => {
@@ -179,6 +182,7 @@ function ChartOfAccountTableInner(props: ChartOfAccountTableProps) {
         field: "isDeptMandatory",
         title: t("deptMandatory"),
         width: 130,
+        minWidth: 130,
         media: "(min-width: 1400px)",
         cells: {
           data: (props) => {
@@ -209,6 +213,7 @@ function ChartOfAccountTableInner(props: ChartOfAccountTableProps) {
         field: "isBargeMandatory",
         title: t("bargeMandatory"),
         width: 140,
+        minWidth: 140,
         media: "(min-width: 1500px)",
         cells: {
           data: (props) => {
@@ -239,6 +244,7 @@ function ChartOfAccountTableInner(props: ChartOfAccountTableProps) {
         field: "isOperational",
         title: t("operational"),
         width: 120,
+        minWidth: 120,
         media: "(min-width: 1600px)",
         cells: {
           data: (props) => {
@@ -269,6 +275,7 @@ function ChartOfAccountTableInner(props: ChartOfAccountTableProps) {
         field: "isPayableAccount",
         title: t("payableAccount"),
         width: 150,
+        minWidth: 150,
         media: "(min-width: 1700px)",
         cells: {
           data: (props) => {
@@ -299,6 +306,7 @@ function ChartOfAccountTableInner(props: ChartOfAccountTableProps) {
         field: "isReceivableAccount",
         title: t("receivableAccount"),
         width: 160,
+        minWidth: 160,
         media: "(min-width: 1800px)",
         cells: {
           data: (props) => {
@@ -330,6 +338,7 @@ function ChartOfAccountTableInner(props: ChartOfAccountTableProps) {
         field: "isUniversal",
         title: t("universal"),
         width: 120,
+        minWidth: 120,
         media: "(min-width: 1900px)",
         cells: {
           data: (props) => {
@@ -360,6 +369,7 @@ function ChartOfAccountTableInner(props: ChartOfAccountTableProps) {
         field: "isActive",
         title: tc("active"),
         width: 100,
+        minWidth: 100,
         cells: {
           data: (props) => {
             const isActive = (props.dataItem as IChartOfAccount).isActive;
@@ -390,12 +400,14 @@ function ChartOfAccountTableInner(props: ChartOfAccountTableProps) {
         field: "createBy",
         title: tc("createdBy"),
         width: 100,
+        minWidth: 100,
         media: "(min-width: 992px)",
       },
       {
         field: "createDate",
         title: tc("createdDate"),
         width: 180,
+        minWidth: 180,
         cells: {
           data: (props) => {
             const val = (props.dataItem as IChartOfAccount).createDate;
@@ -416,12 +428,14 @@ function ChartOfAccountTableInner(props: ChartOfAccountTableProps) {
         field: "editBy",
         title: tc("editedBy"),
         width: 100,
+        minWidth: 100,
         media: "(min-width: 1200px)",
       },
       {
         field: "editDate",
         title: tc("editedDate"),
         width: 180,
+        minWidth: 180,
         media: "(min-width: 1200px)",
         cells: {
           data: (props) => {

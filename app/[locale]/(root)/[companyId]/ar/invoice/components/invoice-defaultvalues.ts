@@ -73,6 +73,7 @@ const buildDefaultInvoice = (dateFormat: string) => ({
   dueDate: format(new Date(), dateFormat),
   gstClaimDate: format(new Date(), dateFormat),
   customerId: 0,
+  customerName: "",
   currencyId: 0,
   exhRate: 0,
   ctyExhRate: 0,

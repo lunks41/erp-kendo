@@ -52,6 +52,7 @@ export function UserGroupTable({
         field: "isActive",
         title: "Status",
         width: 90,
+        minWidth: 90,
         cells: {
           data: (props) => {
             const active = (props.dataItem as IUserGroup).isActive;
@@ -76,6 +77,7 @@ export function UserGroupTable({
         field: "createDate",
         title: "Create Date",
         width: 130,
+        minWidth: 130,
         cells: {
           data: (props) => {
             const val = (props.dataItem as IUserGroup).createDate;

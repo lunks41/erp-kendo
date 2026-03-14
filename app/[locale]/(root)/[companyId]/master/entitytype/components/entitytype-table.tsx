@@ -48,12 +48,14 @@ function EntityTypeTableInner(props: EntityTypeTableProps) {
         field: "createBy",
         title: tc("createdBy"),
         width: 100,
+        minWidth: 100,
         media: "(min-width: 992px)",
       },
       {
         field: "createDate",
         title: tc("createdDate"),
         width: 180,
+        minWidth: 180,
         cells: {
           data: (p) => (
             <td {...p.tdProps} className="k-table-td whitespace-nowrap">
@@ -70,12 +72,14 @@ function EntityTypeTableInner(props: EntityTypeTableProps) {
         field: "editBy",
         title: tc("editedBy"),
         width: 100,
+        minWidth: 100,
         media: "(min-width: 1200px)",
       },
       {
         field: "editDate",
         title: tc("editedDate"),
         width: 180,
+        minWidth: 180,
         cells: {
           data: (p) => (
             <td {...p.tdProps} className="k-table-td whitespace-nowrap">

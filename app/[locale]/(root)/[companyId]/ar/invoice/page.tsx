@@ -458,8 +458,8 @@ export default function InvoicePage() {
       >
         <div className="h-[70vh] overflow-auto p-4">
           <InvoiceTable
-            onInvoiceSelect={handleInvoiceSelect}
-            onFilterChange={setFilters}
+            onInvoiceSelectAction={handleInvoiceSelect}
+            onFilterChangeAction={setFilters}
             initialFilters={filters}
             pageSize={pageSize || 50}
             onCloseAction={() => setShowListDialog(false)}
