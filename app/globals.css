@@ -238,7 +238,47 @@ body {
   color: rgb(248 250 252) !important;
 }
 
-/* Dark mode: Kendo dropdown/popup list (combobox options) */
+/* Dark mode: Kendo dropdown/popup list (combobox options) – use html.dark so portaled popups are styled */
+html.dark .k-list-container,
+html.dark .k-popup,
+html.dark .k-popup .k-list-container,
+html.dark .k-list,
+html.dark .k-listbox {
+  background-color: rgb(30 41 59) !important;
+  color: rgb(248 250 252) !important;
+  border-color: rgb(71 85 105) !important;
+}
+
+html.dark .k-list .k-item,
+html.dark .k-list-optionlabel,
+html.dark .k-listbox .k-item,
+html.dark .k-popup .k-item {
+  color: rgb(248 250 252) !important;
+  background-color: transparent !important;
+}
+
+html.dark .k-list .k-item:hover,
+html.dark .k-list .k-item.k-selected,
+html.dark .k-list .k-item.k-focus,
+html.dark .k-listbox .k-item:hover,
+html.dark .k-listbox .k-item.k-selected,
+html.dark .k-popup .k-item:hover,
+html.dark .k-popup .k-item.k-selected {
+  background-color: rgb(51 65 85) !important;
+  color: rgb(255 255 255) !important;
+}
+
+/* Popup content wrapper (Fluent often nests list inside these) */
+html.dark .k-popup .k-list-content,
+html.dark .k-popup .k-content,
+html.dark .k-animation-container .k-list-container,
+html.dark .k-animation-container .k-list {
+  background-color: rgb(30 41 59) !important;
+  color: rgb(248 250 252) !important;
+  border-color: rgb(71 85 105) !important;
+}
+
+/* Fallback: .dark ancestor (when popup is inside app root) */
 .dark .k-list-container,
 .dark .k-popup,
 .dark .k-list {
@@ -374,23 +414,27 @@ body {
   color: #ffffff !important;
 }
 
-/* Dialog: modern UI – rounded corners, soft shadow, subtle border */
-.k-dialog {
-  border: 1px solid rgb(229 231 235) !important;
-  /* neutral-200 */
+/* Dialog: modern UI – rounded corners, soft shadow, blue border to match primary button (#2f6abb) */
+.k-dialog-wrapper .k-dialog,
+.k-dialog-wrapper .k-window,
+.k-dialog,
+.k-window:has(.k-dialog-titlebar) {
+  border: 2px solid #2f6abb !important;
   border-radius: 12px !important;
   box-shadow:
     0 25px 50px -12px rgb(0 0 0 / 0.25),
-    0 0 0 1px rgb(0 0 0 / 0.05) !important;
+    0 0 0 2px #2f6abb !important;
   overflow: hidden;
 }
 
-.dark .k-dialog {
-  border-color: rgb(71 85 105) !important;
-  /* slate-600 */
+.dark .k-dialog-wrapper .k-dialog,
+.dark .k-dialog-wrapper .k-window,
+.dark .k-dialog,
+.dark .k-window:has(.k-dialog-titlebar) {
+  border: 2px solid #2f6abb !important;
   box-shadow:
     0 25px 50px -12px rgb(0 0 0 / 0.5),
-    0 0 0 1px rgb(71 85 105 / 0.5) !important;
+    0 0 0 2px #2f6abb !important;
 }
 
 /* Dialog title bar: compact header with rounded top, subtle separation */
@@ -414,10 +458,20 @@ body {
   letter-spacing: -0.01em !important;
 }
 
-/* Dialog body: comfortable padding */
+/* Dialog body: comfortable padding, no radius so it aligns with title bar and actions */
 .k-dialog .k-window-content,
 .k-dialog .k-dialog-content {
   padding: 1.25rem 1.25rem !important;
+  border-radius: 0 !important;
+}
+
+/* Dark mode: dialog body – dark background and light text to match app theme */
+.dark .k-dialog .k-window-content,
+.dark .k-dialog .k-dialog-content {
+  background-color: rgb(30 41 59) !important;
+  /* slate-800, match grid/inputs */
+  color: rgb(248 250 252) !important;
+  /* slate-50 */
 }
 
 /* Dialog actions bar: subtle top border, aligned padding */

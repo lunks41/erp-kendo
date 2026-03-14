@@ -3,6 +3,7 @@
 import type { Control, FieldPath, FieldValues } from "react-hook-form";
 import { Controller } from "react-hook-form";
 import { NumericTextBox } from "@progress/kendo-react-inputs";
+import { REQUIRED_FIELD_BOX_CLASS } from "./constants";
 import { FormField } from "./form-field";
 
 export interface FormNumericInputProps<T extends FieldValues> {
@@ -56,7 +57,7 @@ export function FormNumericInput<T extends FieldValues>({
             rounded="medium"
             size="medium"
             spinners={false}
-            className={`w-full ${alignRight ? "[&_input]:text-right" : ""}`}
+            className={`w-full ${alignRight ? "[&_input]:text-right" : ""} ${isRequired ? REQUIRED_FIELD_BOX_CLASS : ""}`}
           />
         )}
       />

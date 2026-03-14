@@ -206,7 +206,7 @@ export default function ServiceModeMasterPage() {
                 </div>
                 <div>
                   <span className="text-slate-500 dark:text-slate-400">
-                    {t("seqNo")}
+                    {tc("seqNo")}
                   </span>
                   <p className="font-medium">{selectedItem.seqNo}</p>
                 </div>

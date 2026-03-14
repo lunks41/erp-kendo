@@ -1,3 +1,4 @@
+export { REQUIRED_FIELD_BOX_CLASS } from "./constants";
 export { Form, type FormProps } from "./form-provider";
 export { FormField } from "./form-field";
 export { FormInput, type FormInputProps } from "./form-input";

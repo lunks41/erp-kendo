@@ -9,7 +9,7 @@ import type { Control, FieldPath, FieldValues } from "react-hook-form"
 import { Controller } from "react-hook-form"
 import { ComboBox } from "@progress/kendo-react-dropdowns"
 import { useAuthStore } from "@/stores/auth-store"
-import { FormField } from "@/components/ui/form"
+import { FormField, REQUIRED_FIELD_BOX_CLASS } from "@/components/ui/form"
 import { useCompanyCustomerLookup, useCustomerLookup } from "@/hooks/use-lookup"
 import type { ICustomerLookup } from "@/interfaces/lookup"
 
@@ -111,7 +111,7 @@ export function CustomerCodeAutoComplete<T extends FieldValues = FieldValues>({
       fillMode={fillMode}
       rounded={rounded}
       size={size}
-      className={className}
+      className={`${className ?? ""} ${isRequired ? REQUIRED_FIELD_BOX_CLASS : ""}`.trim()}
       style={{ minWidth: 200 }}
       allowCustom={allowCustom}
     />

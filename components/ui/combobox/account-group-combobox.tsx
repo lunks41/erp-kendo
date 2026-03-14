@@ -6,7 +6,7 @@ import {
   ComboBoxFilterChangeEvent,
 } from "@progress/kendo-react-dropdowns";
 import { filterBy, FilterDescriptor } from "@progress/kendo-data-query";
-import { FormField } from "@/components/ui/form";
+import { FormField, REQUIRED_FIELD_BOX_CLASS } from "@/components/ui/form";
 import { useAccountGroupLookup } from "@/hooks/use-lookup";
 import type { IAccountGroupLookup } from "@/interfaces/lookup";
 
@@ -107,7 +107,7 @@ export function AccountGroupCombobox({
       fillMode={fillMode}
       rounded={rounded}
       size={size}
-      className={className}
+      className={`${className ?? ""} ${isRequired ? REQUIRED_FIELD_BOX_CLASS : ""}`.trim()}
       style={{ minWidth: 200 }}
     />
   );

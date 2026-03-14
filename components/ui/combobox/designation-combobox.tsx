@@ -6,7 +6,7 @@ import {
   ComboBoxFilterChangeEvent,
 } from "@progress/kendo-react-dropdowns";
 import { filterBy, FilterDescriptor } from "@progress/kendo-data-query";
-import { FormField } from "@/components/ui/form";
+import { FormField, REQUIRED_FIELD_BOX_CLASS } from "@/components/ui/form";
 import { useDesignationLookup } from "@/hooks/use-lookup";
 import type { IDesignationLookup } from "@/interfaces/lookup";
 
@@ -116,7 +116,7 @@ export function DesignationCombobox({
       fillMode={fillMode}
       rounded={rounded}
       size={size}
-      className={className}
+      className={`${className ?? ""} ${isRequired ? REQUIRED_FIELD_BOX_CLASS : ""}`.trim()}
       style={{ minWidth: 200 }}
     />
   );

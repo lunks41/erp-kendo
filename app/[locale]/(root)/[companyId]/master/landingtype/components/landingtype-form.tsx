@@ -96,7 +96,7 @@ export function LandingTypeForm({
         <FormNumericInput
           control={control}
           name="seqNo"
-          label={t("seqNo")}
+          label={tc("seqNo")}
           disabled={isViewMode}
           format={0}
           alignRight={false}

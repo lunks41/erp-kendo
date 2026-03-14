@@ -53,6 +53,7 @@ export function FormDepartmentCombobox<T extends FieldValues>({
             onBlur={field.onBlur}
             label={undefined}
             placeholder={placeholder}
+            isRequired={isRequired}
             className="w-full min-w-0"
             style={{ minWidth: 0 }}
           />

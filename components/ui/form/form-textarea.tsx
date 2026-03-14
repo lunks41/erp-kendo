@@ -3,6 +3,7 @@
 import type { Control, FieldPath, FieldValues } from "react-hook-form";
 import { Controller } from "react-hook-form";
 import { TextArea } from "@progress/kendo-react-inputs";
+import { REQUIRED_FIELD_BOX_CLASS } from "./constants";
 import { FormField } from "./form-field";
 
 export interface FormTextAreaProps<T extends FieldValues> {
@@ -53,7 +54,7 @@ export function FormTextArea<T extends FieldValues>({
             disabled={isDisable}
             placeholder={placeholder}
             rows={rows}
-            className="w-full resize-y"
+            className={`w-full resize-y ${isRequired ? REQUIRED_FIELD_BOX_CLASS : ""}`}
             valid={valid}
             fillMode="outline"
             rounded="medium"

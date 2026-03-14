@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useCallback, useRef, useEffect, useLayoutEffect } from "react";
+import React, { useMemo, useCallback, useRef, useEffect, useLayoutEffect, useState } from "react";
 import {
   Grid,
   GridColumn,
@@ -10,6 +10,21 @@ import {
   GridPdfExportButton,
   GridToolbarSpacer,
 } from "@progress/kendo-react-grid";
+import type { GridColumnsStateChangeEvent } from "@progress/kendo-react-grid";
+import { Button } from "@progress/kendo-react-buttons";
+import { LayoutGrid, Save } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useQueryClient } from "@tanstack/react-query";
+import { useGetGridLayout, useUpdateGridLayout } from "@/hooks/use-settings";
+import { getCompanyIdFromSession } from "@/lib/api-client";
+import {
+  parseGridLayoutToColumnsState,
+  normalizeLayout,
+  serializeColumnsStateToLayout,
+  buildDefaultColumnsState,
+  type GridLayoutLike,
+} from "@/lib/grid-layout-utils";
+import { ARTransactionId, ModuleId, TableName } from "@/lib/utils";
 import { createActionCell } from "@/components/table/master-action-cell";
 import type { IArInvoiceDt } from "@/interfaces/ar-invoice";
 import type { IVisibleFields } from "@/interfaces/setting";
@@ -126,6 +141,150 @@ export function InvoiceDetailsGridInline({
   const { decimals } = useAuthStore();
   const amtDec = decimals[0]?.amtDec ?? 2;
   const locAmtDec = decimals[0]?.locAmtDec ?? 2;
+
+  const tc = useTranslations("common");
+  const queryClient = useQueryClient();
+  const updateLayoutMutation = useUpdateGridLayout();
+  const moduleId = ModuleId.ar;
+  const transactionId = ARTransactionId.invoice;
+  const tableName = TableName.arInvoiceDt;
+
+  const { data: gridLayoutResponse } = useGetGridLayout(
+    String(moduleId),
+    String(transactionId),
+    tableName,
+  );
+
+  const rawLayout = gridLayoutResponse?.data ?? gridLayoutResponse;
+  const layout = useMemo(
+    () =>
+      normalizeLayout(rawLayout, tableName) ??
+      (rawLayout as GridLayoutLike | undefined),
+    [rawLayout, tableName],
+  );
+
+  /** Column field names in the same order as rendered columns (for layout state). */
+  const baseColumnFields = useMemo(() => {
+    const fields: string[] = ["__actions", "seqNo"];
+    if (visible?.m_ProductId) fields.push("productName");
+    fields.push("glName");
+    if (visible?.m_DepartmentId) fields.push("departmentName");
+    if (visible?.m_QTY) {
+      fields.push("qty", "billQTY");
+    }
+    if (visible?.m_UomId) fields.push("uomName");
+    if (visible?.m_UnitPrice) fields.push("unitPrice");
+    fields.push("totAmt", "totLocalAmt");
+    if (visible?.m_GstId) {
+      fields.push("gstName", "gstPercentage", "gstAmt", "gstLocalAmt");
+    }
+    if (visible?.m_Remarks !== false) fields.push("remarks");
+    fields.push("vesselName", "portName");
+    if (visible?.m_BargeId) fields.push("bargeName");
+    fields.push("supplierName", "apInvoiceNo", "itemNo", "docItemNo");
+    fields.push("deliveryDate", "supplyDate");
+    if (visible?.m_DebitNoteNo !== false) fields.push("debitNoteNo");
+    return fields;
+  }, [visible]);
+
+  const defaultColumnsState = useMemo(() => {
+    const parsed = parseGridLayoutToColumnsState(
+      layout as GridLayoutLike | undefined,
+      baseColumnFields,
+    );
+    return (
+      parsed ??
+      buildDefaultColumnsState(baseColumnFields)
+    );
+  }, [layout, baseColumnFields]);
+
+  const columnsStateRef = useRef<
+    GridColumnsStateChangeEvent["columnsState"] | null
+  >(null);
+  const [columnsState, setColumnsState] = useState<
+    GridColumnsStateChangeEvent["columnsState"] | undefined
+  >(undefined);
+
+  const handleColumnsStateChange = useCallback(
+    (e: GridColumnsStateChangeEvent) => {
+      columnsStateRef.current = e.columnsState;
+      setColumnsState(e.columnsState);
+    },
+    [],
+  );
+
+  const handleSaveLayout = useCallback(() => {
+    const companyId = getCompanyIdFromSession();
+    if (!companyId) return;
+    const layoutData = layout as {
+      grdColOrder?: string;
+      grdColVisible?: string;
+      grdColSize?: string;
+      grdSort?: string;
+      grdString?: string;
+    };
+    const { grdColOrder, grdColVisible, grdColSize } = columnsStateRef.current
+      ? serializeColumnsStateToLayout(columnsStateRef.current)
+      : {
+          grdColOrder: layoutData?.grdColOrder ?? "",
+          grdColVisible: layoutData?.grdColVisible ?? "",
+          grdColSize: layoutData?.grdColSize ?? "",
+        };
+    updateLayoutMutation.mutate({
+      companyId: Number(companyId),
+      moduleId: Number(moduleId),
+      transactionId: Number(transactionId),
+      grdName: tableName,
+      grdKey: tableName,
+      grdColOrder,
+      grdColVisible,
+      grdColSize,
+      grdSort: layoutData?.grdSort ?? "",
+      grdString: layoutData?.grdString ?? "",
+    });
+  }, [layout, moduleId, transactionId, tableName, updateLayoutMutation]);
+
+  const handleDefaultLayout = useCallback(() => {
+    const companyId = getCompanyIdFromSession();
+    if (!companyId) return;
+    const defaultState = buildDefaultColumnsState(baseColumnFields);
+    setColumnsState(defaultState);
+    columnsStateRef.current = defaultState;
+    const { grdColOrder, grdColVisible, grdColSize } =
+      serializeColumnsStateToLayout(defaultState);
+    const layoutData = layout as { grdSort?: string; grdString?: string };
+    updateLayoutMutation.mutate(
+      {
+        companyId: Number(companyId),
+        moduleId: Number(moduleId),
+        transactionId: Number(transactionId),
+        grdName: tableName,
+        grdKey: tableName,
+        grdColOrder,
+        grdColVisible,
+        grdColSize,
+        grdSort: layoutData?.grdSort ?? "",
+        grdString: layoutData?.grdString ?? "",
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({
+            queryKey: ["gridlayout", moduleId, transactionId, tableName],
+          });
+        },
+      },
+    );
+  }, [
+    baseColumnFields,
+    layout,
+    moduleId,
+    transactionId,
+    tableName,
+    updateLayoutMutation,
+    queryClient,
+  ]);
+
+  const canSaveLayout = !!(moduleId && transactionId && tableName);
 
   const handleValueChange = useCallback(
     (itemNo: number, field: string, value: string | number | Date | null) => {
@@ -829,6 +988,9 @@ export function InvoiceDetailsGridInline({
         reorderable
         navigatable={false}
         scrollable="scrollable"
+        defaultColumnsState={defaultColumnsState}
+        columnsState={columnsState}
+        onColumnsStateChange={handleColumnsStateChange}
         className="w-full"
         style={{ height: "100%", minHeight: 0 }}
       >
@@ -843,10 +1005,36 @@ export function InvoiceDetailsGridInline({
               Add Row
             </button>
           )}
-          <GridCsvExportButton>Excel</GridCsvExportButton>
-          <GridPdfExportButton>PDF</GridPdfExportButton>
+          <GridCsvExportButton>{tc("excel")}</GridCsvExportButton>
+          <GridPdfExportButton>{tc("pdf")}</GridPdfExportButton>
+          {canSaveLayout && (
+            <>
+              <Button
+                type="button"
+                fillMode="flat"
+                onClick={handleSaveLayout}
+                disabled={updateLayoutMutation.isPending}
+                title={tc("saveLayout")}
+                className="flex items-center gap-1"
+              >
+                <Save className="h-4 w-4" />
+                {tc("saveLayout")}
+              </Button>
+              <Button
+                type="button"
+                fillMode="flat"
+                onClick={handleDefaultLayout}
+                disabled={updateLayoutMutation.isPending}
+                title={tc("defaultLayout")}
+                className="flex items-center gap-1"
+              >
+                <LayoutGrid className="h-4 w-4" />
+                {tc("defaultLayout")}
+              </Button>
+            </>
+          )}
           <GridToolbarSpacer />
-          <GridSearchBox placeholder="Search..." />
+          <GridSearchBox placeholder={tc("search") ?? "Search..."} />
         </GridToolbar>
       </Grid>
     </div>

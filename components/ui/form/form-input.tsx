@@ -3,6 +3,7 @@
 import type { Control, FieldPath, FieldValues } from "react-hook-form";
 import { Controller } from "react-hook-form";
 import { TextBox } from "@progress/kendo-react-inputs";
+import { REQUIRED_FIELD_BOX_CLASS } from "./constants";
 import { FormField } from "./form-field";
 
 export interface FormInputProps<T extends FieldValues> {
@@ -50,7 +51,7 @@ export function FormInput<T extends FieldValues>({
             onBlur={field.onBlur}
             disabled={isDisable}
             placeholder={placeholder}
-            className="w-full"
+            className={`w-full ${isRequired ? REQUIRED_FIELD_BOX_CLASS : ""}`}
             valid={valid}
             fillMode="outline"
             rounded="medium"
