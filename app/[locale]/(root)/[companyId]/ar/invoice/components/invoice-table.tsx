@@ -1,21 +1,21 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { format } from "date-fns";
-import { useForm } from "react-hook-form";
-import { Button } from "@progress/kendo-react-buttons";
-import { Input } from "@progress/kendo-react-inputs";
-import { X } from "lucide-react";
+import type { MasterDataGridColumn } from "@/components/table/master-data-grid";
+import { MasterDataGrid } from "@/components/table/master-data-grid";
+import { useGetWithDatesAndPagination } from "@/hooks/use-common";
 import type { IArInvoiceFilter, IArInvoiceHd } from "@/interfaces/ar-invoice";
 import type { IVisibleFields } from "@/interfaces/setting";
 import { ArInvoice } from "@/lib/api-routes";
 import { clientDateFormat, formatDateForApi } from "@/lib/date-utils";
 import { formatNumber } from "@/lib/format-utils";
-import { ARTransactionId, ModuleId, TableName } from "@/lib/utils";
-import { useGetWithDatesAndPagination } from "@/hooks/use-common";
-import { MasterDataGrid } from "@/components/table/master-data-grid";
-import { FormInput } from "@/components/ui/form";
-import type { MasterDataGridColumn } from "@/components/table/master-data-grid";
+import { TableName } from "@/lib/utils";
+import { useAuthStore } from "@/stores/auth-store";
+import { Button } from "@progress/kendo-react-buttons";
+import { Input } from "@progress/kendo-react-inputs";
+import { format } from "date-fns";
+import { X } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { useForm } from "react-hook-form";
 
 interface InvoiceTableProps {
   onInvoiceSelect: (invoice: IArInvoiceHd | undefined) => void;
@@ -38,18 +38,27 @@ export default function InvoiceTable({
   visible = {} as IVisibleFields,
   isDialogOpen = false,
 }: InvoiceTableProps) {
-  const { decimals } = require("@/stores/auth-store").useAuthStore();
+  void visible; // reserved for future column visibility
+  const { decimals } = useAuthStore();
   const amtDec = decimals[0]?.amtDec ?? 2;
   const locAmtDec = decimals[0]?.locAmtDec ?? 2;
   const dateFormat = decimals[0]?.dateFormat ?? clientDateFormat;
 
   const today = useMemo(() => new Date(), []);
   const defaultStart = useMemo(
-    () => format(new Date(today.getFullYear(), today.getMonth() - 1, 1), "yyyy-MM-dd"),
+    () =>
+      format(
+        new Date(today.getFullYear(), today.getMonth() - 1, 1),
+        "yyyy-MM-dd",
+      ),
     [today],
   );
   const defaultEnd = useMemo(
-    () => format(new Date(today.getFullYear(), today.getMonth() + 1, 0), "yyyy-MM-dd"),
+    () =>
+      format(
+        new Date(today.getFullYear(), today.getMonth() + 1, 0),
+        "yyyy-MM-dd",
+      ),
     [today],
   );
 
@@ -64,34 +73,41 @@ export default function InvoiceTable({
   const [searchQuery, setSearchQuery] = useState(initialFilters?.search ?? "");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(
-    typeof _pageSize === "number" && _pageSize > 0 ? _pageSize : DEFAULT_PAGE_SIZE,
+    typeof _pageSize === "number" && _pageSize > 0
+      ? _pageSize
+      : DEFAULT_PAGE_SIZE,
   );
   const [hasSearched, setHasSearched] = useState(false);
   const [isAllTime, setIsAllTime] = useState(false);
   const [isAllTimeCommitted, setIsAllTimeCommitted] = useState(false);
   const [searchStartDate, setSearchStartDate] = useState(
-    initialFilters?.startDate ? formatDateForApi(String(initialFilters.startDate)) ?? defaultStart : defaultStart,
+    initialFilters?.startDate
+      ? (formatDateForApi(String(initialFilters.startDate)) ?? defaultStart)
+      : defaultStart,
   );
   const [searchEndDate, setSearchEndDate] = useState(
-    initialFilters?.endDate ? formatDateForApi(String(initialFilters.endDate)) ?? defaultEnd : defaultEnd,
+    initialFilters?.endDate
+      ? (formatDateForApi(String(initialFilters.endDate)) ?? defaultEnd)
+      : defaultEnd,
   );
 
   useEffect(() => {
     if (isDialogOpen) setHasSearched(true);
   }, [isDialogOpen]);
 
-  const { data: response, isLoading } = useGetWithDatesAndPagination<IArInvoiceHd>(
-    ArInvoice.get,
-    TableName.arInvoice,
-    searchQuery,
-    searchStartDate ?? "",
-    searchEndDate ?? "",
-    currentPage,
-    pageSize,
-    isAllTimeCommitted,
-    undefined,
-    hasSearched,
-  );
+  const { data: response, isLoading } =
+    useGetWithDatesAndPagination<IArInvoiceHd>(
+      ArInvoice.get,
+      TableName.arInvoice,
+      searchQuery,
+      searchStartDate ?? "",
+      searchEndDate ?? "",
+      currentPage,
+      pageSize,
+      isAllTimeCommitted,
+      undefined,
+      hasSearched,
+    );
 
   const data = response?.data ?? [];
   const totalRecords = response?.totalRecords ?? data.length;
@@ -101,7 +117,9 @@ export default function InvoiceTable({
     setIsAllTimeCommitted(isAllTime);
     const start = form.getValues("startDate");
     const end = form.getValues("endDate");
-    setSearchStartDate(isAllTime ? "" : (formatDateForApi(start) ?? defaultStart));
+    setSearchStartDate(
+      isAllTime ? "" : (formatDateForApi(start) ?? defaultStart),
+    );
     setSearchEndDate(isAllTime ? "" : (formatDateForApi(end) ?? defaultEnd));
     setHasSearched(true);
     setCurrentPage(1);
@@ -115,8 +133,13 @@ export default function InvoiceTable({
     } as IArInvoiceFilter);
   };
 
-  const dateCell = (field: keyof IArInvoiceHd) =>
-    (props: { dataItem?: IArInvoiceHd; tdProps?: React.TdHTMLAttributes<HTMLTableCellElement> | null }) => {
+  type CellProps = {
+    dataItem?: IArInvoiceHd;
+    tdProps?: React.TdHTMLAttributes<HTMLTableCellElement> | null;
+  };
+
+  const dateCell = (field: keyof IArInvoiceHd) => {
+    const DateCell = (props: CellProps) => {
       const d = props.dataItem?.[field] as Date | string | null | undefined;
       const val = d ? format(new Date(d), dateFormat) : "-";
       return (
@@ -125,6 +148,33 @@ export default function InvoiceTable({
         </td>
       );
     };
+    DateCell.displayName = `InvoiceTableDate_${String(field)}`;
+    return DateCell;
+  };
+
+  function NumericCell({
+    dataItem,
+    tdProps,
+    field,
+    decimals: dec,
+  }: CellProps & { field: keyof IArInvoiceHd; decimals: number }) {
+    return (
+      <td {...(tdProps ?? {})} className="k-table-td">
+        <div className="text-right">
+          {formatNumber(Number(dataItem?.[field] ?? 0), dec)}
+        </div>
+      </td>
+    );
+  }
+  NumericCell.displayName = "InvoiceTableNumericCell";
+
+  const numericCell = (field: keyof IArInvoiceHd, decimals: number) => {
+    const Cell = (props: CellProps) => (
+      <NumericCell {...props} field={field} decimals={decimals} />
+    );
+    Cell.displayName = `InvoiceTableNumeric_${String(field)}`;
+    return Cell;
+  };
 
   const columns: MasterDataGridColumn[] = [
     { field: "invoiceId", title: "Invoice Id", width: 90 },
@@ -164,85 +214,37 @@ export default function InvoiceTable({
       field: "totAmt",
       title: "Total Amount",
       width: 100,
-      cells: {
-        data: (props: { dataItem?: IArInvoiceHd; tdProps?: React.TdHTMLAttributes<HTMLTableCellElement> | null }) => (
-          <td {...(props.tdProps ?? {})} className="k-table-td">
-            <div className="text-right">
-              {formatNumber(props.dataItem?.totAmt ?? 0, amtDec)}
-            </div>
-          </td>
-        ),
-      },
+      cells: { data: numericCell("totAmt", amtDec) },
     },
     {
       field: "gstAmt",
       title: "GST Amount",
       width: 100,
-      cells: {
-        data: (props: { dataItem?: IArInvoiceHd; tdProps?: React.TdHTMLAttributes<HTMLTableCellElement> | null }) => (
-          <td {...(props.tdProps ?? {})} className="k-table-td">
-            <div className="text-right">
-              {formatNumber(props.dataItem?.gstAmt ?? 0, amtDec)}
-            </div>
-          </td>
-        ),
-      },
+      cells: { data: numericCell("gstAmt", amtDec) },
     },
     {
       field: "totAmtAftGst",
       title: "Total After GST",
       width: 110,
-      cells: {
-        data: (props: { dataItem?: IArInvoiceHd; tdProps?: React.TdHTMLAttributes<HTMLTableCellElement> | null }) => (
-          <td {...(props.tdProps ?? {})} className="k-table-td">
-            <div className="text-right">
-              {formatNumber(props.dataItem?.totAmtAftGst ?? 0, amtDec)}
-            </div>
-          </td>
-        ),
-      },
+      cells: { data: numericCell("totAmtAftGst", amtDec) },
     },
     {
       field: "totLocalAmt",
       title: "Local Amount",
       width: 100,
-      cells: {
-        data: (props: { dataItem?: IArInvoiceHd; tdProps?: React.TdHTMLAttributes<HTMLTableCellElement> | null }) => (
-          <td {...(props.tdProps ?? {})} className="k-table-td">
-            <div className="text-right">
-              {formatNumber(props.dataItem?.totLocalAmt ?? 0, locAmtDec)}
-            </div>
-          </td>
-        ),
-      },
+      cells: { data: numericCell("totLocalAmt", locAmtDec) },
     },
     {
       field: "payAmt",
       title: "Payment",
       width: 100,
-      cells: {
-        data: (props: { dataItem?: IArInvoiceHd; tdProps?: React.TdHTMLAttributes<HTMLTableCellElement> | null }) => (
-          <td {...(props.tdProps ?? {})} className="k-table-td">
-            <div className="text-right">
-              {formatNumber(props.dataItem?.payAmt ?? 0, amtDec)}
-            </div>
-          </td>
-        ),
-      },
+      cells: { data: numericCell("payAmt", amtDec) },
     },
     {
       field: "balAmt",
       title: "Balance",
       width: 100,
-      cells: {
-        data: (props: { dataItem?: IArInvoiceHd; tdProps?: React.TdHTMLAttributes<HTMLTableCellElement> | null }) => (
-          <td {...(props.tdProps ?? {})} className="k-table-td">
-            <div className="text-right">
-              {formatNumber(props.dataItem?.balAmt ?? 0, amtDec)}
-            </div>
-          </td>
-        ),
-      },
+      cells: { data: numericCell("balAmt", amtDec) },
     },
     { field: "remarks", title: "Remarks", width: 150 },
     { field: "jobOrderNo", title: "Job Order", width: 120 },
@@ -298,11 +300,19 @@ export default function InvoiceTable({
           />
           All data
         </label>
-        <Button themeColor="primary" onClick={handleSearch} disabled={isLoading}>
+        <Button
+          themeColor="primary"
+          onClick={handleSearch}
+          disabled={isLoading}
+        >
           Search
         </Button>
         {onCloseAction && (
-          <Button fillMode="outline" onClick={onCloseAction} className="ml-auto">
+          <Button
+            fillMode="outline"
+            onClick={onCloseAction}
+            className="ml-auto"
+          >
             <X className="mr-1 h-4 w-4" />
             Close
           </Button>

@@ -126,14 +126,13 @@ export default function InvoicePage() {
   });
 
   const saveMutation = usePersist<ArInvoiceHdSchemaType>(ArInvoice.add);
-  const updateMutation = usePersist<ArInvoiceHdSchemaType>(ArInvoice.add);
   const deleteMutation = useDeleteWithRemarks(ArInvoice.delete);
   const unpostMutation = usePersist(ArInvoice.unpost);
 
   const transformToSchemaType = useCallback(
     (apiInvoice: IArInvoiceHd): ArInvoiceHdSchemaType => {
       const fmt = (val: Date | string | null | undefined) =>
-        val ? format(parseDate(String(val)) ?? new Date(), dateFormat) : dateFormat;
+        val ? format(parseDate(String(val)) ?? new Date(), dateFormat) : "";
       return {
         ...apiInvoice,
         invoiceId: apiInvoice.invoiceId?.toString() ?? "0",
@@ -201,7 +200,7 @@ export default function InvoicePage() {
   );
 
   const handleSaveInvoice = async () => {
-    if (isSaving || saveMutation.isPending || updateMutation.isPending) return;
+    if (isSaving || saveMutation.isPending) return;
     setIsSaving(true);
     try {
       const vals = form.getValues() as unknown as IArInvoiceHd;
@@ -228,10 +227,7 @@ export default function InvoicePage() {
             supplyDate: formatDateForApi(d.supplyDate) ?? "",
           })) ?? [],
       };
-      const res =
-        Number(vals.invoiceId) === 0
-          ? await saveMutation.mutateAsync(payload as unknown as Partial<ArInvoiceHdSchemaType>)
-          : await updateMutation.mutateAsync(payload as unknown as Partial<ArInvoiceHdSchemaType>);
+      const res = await saveMutation.mutateAsync(payload as unknown as Partial<ArInvoiceHdSchemaType>);
       if (res.result === 1) {
         const data = Array.isArray(res.data) ? res.data[0] : res.data;
         if (data) {
@@ -480,7 +476,7 @@ export default function InvoicePage() {
         onConfirm={handleSaveInvoice}
         itemName={invoice?.invoiceNo ?? "New Invoice"}
         operationType={invoice?.invoiceId && invoice.invoiceId !== "0" ? "update" : "create"}
-        isSaving={isSaving || saveMutation.isPending || updateMutation.isPending}
+        isSaving={isSaving || saveMutation.isPending}
       />
 
       <DeleteConfirmation

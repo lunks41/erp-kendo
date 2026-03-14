@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useMemo } from "react"
 import { MultiColumnComboBox } from "@progress/kendo-react-dropdowns"
-import type { MultiColumnComboBoxFilterChangeEvent } from "@progress/kendo-react-dropdowns"
+import type { ComboBoxFilterChangeEvent } from "@progress/kendo-react-dropdowns"
 import { useAuthStore } from "@/stores/auth-store"
 import { useCustomerLookup, useCompanyCustomerLookup } from "@/hooks/use-lookup"
 import type { ICustomerLookup } from "@/interfaces/lookup"
@@ -83,7 +83,7 @@ function CustomerMultiColumnUI({
   }, [value, allData])
 
   const handleFilterChange = useCallback(
-    (e: MultiColumnComboBoxFilterChangeEvent) => {
+    (e: ComboBoxFilterChangeEvent) => {
       const query = e.filter?.value ?? ""
       setFilteredData(filterCustomers(allData, query))
     },

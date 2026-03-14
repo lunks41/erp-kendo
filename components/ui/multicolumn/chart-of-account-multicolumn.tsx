@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useMemo } from "react"
 import { MultiColumnComboBox } from "@progress/kendo-react-dropdowns"
-import type { MultiColumnComboBoxFilterChangeEvent } from "@progress/kendo-react-dropdowns"
+import type { ComboBoxFilterChangeEvent } from "@progress/kendo-react-dropdowns"
 import { useAuthStore } from "@/stores/auth-store"
 import { useChartOfAccountLookup } from "@/hooks/use-lookup"
 import type { IChartOfAccountLookup } from "@/interfaces/lookup"
@@ -71,7 +71,7 @@ export function ChartOfAccountMultiColumn({
   }, [value, allData])
 
   const handleFilterChange = useCallback(
-    (e: MultiColumnComboBoxFilterChangeEvent) => {
+    (e: ComboBoxFilterChangeEvent) => {
       const query = e.filter?.value ?? ""
       setFilteredData(filterAccounts(allData, query))
     },

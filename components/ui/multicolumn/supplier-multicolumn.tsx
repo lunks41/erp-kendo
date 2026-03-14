@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useMemo } from "react"
 import { MultiColumnComboBox } from "@progress/kendo-react-dropdowns"
-import type { MultiColumnComboBoxFilterChangeEvent } from "@progress/kendo-react-dropdowns"
+import type { ComboBoxFilterChangeEvent } from "@progress/kendo-react-dropdowns"
 import { useSupplierLookup } from "@/hooks/use-lookup"
 import type { ISupplierLookup } from "@/interfaces/lookup"
 
@@ -64,7 +64,7 @@ export function SupplierMultiColumn({
   }, [value, allData])
 
   const handleFilterChange = useCallback(
-    (e: MultiColumnComboBoxFilterChangeEvent) => {
+    (e: ComboBoxFilterChangeEvent) => {
       const query = e.filter?.value ?? ""
       setFilteredData(filterSuppliers(allData, query))
     },
