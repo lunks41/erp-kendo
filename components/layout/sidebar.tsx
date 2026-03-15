@@ -66,7 +66,7 @@ import type { IUserTransactionRights } from "@/interfaces/auth";
 import { useAuthStore } from "@/stores/auth-store";
 import { useSidebarStore } from "@/stores/sidebar-store";
 
-// Module icon colors (for non-active state)
+// Module icon colors (parent + sub-items inherit)
 function getModuleIconColor(moduleCode: string): string {
   const code = moduleCode.toLowerCase();
   const map: Record<string, string> = {
@@ -83,6 +83,24 @@ function getModuleIconColor(moduleCode: string): string {
     settings: "text-slate-600 dark:text-slate-400",
     dashboard: "text-indigo-600 dark:text-indigo-400",
     inquiry: "text-sky-600 dark:text-sky-400",
+  };
+  return map[code] ?? "text-slate-600 dark:text-slate-400";
+}
+
+// Master transaction category icon colors (category + its sub-items inherit)
+function getCategoryIconColor(transCategoryCode: string): string {
+  const code = transCategoryCode.toLowerCase().replace(/\s+/g, "");
+  const map: Record<string, string> = {
+    region: "text-teal-600 dark:text-teal-400",
+    product: "text-lime-600 dark:text-lime-400",
+    customer: "text-fuchsia-600 dark:text-fuchsia-400",
+    "customer/vendor": "text-fuchsia-600 dark:text-fuchsia-400",
+    finance: "text-amber-600 dark:text-amber-400",
+    glcode: "text-blue-600 dark:text-blue-400",
+    category: "text-violet-600 dark:text-violet-400",
+    employee: "text-rose-600 dark:text-rose-400",
+    other: "text-slate-600 dark:text-slate-400",
+    others: "text-slate-600 dark:text-slate-400",
   };
   return map[code] ?? "text-slate-600 dark:text-slate-400";
 }
@@ -631,6 +649,7 @@ export function Sidebar({ companyId }: SidebarProps) {
             const moduleColor = getModuleIconColor(group.moduleCode);
             const label = getMenuLabel(group.moduleCode, group.title);
             const hasSubmenu = group.items.length > 0;
+            const isParentOfActive = moduleContainingPath === group.title;
 
             const handleGroupMouseEnter = (e: React.MouseEvent) => {
               if (!collapsed || !hasSubmenu || pinnedGroup) return;
@@ -698,8 +717,12 @@ export function Sidebar({ companyId }: SidebarProps) {
                   type="button"
                   onClick={handleGroupClick}
                   title={collapsed ? label : undefined}
-                  className={`flex w-full items-center rounded-lg text-left text-xs font-medium text-slate-700 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 ${
+                  className={`flex w-full items-center rounded-lg text-left text-xs font-medium transition-colors ${
                     collapsed ? "justify-center px-0 py-2" : "gap-2 px-2.5 py-2"
+                  } ${
+                    isParentOfActive
+                      ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300"
+                      : "text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
                   }`}
                 >
                   <GroupIcon className={`h-4 w-4 shrink-0 ${moduleColor}`} />
@@ -718,14 +741,21 @@ export function Sidebar({ companyId }: SidebarProps) {
                       ? group.categoryGroups.map((cat) => {
                           const catOpen = isCategoryOpen(group.title, cat.transCategoryCode);
                           const CatIcon = getCategoryIcon(cat.transCategoryCode);
+                          const catColor = getCategoryIconColor(cat.transCategoryCode);
+                          const catKey = categoryKey(group.title, cat.transCategoryCode);
+                          const isCategoryParentOfActive = categoryContainingPathKey === catKey;
                           return (
                             <div key={cat.transCategoryCode} className="space-y-0.5">
                               <button
                                 type="button"
                                 onClick={() => toggleCategory(group.title, cat.transCategoryCode)}
-                                className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium text-slate-700 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+                                className={`flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium transition-colors ${
+                                  isCategoryParentOfActive
+                                    ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300"
+                                    : "text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+                                }`}
                               >
-                                <CatIcon className="h-4 w-4 shrink-0 opacity-80" />
+                                <CatIcon className={`h-4 w-4 shrink-0 ${catColor}`} />
                                 <span className="flex-1">{cat.title}</span>
                                 <ChevronRight
                                   className={`h-3.5 w-3.5 shrink-0 transition-transform ${catOpen ? "rotate-90" : ""}`}
@@ -738,6 +768,7 @@ export function Sidebar({ companyId }: SidebarProps) {
                                     const isActive =
                                       pathname === href || pathname?.startsWith(href + "/");
                                     const ItemIcon = item.icon;
+                                    const itemColor = catColor;
                                     return (
                                       <Link
                                         key={item.url}
@@ -749,7 +780,7 @@ export function Sidebar({ companyId }: SidebarProps) {
                                             : "text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
                                         }`}
                                       >
-                                        <ItemIcon className={`h-3.5 w-3.5 shrink-0 ${isActive ? "text-indigo-600 dark:text-indigo-400" : "opacity-80"}`} />
+                                        <ItemIcon className={`h-3.5 w-3.5 shrink-0 ${itemColor}`} />
                                         <span className="flex-1 truncate">{getMenuLabel(item.transactionCode, item.title)}</span>
                                         <ChevronRight
                                           className={`h-3 w-3 shrink-0 ${isActive ? "opacity-100" : "opacity-50"}`}
@@ -767,6 +798,7 @@ export function Sidebar({ companyId }: SidebarProps) {
                           const isActive =
                             pathname === href || pathname?.startsWith(href + "/");
                           const ItemIcon = item.icon;
+                          const itemColor = moduleColor;
                           return (
                             <Link
                               key={item.url}
@@ -777,7 +809,7 @@ export function Sidebar({ companyId }: SidebarProps) {
                                   : "text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
                               }`}
                             >
-                              <ItemIcon className={`h-3.5 w-3.5 shrink-0 ${isActive ? "text-indigo-600 dark:text-indigo-400" : "opacity-80"}`} />
+                              <ItemIcon className={`h-3.5 w-3.5 shrink-0 ${itemColor}`} />
                               <span className="flex-1 truncate">{getMenuLabel(item.transactionCode, item.title)}</span>
                               <ChevronRight
                                 className={`h-3 w-3 shrink-0 ${isActive ? "opacity-100" : "opacity-50"}`}
@@ -799,7 +831,9 @@ export function Sidebar({ companyId }: SidebarProps) {
                       <p className="text-xs font-semibold text-slate-900 dark:text-white">{label}</p>
                     </div>
                     {group.categoryGroups && group.categoryGroups.length > 0
-                      ? group.categoryGroups.map((cat) => (
+                      ? group.categoryGroups.map((cat) => {
+                          const catColor = getCategoryIconColor(cat.transCategoryCode);
+                          return (
                           <div key={cat.transCategoryCode} className="px-2 py-1">
                             <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                               {cat.title}
@@ -821,14 +855,15 @@ export function Sidebar({ companyId }: SidebarProps) {
                                         : "text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
                                     }`}
                                   >
-                                    <ItemIcon className={`h-3.5 w-3.5 shrink-0 ${isActive ? "text-indigo-600 dark:text-indigo-400" : "opacity-80"}`} />
+                                    <ItemIcon className={`h-3.5 w-3.5 shrink-0 ${catColor}`} />
                                     <span className="truncate">{getMenuLabel(item.transactionCode, item.title)}</span>
                                   </Link>
                                 );
                               })}
                             </div>
                           </div>
-                        ))
+                          );
+                        })
                       : group.items.map((item) => {
                           const href = getUrl(item.url);
                           const isActive =
@@ -845,7 +880,7 @@ export function Sidebar({ companyId }: SidebarProps) {
                                   : "text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
                               }`}
                             >
-                              <ItemIcon className={`h-3.5 w-3.5 shrink-0 ${isActive ? "text-indigo-600 dark:text-indigo-400" : "opacity-80"}`} />
+                              <ItemIcon className={`h-3.5 w-3.5 shrink-0 ${moduleColor}`} />
                               <span className="truncate">{getMenuLabel(item.transactionCode, item.title)}</span>
                             </Link>
                           );

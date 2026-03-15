@@ -59,6 +59,22 @@ body {
   padding: 0.25rem 0.5rem;
 }
 
+/* All Kendo buttons: icon + label in one row with gap (no vertical wrap) */
+.k-button {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  flex-wrap: nowrap !important;
+  gap: 0.5rem !important;
+}
+.k-button > * {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  flex-wrap: nowrap !important;
+  gap: 0.5rem !important;
+}
+
 /* Grid toolbar: reduce gap between buttons (Add Row, Excel, PDF, Save layout, Default layout) */
 .k-grid-toolbar,
 .k-grid .k-grid-toolbar {

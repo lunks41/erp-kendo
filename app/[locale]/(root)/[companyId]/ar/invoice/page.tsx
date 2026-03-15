@@ -437,7 +437,7 @@ export default function InvoicePage() {
           <Button
             fillMode="outline"
             onClick={() => setShowListDialog(true)}
-            className="flex min-w-[90px] items-center justify-center gap-1.5 px-4 py-2"
+            className="flex min-w-[90px] items-center justify-center gap-2 px-4 py-2"
           >
             <List className="h-4 w-4 shrink-0" />
             List
@@ -457,7 +457,7 @@ export default function InvoicePage() {
               borderColor: "#ea580c",
               color: "white",
             }}
-            className="flex min-w-[90px] items-center justify-center gap-1.5 px-4 py-2 hover:opacity-90"
+            className="flex min-w-[90px] items-center justify-center gap-2 px-4 py-2 hover:opacity-90"
           >
             {isSaving || saveMutation.isPending ? (
               <Loader
@@ -473,7 +473,7 @@ export default function InvoicePage() {
           <Button
             fillMode="outline"
             onClick={() => window.print()}
-            className="flex min-w-[90px] items-center justify-center gap-1.5 px-4 py-2"
+            className="flex min-w-[90px] items-center justify-center gap-2 px-4 py-2"
           >
             <Printer className="h-4 w-4 shrink-0" />
             Print
@@ -481,7 +481,7 @@ export default function InvoicePage() {
           <Button
             fillMode="outline"
             onClick={() => setShowResetConfirm(true)}
-            className="flex min-w-[90px] items-center justify-center gap-1.5 px-4 py-2"
+            className="flex min-w-[90px] items-center justify-center gap-2 px-4 py-2"
           >
             <RotateCcw className="h-4 w-4 shrink-0" />
             New
@@ -490,7 +490,7 @@ export default function InvoicePage() {
             fillMode="outline"
             onClick={() => setShowCloneConfirm(true)}
             disabled={!invoice || invoice.invoiceId === "0" || isCancelled}
-            className="flex min-w-[90px] items-center justify-center gap-1.5 px-4 py-2"
+            className="flex min-w-[90px] items-center justify-center gap-2 px-4 py-2"
           >
             <Copy className="h-4 w-4 shrink-0" />
             Clone
@@ -506,7 +506,7 @@ export default function InvoicePage() {
               borderColor: "#dc2626",
               color: "white",
             }}
-            className="flex min-w-[90px] items-center justify-center gap-1.5 px-4 py-2 hover:opacity-90"
+            className="flex min-w-[90px] items-center justify-center gap-2 px-4 py-2 hover:opacity-90"
           >
             <Trash2 className="h-4 w-4 shrink-0" />
             Cancel
