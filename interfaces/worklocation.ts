@@ -1,5 +1,6 @@
 export interface IWorkLocation {
   workLocationId: number
+  companyId?: number
   workLocationCode?: string
   workLocationName: string
   address1?: string

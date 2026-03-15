@@ -873,6 +873,10 @@
     "searchPlaceholder": "Search entity types..."
   },
   "sidebarMenu": {
+    "expandSidebar": "Expand sidebar",
+    "collapseSidebar": "Collapse sidebar",
+    "greeting": "Hi {userName}",
+    "loadingMenu": "Loading menu...",
     "master": "Master",
     "operations": "Operations",
     "port": "Port",

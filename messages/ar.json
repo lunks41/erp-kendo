@@ -873,6 +873,10 @@
     "searchPlaceholder": "بحث عن أنواع كيانات..."
   },
   "sidebarMenu": {
+    "expandSidebar": "توسيع الشريط الجانبي",
+    "collapseSidebar": "طي الشريط الجانبي",
+    "greeting": "مرحباً {userName}",
+    "loadingMenu": "جاري تحميل القائمة...",
     "master": "الرئيسية",
     "operations": "العمليات",
     "port": "الميناء",

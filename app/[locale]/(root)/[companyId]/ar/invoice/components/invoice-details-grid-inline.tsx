@@ -455,7 +455,7 @@ export function InvoiceDetailsGridInline({
         locked
         sortable={false}
         filterable={false}
-        columnMenu={false}
+        columnMenu={undefined}
         cells={{ data: ActionCellComponent }}
       />,
       <GridColumn

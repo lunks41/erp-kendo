@@ -14,7 +14,7 @@ export const workLocationSchema = z.object({
   address2: z.string().max(255).optional(),
   city: z.string().max(100).optional(),
   postalCode: z.string().max(20).optional(),
-  countryId: z.number({ required_error: "Country is required" }),
+  countryId: z.number().min(1, { message: "Country is required" }),
   isActive: z.boolean(),
 })
 

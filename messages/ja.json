@@ -873,6 +873,10 @@
     "searchPlaceholder": "エンティティ種別を検索..."
   },
   "sidebarMenu": {
+    "expandSidebar": "サイドバーを展開",
+    "collapseSidebar": "サイドバーを折りたたむ",
+    "greeting": "こんにちは {userName} さん",
+    "loadingMenu": "メニューを読み込み中...",
     "master": "マスター",
     "operations": "オペレーション",
     "port": "ポート",
