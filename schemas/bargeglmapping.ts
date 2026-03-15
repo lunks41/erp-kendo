@@ -1,7 +1,7 @@
 import * as z from "zod"
 
 export const bargeGLMappingSchema = z.object({
-  bargeId: z.number(),
+  bargeId: z.number().min(1, { message: "Barge is required" }),
   glId: z.number().min(1, { message: "gl account is required" }),
   isActive: z.boolean(),
 })

@@ -278,6 +278,37 @@ export default function Main({
     recalculateHeaderTotals();
   }, [defaultDetail, form, recalculateHeaderTotals]);
 
+  const handleCloneOne = useCallback(
+    (detail: IArInvoiceDt) => {
+      const current = (form.getValues("data_details") ?? []) as IArInvoiceDt[];
+      const maxItemNo =
+        current.length > 0
+          ? Math.max(...current.map((d) => Number(d.itemNo) || 0))
+          : 0;
+      const nextItemNo = maxItemNo + 1;
+      const { itemNo: _ino, seqNo: _sno, docItemNo: _dno, ...rest } = detail;
+      const cloned: IArInvoiceDt = {
+        ...rest,
+        itemNo: nextItemNo,
+        seqNo: nextItemNo,
+        docItemNo: nextItemNo,
+      } as IArInvoiceDt;
+      const sourceIndex = current.findIndex((d) => d.itemNo === detail.itemNo);
+      const insertIndex = sourceIndex >= 0 ? sourceIndex + 1 : 0;
+      const next = [
+        ...current.slice(0, insertIndex),
+        cloned,
+        ...current.slice(insertIndex),
+      ];
+      form.setValue("data_details", next as ArInvoiceDtSchemaType[], {
+        shouldDirty: true,
+      });
+      setEditingItemNo(nextItemNo);
+      recalculateHeaderTotals();
+    },
+    [form, recalculateHeaderTotals],
+  );
+
   return (
     <div className="space-y-3">
       <InvoiceForm
@@ -296,6 +327,7 @@ export default function Main({
         onItemChangeAction={handleItemChange}
         onDeleteAction={handleDelete}
         onEditAction={handleEdit}
+        onCloneAction={handleCloneOne}
         editingItemNo={editingItemNo}
         onAddRowAction={handleAddRow}
         isCancelled={isCancelled}

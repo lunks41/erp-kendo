@@ -11,13 +11,14 @@ import {
   type GridLayoutLike,
 } from "@/lib/grid-layout-utils";
 import type { State } from "@progress/kendo-data-query";
-import { process } from "@progress/kendo-data-query";
+import { aggregateBy, process } from "@progress/kendo-data-query";
 import { Button } from "@progress/kendo-react-buttons";
 import type {
   GridColumnMenuProps,
   GridColumnProps,
   GridColumnsStateChangeEvent,
   GridDataStateChangeEvent,
+  GridFooterCellProps,
   GridPageChangeEvent,
 } from "@progress/kendo-react-grid";
 import {
@@ -35,8 +36,12 @@ import {
 } from "@progress/kendo-react-grid";
 import { useQueryClient } from "@tanstack/react-query";
 import { LayoutGrid, Plus, RotateCcw, Save, Search, X } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { formatNumber } from "@/lib/format-utils";
 import { GridTooltipCell } from "./grid-tooltip-cell";
+
+/** Context for aggregate results passed to footer cells */
+const AggregateContext = createContext<Record<string, { sum?: number }>>({});
 import { createActionCell } from "./master-action-cell";
 
 export interface MasterDataGridActionHandlers<T = unknown> {
@@ -57,6 +62,12 @@ export interface MasterDataGridColumn extends Omit<
   locked?: boolean;
   /** Hide column initially (user can still show via column menu) */
   hidden?: boolean;
+  /** Kendo sum aggregate – show sum in footer. Uses aggregateBy from kendo-data-query. */
+  aggregate?: "sum";
+  /** Decimal places for aggregate value (default 2) */
+  aggregateDecimals?: number;
+  /** Optional label before the sum (e.g. "Total") – use on first aggregate column */
+  aggregateLabel?: string;
 }
 
 export interface MasterDataGridProps<T = unknown> {
@@ -136,6 +147,30 @@ function DefaultColumnMenu(props: GridColumnMenuProps) {
       <GridColumnMenuColumnsChooser {...props} />
     </>
   );
+}
+
+function createSumFooterCell(
+  decimals: number,
+  label?: string,
+): React.ComponentType<GridFooterCellProps> {
+  const Cell = (props: GridFooterCellProps) => {
+    const aggregates = useContext(AggregateContext);
+    const field = props.field ?? "";
+    const agg = field ? (aggregates[field] as { sum?: number } | undefined) : undefined;
+    const val = agg?.sum ?? 0;
+    return (
+      <td
+        style={props.style}
+        colSpan={props.colSpan}
+        aria-colindex={props.ariaColumnIndex}
+        className="k-table-td k-aggregate-footer-cell text-right font-medium"
+      >
+        {label && <span className="mr-2 font-medium text-slate-600 dark:text-slate-400">{label}</span>}
+        {formatNumber(val, decimals)}
+      </td>
+    );
+  };
+  return Cell;
 }
 
 export function MasterDataGrid<T extends object>({
@@ -434,6 +469,20 @@ export function MasterDataGrid<T extends object>({
       ? clientSkipTake.take
       : undefined;
 
+  const aggregateDescriptors = useMemo(
+    () =>
+      columns
+        .filter((c) => c.aggregate === "sum")
+        .map((c) => ({ field: c.field, aggregate: "sum" as const })),
+    [columns],
+  );
+  const aggregateResult = useMemo(() => {
+    const arr = Array.isArray(gridData) ? gridData : [];
+    return aggregateDescriptors.length > 0
+      ? aggregateBy(arr, aggregateDescriptors)
+      : {};
+  }, [gridData, aggregateDescriptors]);
+
   const handleDefaultLayout = useCallback(() => {
     if (!moduleId || !transactionId || !tableName) return;
     const companyId = getCompanyIdFromSession();
@@ -575,8 +624,19 @@ export function MasterDataGrid<T extends object>({
       hidden,
       sortable: colSortable,
       cells: colCells,
+      aggregate,
+      aggregateDecimals,
+      aggregateLabel,
       ...rest
     } = col;
+    const hasSumAggregate = aggregate === "sum";
+    const decimals = aggregateDecimals ?? 2;
+    const cells = {
+      ...(colCells ?? { data: GridTooltipCell }),
+      ...(hasSumAggregate
+        ? { footerCell: createSumFooterCell(decimals, aggregateLabel) }
+        : {}),
+    };
     return (
       <GridColumn
         key={field}
@@ -589,7 +649,7 @@ export function MasterDataGrid<T extends object>({
         hidden={hidden}
         sortable={colSortable ?? true}
         filterable={false}
-        cells={colCells ?? { data: GridTooltipCell }}
+        cells={cells}
         {...rest}
       />
     );
@@ -669,6 +729,7 @@ export function MasterDataGrid<T extends object>({
         className="k-grid-container min-w-0 w-full shrink-0 overflow-auto rounded border border-slate-500 bg-white dark:border-slate-700 dark:bg-slate-800/50"
         style={{ height: effectiveTableHeight }}
       >
+        <AggregateContext.Provider value={aggregateResult}>
         <Grid
           data={gridData}
           dataItemKey={dataItemKey}
@@ -752,6 +813,7 @@ export function MasterDataGrid<T extends object>({
             />
           </GridToolbar>
         </Grid>
+        </AggregateContext.Provider>
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 import * as z from "zod"
 
 export const chargeGLMappingSchema = z.object({
-  chargeId: z.number(),
+  chargeId: z.number().min(1, { message: "Charge is required" }),
   glId: z.number().min(1, { message: "gl account is required" }),
   isActive: z.boolean(),
 })

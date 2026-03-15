@@ -95,6 +95,14 @@ body {
   border-color: rgb(203 213 225) !important;
 }
 
+/* Aggregate footer row: compact height (sum totals only) */
+.k-aggregate-footer-cell {
+  padding-top: 0.25rem !important;
+  padding-bottom: 0.25rem !important;
+  min-height: 0 !important;
+  line-height: 1.25 !important;
+}
+
 /* Form inputs, combobox, datepicker: same height for alignment (Account Date, Customer, Due Date, etc.) */
 .k-textbox,
 .k-numerictextbox,
@@ -535,6 +543,14 @@ html.dark .k-animation-container .k-list {
 .k-dialog .k-dialog-content {
   padding: 1.25rem 1.25rem !important;
   border-radius: 0 !important;
+}
+
+/* Invoice List dialog: reduce space between header and content, and at bottom */
+.invoice-list-dialog.k-dialog .k-window-content,
+.invoice-list-dialog .k-dialog-content,
+.k-dialog-wrapper .invoice-list-dialog .k-window-content {
+  padding-top: 0.5rem !important;
+  padding-bottom: 0.5rem !important;
 }
 
 /* Dark mode: dialog body – dark background and light text to match app theme */

@@ -303,18 +303,23 @@ const handleMutationError = (error: AxiosError<{ message?: string }>) => {
   toast.error(error.response?.data?.message || "An error occurred")
 }
 
+export interface UsePersistOptions {
+  /** When true, skip the default success/error toast (caller handles feedback) */
+  skipToast?: boolean
+}
+
 /**
  * Create/Update hook
  */
-export function usePersist<T>(baseUrl: string) {
+export function usePersist<T>(baseUrl: string, options?: UsePersistOptions) {
   return useMutation<
     ApiResponse<T>,
     AxiosError<{ message?: string }>,
     Partial<T>
   >({
     mutationFn: async (data) => await saveData(cleanUrl(baseUrl), data),
-    onSuccess: handleMutationResponse,
-    onError: handleMutationError,
+    onSuccess: options?.skipToast ? undefined : handleMutationResponse,
+    onError: options?.skipToast ? undefined : handleMutationError,
   })
 }
 

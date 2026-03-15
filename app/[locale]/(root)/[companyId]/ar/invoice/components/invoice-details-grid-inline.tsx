@@ -4,13 +4,20 @@ import React, { useMemo, useCallback, useRef, useEffect, useLayoutEffect, useSta
 import {
   Grid,
   GridColumn,
+  GridColumnMenuColumnsChooser,
+  GridColumnMenuFilter,
+  GridColumnMenuGroup,
+  GridColumnMenuSort,
   GridToolbar,
   GridSearchBox,
   GridCsvExportButton,
   GridPdfExportButton,
   GridToolbarSpacer,
 } from "@progress/kendo-react-grid";
-import type { GridColumnsStateChangeEvent } from "@progress/kendo-react-grid";
+import type {
+  GridColumnMenuProps,
+  GridColumnsStateChangeEvent,
+} from "@progress/kendo-react-grid";
 import { Button } from "@progress/kendo-react-buttons";
 import { LayoutGrid, Save } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -47,6 +54,17 @@ import {
 
 const TABLE_HEIGHT = "min(400px, 50vh)";
 
+function DefaultColumnMenu(props: GridColumnMenuProps) {
+  return (
+    <>
+      <GridColumnMenuSort {...props} />
+      <GridColumnMenuFilter {...props} />
+      <GridColumnMenuGroup {...props} />
+      <GridColumnMenuColumnsChooser {...props} />
+    </>
+  );
+}
+
 export type InvoiceDetailRow = IArInvoiceDt;
 
 export type InvoiceDetailItemChangePayload = {
@@ -62,6 +80,7 @@ interface InvoiceDetailsGridInlineProps {
   onItemChangeAction: (payload: InvoiceDetailItemChangePayload) => void;
   onDeleteAction?: (itemNo: number) => void;
   onEditAction?: (detail: IArInvoiceDt) => void;
+  onCloneAction?: (detail: IArInvoiceDt) => void;
   isCancelled?: boolean;
   editingItemNo?: number | null;
   onAddRowAction?: () => void;
@@ -73,6 +92,7 @@ export function InvoiceDetailsGridInline({
   onItemChangeAction,
   onDeleteAction,
   onEditAction,
+  onCloneAction,
   isCancelled = false,
   editingItemNo,
   onAddRowAction,
@@ -366,8 +386,10 @@ export function InvoiceDetailsGridInline({
         false,
         !isCancelled && !!onEditAction,
         !isCancelled && !!onDeleteAction,
+        isCancelled ? undefined : (onCloneAction as (item: InvoiceDetailRow) => void),
+        !isCancelled && !!onCloneAction,
       ),
-    [isCancelled, onEditAction, handleDelete, onDeleteAction],
+    [isCancelled, onEditAction, handleDelete, onDeleteAction, onCloneAction],
   );
 
   type CellProps = {
@@ -433,6 +455,7 @@ export function InvoiceDetailsGridInline({
         locked
         sortable={false}
         filterable={false}
+        columnMenu={false}
         cells={{ data: ActionCellComponent }}
       />,
       <GridColumn
@@ -1014,6 +1037,7 @@ export function InvoiceDetailsGridInline({
         reorderable
         navigatable={false}
         scrollable="scrollable"
+        columnMenu={DefaultColumnMenu}
         defaultColumnsState={defaultColumnsState}
         columnsState={columnsState}
         onColumnsStateChange={handleColumnsStateChange}

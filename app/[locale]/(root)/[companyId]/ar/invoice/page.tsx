@@ -19,7 +19,11 @@ import {
 } from "@/components/ui/confirmation";
 import { getById } from "@/lib/api-client";
 import { ArInvoice } from "@/lib/api-routes";
-import { clientDateFormat, formatDateForApi, parseDate } from "@/lib/date-utils";
+import {
+  clientDateFormat,
+  formatDateForApi,
+  parseDate,
+} from "@/lib/date-utils";
 import { ARTransactionId, ModuleId } from "@/lib/utils";
 import { useDeleteWithRemarks, usePersist } from "@/hooks/use-common";
 import { useGetRequiredFields, useGetVisibleFields } from "@/hooks/use-lookup";
@@ -100,10 +104,17 @@ export default function InvoicePage() {
     pageSize: pageSize,
   } as IArInvoiceFilter);
 
-  const { data: visibleFieldsData } = useGetVisibleFields(moduleId, transactionId);
-  const { data: requiredFieldsData } = useGetRequiredFields(moduleId, transactionId);
+  const { data: visibleFieldsData } = useGetVisibleFields(
+    moduleId,
+    transactionId,
+  );
+  const { data: requiredFieldsData } = useGetRequiredFields(
+    moduleId,
+    transactionId,
+  );
   const visible: IVisibleFields = visibleFieldsData ?? ({} as IVisibleFields);
-  const required: IMandatoryFields = requiredFieldsData ?? ({} as IMandatoryFields);
+  const required: IMandatoryFields =
+    requiredFieldsData ?? ({} as IMandatoryFields);
 
   const defaultInvoiceValues = useMemo(
     () => getDefaultValues(dateFormat).defaultInvoice,
@@ -125,7 +136,9 @@ export default function InvoicePage() {
         },
   });
 
-  const saveMutation = usePersist<ArInvoiceHdSchemaType>(ArInvoice.add);
+  const saveMutation = usePersist<ArInvoiceHdSchemaType>(ArInvoice.add, {
+    skipToast: true,
+  });
   const deleteMutation = useDeleteWithRemarks(ArInvoice.delete);
   const unpostMutation = usePersist(ArInvoice.unpost);
 
@@ -145,7 +158,11 @@ export default function InvoicePage() {
         gstClaimDate: fmt(apiInvoice.gstClaimDate),
         createDate: apiInvoice.createDate ? fmt(apiInvoice.createDate) : "",
         editDate: apiInvoice.editDate ? fmt(apiInvoice.editDate) : undefined,
-        cancelDate: apiInvoice.cancelDate ? fmt(apiInvoice.cancelDate) : undefined,
+        cancelDate: apiInvoice.cancelDate
+          ? fmt(apiInvoice.cancelDate)
+          : undefined,
+        cancelBy: apiInvoice.cancelBy ?? "",
+        cancelRemarks: apiInvoice.cancelRemarks ?? "",
         data_details:
           apiInvoice.data_details?.map((d) => ({
             ...d,
@@ -179,7 +196,9 @@ export default function InvoicePage() {
             ? response.data[0]
             : response.data;
           if (raw) {
-            const mapped = transformToSchemaType(raw as unknown as IArInvoiceHd);
+            const mapped = transformToSchemaType(
+              raw as unknown as IArInvoiceHd,
+            );
             setInvoice(mapped);
             form.reset(mapped);
             form.trigger();
@@ -206,11 +225,62 @@ export default function InvoicePage() {
       const vals = form.getValues() as unknown as IArInvoiceHd;
       const validation = ArInvoiceHdSchema(required, visible).safeParse(vals);
       if (!validation.success) {
+        const FIELD_LABELS: Record<string, string> = {
+          accountDate: "Account Date",
+          customerId: "Customer",
+          currencyId: "Currency",
+          creditTermId: "Credit Term",
+          bankId: "Bank",
+          serviceCategoryId: "Service Category",
+          exhRate: "Exchange Rate",
+          referenceNo: "Reference No",
+          productId: "Product",
+          glId: "Chart of Account",
+          uomId: "UOM",
+          gstId: "VAT",
+          cancelBy: "Cancel By",
+          cancelRemarks: "Cancel Remarks",
+          suppInvoiceNo: "Supplier Invoice No",
+          remarks: "Remarks",
+          deliveryDate: "Delivery Date",
+          dueDate: "Due Date",
+          address1: "Address 1",
+          address2: "Address 2",
+          itemNo: "Item No",
+          seqNo: "Sequence No",
+          billQTY: "Bill Qty",
+        };
+        const toLabel = (key: string) =>
+          FIELD_LABELS[key] ??
+          key
+            .replace(/([A-Z])/g, " $1")
+            .replace(/^./, (s) => s.toUpperCase())
+            .trim();
+        const errors: string[] = [];
         validation.error.issues.forEach((i) => {
-          const path = i.path.join(".") as keyof ArInvoiceHdSchemaType;
-          form.setError(path, { message: i.message });
+          const pathStr = i.path.join(".");
+          form.setError(pathStr as keyof ArInvoiceHdSchemaType, {
+            message: i.message,
+          });
+          const path0 = i.path[0];
+          const path1 = i.path[1];
+          const fieldKey =
+            typeof path1 === "number"
+              ? String(i.path[i.path.length - 1])
+              : String(path0);
+          const label = toLabel(fieldKey);
+          const prefix =
+            path0 === "data_details" && typeof path1 === "number"
+              ? `Row ${(path1 as number) + 1} - `
+              : "";
+          errors.push(`${prefix}${label}: ${i.message}`);
         });
-        toast.error("Please fix validation errors");
+        toast.error(
+          errors.length === 1
+            ? errors[0]
+            : `Please fix ${errors.length} validation errors: ${errors.slice(0, 5).join(". ")}${errors.length > 5 ? "…" : ""}`,
+        );
+        setShowSaveConfirm(false);
         return;
       }
       const payload = {
@@ -227,7 +297,9 @@ export default function InvoicePage() {
             supplyDate: formatDateForApi(d.supplyDate) ?? "",
           })) ?? [],
       };
-      const res = await saveMutation.mutateAsync(payload as unknown as Partial<ArInvoiceHdSchemaType>);
+      const res = await saveMutation.mutateAsync(
+        payload as unknown as Partial<ArInvoiceHdSchemaType>,
+      );
       if (res.result === 1) {
         const data = Array.isArray(res.data) ? res.data[0] : res.data;
         if (data) {
@@ -362,7 +434,11 @@ export default function InvoicePage() {
             style={{ width: 160 }}
             className="rounded-md"
           />
-          <Button fillMode="outline" onClick={() => setShowListDialog(true)} className="flex min-w-[90px] items-center justify-center gap-1.5 px-4 py-2">
+          <Button
+            fillMode="outline"
+            onClick={() => setShowListDialog(true)}
+            className="flex min-w-[90px] items-center justify-center gap-1.5 px-4 py-2"
+          >
             <List className="h-4 w-4 shrink-0" />
             List
           </Button>
@@ -384,17 +460,29 @@ export default function InvoicePage() {
             className="flex min-w-[90px] items-center justify-center gap-1.5 px-4 py-2 hover:opacity-90"
           >
             {isSaving || saveMutation.isPending ? (
-              <Loader type="converging-spinner" size="small" className="shrink-0" />
+              <Loader
+                type="converging-spinner"
+                size="small"
+                className="shrink-0"
+              />
             ) : (
               <Save className="h-4 w-4 shrink-0" />
             )}
             {isEdit ? "Update" : "Save"}
           </Button>
-          <Button fillMode="outline" onClick={() => window.print()} className="flex min-w-[90px] items-center justify-center gap-1.5 px-4 py-2">
+          <Button
+            fillMode="outline"
+            onClick={() => window.print()}
+            className="flex min-w-[90px] items-center justify-center gap-1.5 px-4 py-2"
+          >
             <Printer className="h-4 w-4 shrink-0" />
             Print
           </Button>
-          <Button fillMode="outline" onClick={() => setShowResetConfirm(true)} className="flex min-w-[90px] items-center justify-center gap-1.5 px-4 py-2">
+          <Button
+            fillMode="outline"
+            onClick={() => setShowResetConfirm(true)}
+            className="flex min-w-[90px] items-center justify-center gap-1.5 px-4 py-2"
+          >
             <RotateCcw className="h-4 w-4 shrink-0" />
             New
           </Button>
@@ -411,10 +499,7 @@ export default function InvoicePage() {
             fillMode="solid"
             onClick={() => setShowDeleteConfirm(true)}
             disabled={
-              !invoice ||
-              invoice.invoiceId === "0" ||
-              isCancelled ||
-              !canDelete
+              !invoice || invoice.invoiceId === "0" || isCancelled || !canDelete
             }
             style={{
               backgroundColor: "#dc2626",
@@ -450,24 +535,28 @@ export default function InvoicePage() {
       {activeTab === 2 && <History form={form} isEdit={isEdit} />}
 
       {showListDialog && (
-      <Dialog
-        title="Invoice List"
-        onClose={() => setShowListDialog(false)}
-        width="90vw"
-        height="80vh"
-      >
-        <div className="h-[70vh] overflow-auto p-4">
-          <InvoiceTable
-            onInvoiceSelectAction={handleInvoiceSelect}
-            onFilterChangeAction={setFilters}
-            initialFilters={filters}
-            pageSize={pageSize || 50}
-            onCloseAction={() => setShowListDialog(false)}
-            visible={visible}
-            isDialogOpen={showListDialog}
-          />
-        </div>
-      </Dialog>
+        <Dialog
+          className="invoice-list-dialog"
+          title="Invoice List"
+          onClose={() => setShowListDialog(false)}
+          width="90vw"
+          height="90vh"
+        >
+          <div
+            className="flex min-h-0 w-full flex-col overflow-hidden px-2 pb-1 pt-0"
+            style={{ height: "calc(90vh - 52px)" }}
+          >
+            <InvoiceTable
+              onInvoiceSelectAction={handleInvoiceSelect}
+              onFilterChangeAction={setFilters}
+              initialFilters={filters}
+              pageSize={pageSize || 50}
+              onCloseAction={() => setShowListDialog(false)}
+              visible={visible}
+              isDialogOpen={showListDialog}
+            />
+          </div>
+        </Dialog>
       )}
 
       <SaveConfirmation
@@ -475,7 +564,9 @@ export default function InvoicePage() {
         onOpenChange={setShowSaveConfirm}
         onConfirm={handleSaveInvoice}
         itemName={invoice?.invoiceNo ?? "New Invoice"}
-        operationType={invoice?.invoiceId && invoice.invoiceId !== "0" ? "update" : "create"}
+        operationType={
+          invoice?.invoiceId && invoice.invoiceId !== "0" ? "update" : "create"
+        }
         isSaving={isSaving || saveMutation.isPending}
       />
 
@@ -507,62 +598,62 @@ export default function InvoicePage() {
       />
 
       {showResetConfirm && (
-      <Dialog
-        title="New Invoice"
-        onClose={() => setShowResetConfirm(false)}
-        width={400}
-      >
-        <p className="py-2 text-sm">
-          This will clear all unsaved changes. Continue?
-        </p>
-        <div className="flex justify-end gap-2">
-          <Button fillMode="flat" onClick={() => setShowResetConfirm(false)}>
-            Cancel
-          </Button>
-          <Button themeColor="primary" onClick={handleInvoiceReset}>
-            Reset
-          </Button>
-        </div>
-      </Dialog>
+        <Dialog
+          title="New Invoice"
+          onClose={() => setShowResetConfirm(false)}
+          width={400}
+        >
+          <p className="py-2 text-sm">
+            This will clear all unsaved changes. Continue?
+          </p>
+          <div className="flex justify-end gap-2">
+            <Button fillMode="flat" onClick={() => setShowResetConfirm(false)}>
+              Cancel
+            </Button>
+            <Button themeColor="primary" onClick={handleInvoiceReset}>
+              Reset
+            </Button>
+          </div>
+        </Dialog>
       )}
 
       {showCloneConfirm && (
-      <Dialog
-        title="Clone Invoice"
-        onClose={() => setShowCloneConfirm(false)}
-        width={400}
-      >
-        <p className="py-2 text-sm">
-          Create a copy as a new invoice?
-        </p>
-        <div className="flex justify-end gap-2">
-          <Button fillMode="flat" onClick={() => setShowCloneConfirm(false)}>
-            Cancel
-          </Button>
-          <Button
-            themeColor="primary"
-            onClick={() => {
-              if (invoice) {
-                const clone = {
-                  ...invoice,
-                  invoiceId: "0",
-                  invoiceNo: "",
-                  createBy: user?.userName ?? "",
-                  createDate: format(new Date(), "dd/MM/yyyy HH:mm:ss"),
-                  data_details: invoice.data_details ?? [],
-                } as ArInvoiceHdSchemaType;
-                setInvoice(clone);
-                form.reset(clone);
-                setSearchNo("");
-              }
-              setShowCloneConfirm(false);
-              toast.success("Invoice cloned");
-            }}
-          >
-            Clone
-          </Button>
-        </div>
-      </Dialog>
+        <Dialog
+          title="Clone Invoice"
+          onClose={() => setShowCloneConfirm(false)}
+          width={400}
+        >
+          <p className="py-2 text-sm">Create a copy as a new invoice?</p>
+          <div className="flex justify-end gap-2">
+            <Button fillMode="flat" onClick={() => setShowCloneConfirm(false)}>
+              Cancel
+            </Button>
+            <Button
+              themeColor="primary"
+              onClick={() => {
+                if (invoice) {
+                  const clone = {
+                    ...invoice,
+                    invoiceId: "0",
+                    invoiceNo: "",
+                    createBy: user?.userName ?? "",
+                    createDate: format(new Date(), "dd/MM/yyyy HH:mm:ss"),
+                    cancelBy: invoice.cancelBy ?? "",
+                    cancelRemarks: invoice.cancelRemarks ?? "",
+                    data_details: invoice.data_details ?? [],
+                  } as ArInvoiceHdSchemaType;
+                  setInvoice(clone);
+                  form.reset(clone);
+                  setSearchNo("");
+                }
+                setShowCloneConfirm(false);
+                toast.success("Invoice cloned");
+              }}
+            >
+              Clone
+            </Button>
+          </div>
+        </Dialog>
       )}
     </div>
   );

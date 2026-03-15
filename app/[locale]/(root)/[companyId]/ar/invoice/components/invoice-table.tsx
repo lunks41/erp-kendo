@@ -8,7 +8,7 @@ import type { IVisibleFields } from "@/interfaces/setting";
 import { ArInvoice } from "@/lib/api-routes";
 import { clientDateFormat, formatDateForApi } from "@/lib/date-utils";
 import { formatNumber } from "@/lib/format-utils";
-import { TableName } from "@/lib/utils";
+import { ARTransactionId, ModuleId, TableName } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
 import { Button } from "@progress/kendo-react-buttons";
 import { Input } from "@progress/kendo-react-inputs";
@@ -133,6 +133,15 @@ export default function InvoiceTable({
     } as IArInvoiceFilter);
   };
 
+  const handleCancel = () => {
+    form.reset({
+      startDate: defaultStart,
+      endDate: defaultEnd,
+      filterSearch: "",
+    });
+    setIsAllTime(false);
+  };
+
   type CellProps = {
     dataItem?: IArInvoiceHd;
     tdProps?: React.TdHTMLAttributes<HTMLTableCellElement> | null;
@@ -177,10 +186,22 @@ export default function InvoiceTable({
   };
 
   const columns: MasterDataGridColumn[] = [
-    { field: "invoiceId", title: "Invoice Id", width: 90, minWidth: 90 },
+    {
+      field: "invoiceId",
+      title: "Invoice Id",
+      width: 90,
+      minWidth: 90,
+      hidden: true,
+    },
     { field: "invoiceNo", title: "Invoice No", width: 120, minWidth: 120 },
     { field: "referenceNo", title: "Reference No", width: 120, minWidth: 120 },
-    { field: "suppInvoiceNo", title: "Supp Invoice No", width: 120, minWidth: 120 },
+    {
+      field: "suppInvoiceNo",
+      title: "Supp Invoice No",
+      width: 120,
+      minWidth: 120,
+      hidden: true,
+    },
     {
       field: "accountDate",
       title: "Account Date",
@@ -194,6 +215,7 @@ export default function InvoiceTable({
       width: 110,
       minWidth: 110,
       cells: { data: dateCell("trnDate") },
+      hidden: true,
     },
     {
       field: "dueDate",
@@ -208,11 +230,28 @@ export default function InvoiceTable({
       width: 110,
       minWidth: 110,
       cells: { data: dateCell("deliveryDate") },
+      hidden: true,
     },
-    { field: "customerCode", title: "Customer Code", width: 100, minWidth: 100 },
-    { field: "customerName", title: "Customer Name", width: 150, minWidth: 150 },
+    {
+      field: "customerCode",
+      title: "Customer Code",
+      width: 100,
+      minWidth: 100,
+      hidden: true,
+    },
+    {
+      field: "customerName",
+      title: "Customer Name",
+      width: 150,
+      minWidth: 150,
+    },
     { field: "currencyCode", title: "Currency", width: 80, minWidth: 80 },
-    { field: "creditTermName", title: "Credit Term", width: 100, minWidth: 100 },
+    {
+      field: "creditTermName",
+      title: "Credit Term",
+      width: 100,
+      minWidth: 100,
+    },
     { field: "bankName", title: "Bank", width: 120, minWidth: 120 },
     {
       field: "totAmt",
@@ -220,6 +259,9 @@ export default function InvoiceTable({
       width: 100,
       minWidth: 100,
       cells: { data: numericCell("totAmt", amtDec) },
+      aggregate: "sum",
+      aggregateDecimals: amtDec,
+      aggregateLabel: "Total",
     },
     {
       field: "gstAmt",
@@ -227,6 +269,8 @@ export default function InvoiceTable({
       width: 100,
       minWidth: 100,
       cells: { data: numericCell("gstAmt", amtDec) },
+      aggregate: "sum",
+      aggregateDecimals: amtDec,
     },
     {
       field: "totAmtAftGst",
@@ -234,6 +278,8 @@ export default function InvoiceTable({
       width: 110,
       minWidth: 110,
       cells: { data: numericCell("totAmtAftGst", amtDec) },
+      aggregate: "sum",
+      aggregateDecimals: amtDec,
     },
     {
       field: "totLocalAmt",
@@ -241,6 +287,8 @@ export default function InvoiceTable({
       width: 100,
       minWidth: 100,
       cells: { data: numericCell("totLocalAmt", locAmtDec) },
+      aggregate: "sum",
+      aggregateDecimals: locAmtDec,
     },
     {
       field: "payAmt",
@@ -248,6 +296,8 @@ export default function InvoiceTable({
       width: 100,
       minWidth: 100,
       cells: { data: numericCell("payAmt", amtDec) },
+      aggregate: "sum",
+      aggregateDecimals: amtDec,
     },
     {
       field: "balAmt",
@@ -255,12 +305,19 @@ export default function InvoiceTable({
       width: 100,
       minWidth: 100,
       cells: { data: numericCell("balAmt", amtDec) },
+      aggregate: "sum",
+      aggregateDecimals: amtDec,
     },
     { field: "remarks", title: "Remarks", width: 150, minWidth: 150 },
     { field: "jobOrderNo", title: "Job Order", width: 120, minWidth: 120 },
     { field: "vesselName", title: "Vessel", width: 100, minWidth: 100 },
     { field: "portName", title: "Port", width: 100, minWidth: 100 },
-    { field: "serviceCategoryName", title: "Service Category", width: 130, minWidth: 130 },
+    {
+      field: "serviceCategoryName",
+      title: "Service Category",
+      width: 130,
+      minWidth: 130,
+    },
     { field: "createBy", title: "Create By", width: 90, minWidth: 90 },
     {
       field: "createDate",
@@ -280,8 +337,20 @@ export default function InvoiceTable({
   ];
 
   return (
-    <div className="w-full overflow-auto">
-      <div className="mb-2 flex flex-wrap items-center gap-3 rounded-lg border p-3">
+    <div
+      className={
+        isDialogOpen
+          ? "flex min-h-0 w-full flex-1 flex-col overflow-hidden"
+          : "w-full overflow-auto"
+      }
+    >
+      <div
+        className={
+          isDialogOpen
+            ? "mb-1 flex shrink-0 flex-wrap items-center gap-2 rounded border p-2"
+            : "mb-2 flex flex-wrap items-center gap-3 rounded-lg border p-3"
+        }
+      >
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium">From:</span>
           <Input
@@ -319,6 +388,9 @@ export default function InvoiceTable({
         >
           Search
         </Button>
+        <Button fillMode="outline" onClick={handleCancel} disabled={isLoading}>
+          Cancel
+        </Button>
         {onCloseAction && (
           <Button
             fillMode="outline"
@@ -331,25 +403,35 @@ export default function InvoiceTable({
         )}
       </div>
 
-      <MasterDataGrid
-        data={data}
-        columns={columns}
-        dataItemKey="invoiceId"
-        pageable
-        pageSize={pageSize}
-        total={totalRecords}
-        currentPage={currentPage}
-        onPageChange={(p) => setCurrentPage(p)}
-        onPageSizeChange={(s) => {
-          setPageSize(s);
-          setCurrentPage(1);
-        }}
-        serverSidePagination
-        actions={{ onView: (item) => onInvoiceSelectAction(item) }}
-        showView
-        showEdit={false}
-        showDelete={false}
-      />
+      <div
+        className={
+          isDialogOpen ? "min-h-0 w-full min-w-0 flex-1 overflow-hidden" : ""
+        }
+      >
+        <MasterDataGrid
+          data={data}
+          columns={columns}
+          dataItemKey="invoiceId"
+          pageable
+          pageSize={pageSize}
+          total={totalRecords}
+          currentPage={currentPage}
+          onPageChange={(p) => setCurrentPage(p)}
+          onPageSizeChange={(s) => {
+            setPageSize(s);
+            setCurrentPage(1);
+          }}
+          serverSidePagination
+          actions={{ onView: (item) => onInvoiceSelectAction(item) }}
+          showView
+          showEdit={false}
+          showDelete={false}
+          tableName={TableName.arInvoice}
+          moduleId={ModuleId.ar}
+          transactionId={ARTransactionId.invoice}
+          tableHeight={isDialogOpen ? "calc(90vh - 140px)" : undefined}
+        />
+      </div>
     </div>
   );
 }

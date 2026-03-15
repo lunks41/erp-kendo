@@ -2,7 +2,7 @@
 
 import { Button } from "@progress/kendo-react-buttons";
 import type { GridCustomCellProps } from "@progress/kendo-react-grid";
-import { Eye, Pencil, Trash2 } from "lucide-react";
+import { Copy, Eye, Pencil, Trash2 } from "lucide-react";
 
 export function createActionCell<T>(
   onView?: (dataItem: T) => void,
@@ -11,13 +11,21 @@ export function createActionCell<T>(
   showView = true,
   showEdit = true,
   showDelete = true,
+  onClone?: (dataItem: T) => void,
+  showClone = true,
 ) {
-  const hasAnyButton = (showView && onView) || (showEdit && onEdit) || (showDelete && onDelete);
+  const hasAnyButton =
+    (showView && onView) ||
+    (showEdit && onEdit) ||
+    (showDelete && onDelete) ||
+    (showClone && onClone);
 
   const ActionCell = (props: GridCustomCellProps) => {
     const { dataItem, tdProps } = props;
     const item = dataItem as T;
-    const tdClassName = [tdProps?.className, "k-table-td"].filter(Boolean).join(" ").trim() || "k-table-td";
+    const tdClassName =
+      [tdProps?.className, "k-table-td"].filter(Boolean).join(" ").trim() ||
+      "k-table-td";
 
     return (
       <td {...tdProps} className={tdClassName}>
@@ -30,7 +38,9 @@ export function createActionCell<T>(
               type="button"
               fillMode="flat"
               size="small"
-              startIcon={<Eye className="h-4 w-4 text-slate-700 dark:text-slate-200" />}
+              startIcon={
+                <Eye className="h-4 w-4 text-slate-700 dark:text-slate-200" />
+              }
               title="View"
               onClick={(e) => {
                 e.stopPropagation();
@@ -43,7 +53,9 @@ export function createActionCell<T>(
               type="button"
               fillMode="flat"
               size="small"
-              startIcon={<Pencil className="h-4 w-4 text-slate-700 dark:text-slate-200" />}
+              startIcon={
+                <Pencil className="h-4 w-4 text-slate-700 dark:text-slate-200" />
+              }
               title="Edit"
               onClick={(e) => {
                 e.stopPropagation();
@@ -57,11 +69,28 @@ export function createActionCell<T>(
               fillMode="flat"
               size="small"
               themeColor="error"
-              startIcon={<Trash2 className="h-4 w-4 text-slate-700 dark:text-slate-200" />}
+              startIcon={
+                <Trash2 className="h-4 w-4 text-slate-700 dark:text-slate-200" />
+              }
               title="Delete"
               onClick={(e) => {
                 e.stopPropagation();
                 onDelete(item);
+              }}
+            />
+          )}
+          {showClone && onClone && (
+            <Button
+              type="button"
+              fillMode="flat"
+              size="small"
+              startIcon={
+                <Copy className="h-4 w-4 text-slate-700 dark:text-slate-200" />
+              }
+              title="Clone row"
+              onClick={(e) => {
+                e.stopPropagation();
+                onClone(item);
               }}
             />
           )}
