@@ -253,7 +253,9 @@
   "sidebar": {
     "dashboard": "لوحة التحكم",
     "loadingMenu": "جاري تحميل القائمة...",
-    "greeting": "مرحباً {userName}"
+    "greeting": "مرحباً {userName}",
+    "expandSidebar": "توسيع الشريط الجانبي",
+    "collapseSidebar": "طي الشريط الجانبي"
   },
   "port": {
     "title": "رئيسي الموانئ",

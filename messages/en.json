@@ -253,7 +253,9 @@
   "sidebar": {
     "dashboard": "Dashboard",
     "loadingMenu": "Loading menu...",
-    "greeting": "Hi {userName}"
+    "greeting": "Hi {userName}",
+    "expandSidebar": "Expand sidebar",
+    "collapseSidebar": "Collapse sidebar"
   },
   "port": {
     "title": "Port Master",

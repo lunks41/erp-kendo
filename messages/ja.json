@@ -253,7 +253,9 @@
   "sidebar": {
     "dashboard": "ダッシュボード",
     "loadingMenu": "メニューを読み込み中...",
-    "greeting": "こんにちは {userName} さん"
+    "greeting": "こんにちは {userName} さん",
+    "expandSidebar": "サイドバーを展開",
+    "collapseSidebar": "サイドバーを折りたたむ"
   },
   "port": {
     "title": "ポートマスター",

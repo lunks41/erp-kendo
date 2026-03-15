@@ -1,10 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { usePathname, Link } from "@/i18n/navigation";
 import {
   ChevronRight,
+  ChevronLeft,
   Ship,
   Users,
   FileText,
@@ -63,6 +64,28 @@ import {
 } from "lucide-react";
 import type { IUserTransactionRights } from "@/interfaces/auth";
 import { useAuthStore } from "@/stores/auth-store";
+import { useSidebarStore } from "@/stores/sidebar-store";
+
+// Module icon colors (for non-active state)
+function getModuleIconColor(moduleCode: string): string {
+  const code = moduleCode.toLowerCase();
+  const map: Record<string, string> = {
+    master: "text-blue-600 dark:text-blue-400",
+    operations: "text-violet-600 dark:text-violet-400",
+    hr: "text-rose-600 dark:text-rose-400",
+    ar: "text-emerald-600 dark:text-emerald-400",
+    ap: "text-amber-600 dark:text-amber-400",
+    cb: "text-cyan-600 dark:text-cyan-400",
+    gl: "text-indigo-600 dark:text-indigo-400",
+    logistics: "text-orange-600 dark:text-orange-400",
+    admin: "text-slate-600 dark:text-slate-400",
+    setting: "text-slate-600 dark:text-slate-400",
+    settings: "text-slate-600 dark:text-slate-400",
+    dashboard: "text-indigo-600 dark:text-indigo-400",
+    inquiry: "text-sky-600 dark:text-sky-400",
+  };
+  return map[code] ?? "text-slate-600 dark:text-slate-400";
+}
 
 // Icon mapping for modules (main categories)
 function getModuleIcon(moduleCode: string): React.ComponentType<{ className?: string }> {
@@ -346,7 +369,22 @@ export function Sidebar({ companyId }: SidebarProps) {
   const tMenu = useTranslations("sidebarMenu");
   const pathname = usePathname();
   const { transactions, isLoading } = useUserTransactions();
+  const collapsed = useSidebarStore((s) => s.collapsed);
+  const toggleSidebar = useSidebarStore((s) => s.toggle);
   const [openModule, setOpenModule] = useState<string | null>(null);
+  const [hoveredGroup, setHoveredGroup] = useState<string | null>(null);
+  const [pinnedGroup, setPinnedGroup] = useState<string | null>(null);
+  const [floatingMenuRect, setFloatingMenuRect] = useState<{ top: number; left: number } | null>(null);
+  const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const openFloating = pinnedGroup ?? hoveredGroup;
+
+  useEffect(
+    () => () => {
+      if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    },
+    [],
+  );
   /** Categories user has explicitly collapsed */
   const [closedCategoryKeys, setClosedCategoryKeys] = useState<Set<string>>(new Set());
   /** Categories user has explicitly expanded (overrides default closed when on another page) */
@@ -493,37 +531,91 @@ export function Sidebar({ companyId }: SidebarProps) {
   const userName = useAuthStore((s) => s.user?.userName) ?? "User";
 
   return (
-    <aside className="flex w-64 shrink-0 flex-col border-r border-slate-200/80 bg-white dark:border-slate-700/80 dark:bg-slate-900/80">
-      {/* Fintech-style header: compact logo + greeting */}
-      <div className="flex shrink-0 flex-col gap-1 border-b border-slate-200/80 px-4 py-4 dark:border-slate-700/80">
-        <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-300">
-            <LayoutDashboard className="h-4 w-4" aria-hidden />
+    <>
+    {/* Click-outside overlay when floating menu is pinned (collapsed) */}
+    {collapsed && pinnedGroup && (
+      <div
+        className="fixed inset-0 z-40"
+        aria-hidden
+        onClick={() => {
+          setPinnedGroup(null);
+          setHoveredGroup(null);
+          setFloatingMenuRect(null);
+        }}
+      />
+    )}
+    <aside
+      className={`flex shrink-0 flex-col border-r border-slate-200/80 bg-white transition-[width] duration-200 ease-in-out dark:border-slate-700/80 dark:bg-slate-900/80 ${
+        collapsed ? "w-16" : "w-64"
+      }`}
+    >
+      {/* Fintech-style header: compact logo + greeting + toggle */}
+      <div
+        className={`flex shrink-0 flex-col gap-1 border-b border-slate-200/80 dark:border-slate-700/80 ${
+          collapsed ? "items-center px-0 py-3" : "px-4 py-4"
+        }`}
+      >
+        <div
+          className={`flex w-full items-center gap-2 ${
+            collapsed ? "flex-col" : "justify-between"
+          }`}
+        >
+          <div className="flex items-center gap-2 overflow-hidden">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-300">
+              <LayoutDashboard className="h-4 w-4" aria-hidden />
+            </div>
+            {!collapsed && (
+              <span className="truncate text-sm font-semibold tracking-tight text-slate-900 dark:text-white">
+                {t("dashboard")}
+              </span>
+            )}
           </div>
-          <span className="text-sm font-semibold tracking-tight text-slate-900 dark:text-white">
-            {t("dashboard")}
-          </span>
+          <button
+            type="button"
+            onClick={toggleSidebar}
+            title={collapsed ? t("expandSidebar") : t("collapseSidebar")}
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+          >
+            {collapsed ? (
+              <ChevronRight className="h-4 w-4" />
+            ) : (
+              <ChevronLeft className="h-4 w-4" />
+            )}
+          </button>
         </div>
-        <p className="text-xs font-medium text-slate-600 dark:text-slate-400">
-          {t("greeting", { userName })}
-        </p>
+        {!collapsed && (
+          <p className="text-xs font-medium text-slate-600 dark:text-slate-400">
+            {t("greeting", { userName })}
+          </p>
+        )}
       </div>
 
-      <nav className="flex-1 space-y-0.5 overflow-y-auto p-3">
-        {/* Dashboard / Home - always first; clicking it closes any expanded module */}
+      <nav
+        className={`flex-1 space-y-0.5 overflow-y-auto ${
+          collapsed ? "p-2" : "p-3"
+        }`}
+      >
+        {/* Dashboard / Home - always first */}
         <div className="mb-2">
           <Link
             href={companyId ? `/${companyId}` : "#"}
             onClick={() => setOpenModule(null)}
-            className={`flex items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-medium transition-colors ${
+            title={collapsed ? t("dashboard") : undefined}
+            className={`flex items-center rounded-lg text-xs font-medium transition-colors ${
+              collapsed ? "justify-center px-0 py-2" : "gap-2 px-2.5 py-2"
+            } ${
               isDashboardActive
                 ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300"
                 : "text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
             }`}
           >
-            <LayoutDashboard className="h-4 w-4 shrink-0" />
-            <span className="flex-1">{t("dashboard")}</span>
-            <ChevronRight className={`h-3.5 w-3.5 shrink-0 ${isDashboardActive ? "opacity-100" : "opacity-50"}`} />
+            <LayoutDashboard className="h-4 w-4 shrink-0 text-indigo-600 dark:text-indigo-400" />
+            {!collapsed && (
+              <>
+                <span className="flex-1">{t("dashboard")}</span>
+                <ChevronRight className={`h-3.5 w-3.5 shrink-0 ${isDashboardActive ? "opacity-100" : "opacity-50"}`} />
+              </>
+            )}
           </Link>
         </div>
 
@@ -536,20 +628,91 @@ export function Sidebar({ companyId }: SidebarProps) {
           dynamicMenu.map((group) => {
             const isOpen = isModuleOpen(group.title);
             const GroupIcon = group.icon;
+            const moduleColor = getModuleIconColor(group.moduleCode);
+            const label = getMenuLabel(group.moduleCode, group.title);
+            const hasSubmenu = group.items.length > 0;
+
+            const handleGroupMouseEnter = (e: React.MouseEvent) => {
+              if (!collapsed || !hasSubmenu || pinnedGroup) return;
+              if (hoverTimeoutRef.current) {
+                clearTimeout(hoverTimeoutRef.current);
+                hoverTimeoutRef.current = null;
+              }
+              const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+              // Overlap 12px into sidebar to avoid gap (prevents flicker when moving cursor)
+              setFloatingMenuRect({ top: rect.top, left: rect.right - 12 });
+              setHoveredGroup(group.title);
+            };
+
+            const handleGroupMouseLeave = () => {
+              if (!collapsed || pinnedGroup) return;
+              hoverTimeoutRef.current = setTimeout(() => {
+                setHoveredGroup(null);
+                setFloatingMenuRect(null);
+                hoverTimeoutRef.current = null;
+              }, 300);
+            };
+
+            const handleGroupClick = (e: React.MouseEvent) => {
+              if (collapsed && hasSubmenu) {
+                const nextPinned = pinnedGroup === group.title ? null : group.title;
+                setPinnedGroup(nextPinned);
+                if (nextPinned) {
+                  const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+                  setFloatingMenuRect({ top: rect.top, left: rect.right - 12 });
+                } else {
+                  setFloatingMenuRect(null);
+                }
+                return;
+              }
+              toggleModule(group.title);
+            };
+
+            const handleFloatingEnter = () => {
+              if (hoverTimeoutRef.current) {
+                clearTimeout(hoverTimeoutRef.current);
+                hoverTimeoutRef.current = null;
+              }
+            };
+
+            const handleFloatingLeave = () => {
+              if (pinnedGroup) return;
+              setHoveredGroup(null);
+              setFloatingMenuRect(null);
+            };
+
+            const handleCloseFloating = () => {
+              setPinnedGroup(null);
+              setHoveredGroup(null);
+              setFloatingMenuRect(null);
+            };
+
             return (
-              <div key={group.title} className="space-y-0.5">
+              <div
+                key={group.title}
+                className="relative space-y-0.5"
+                onMouseEnter={handleGroupMouseEnter}
+                onMouseLeave={handleGroupMouseLeave}
+              >
                 <button
                   type="button"
-                  onClick={() => toggleModule(group.title)}
-                  className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-medium text-slate-700 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+                  onClick={handleGroupClick}
+                  title={collapsed ? label : undefined}
+                  className={`flex w-full items-center rounded-lg text-left text-xs font-medium text-slate-700 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 ${
+                    collapsed ? "justify-center px-0 py-2" : "gap-2 px-2.5 py-2"
+                  }`}
                 >
-                  <GroupIcon className="h-4 w-4 shrink-0 opacity-80" />
-                  <span className="flex-1">{getMenuLabel(group.moduleCode, group.title)}</span>
-                  <ChevronRight
-                    className={`h-3.5 w-3.5 shrink-0 transition-transform ${isOpen ? "rotate-90" : ""}`}
-                  />
+                  <GroupIcon className={`h-4 w-4 shrink-0 ${moduleColor}`} />
+                  {!collapsed && (
+                    <>
+                      <span className="flex-1">{label}</span>
+                      <ChevronRight
+                        className={`h-3.5 w-3.5 shrink-0 transition-transform ${isOpen ? "rotate-90" : ""}`}
+                      />
+                    </>
+                  )}
                 </button>
-                {isOpen && group.items.length > 0 && (
+                {!collapsed && isOpen && group.items.length > 0 && (
                   <div className="ml-3 space-y-0.5 border-l border-slate-200/80 pl-2 dark:border-slate-700/80">
                     {group.categoryGroups && group.categoryGroups.length > 0
                       ? group.categoryGroups.map((cat) => {
@@ -586,7 +749,7 @@ export function Sidebar({ companyId }: SidebarProps) {
                                             : "text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
                                         }`}
                                       >
-                                        <ItemIcon className="h-3.5 w-3.5 shrink-0 opacity-80" />
+                                        <ItemIcon className={`h-3.5 w-3.5 shrink-0 ${isActive ? "text-indigo-600 dark:text-indigo-400" : "opacity-80"}`} />
                                         <span className="flex-1 truncate">{getMenuLabel(item.transactionCode, item.title)}</span>
                                         <ChevronRight
                                           className={`h-3 w-3 shrink-0 ${isActive ? "opacity-100" : "opacity-50"}`}
@@ -614,11 +777,76 @@ export function Sidebar({ companyId }: SidebarProps) {
                                   : "text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
                               }`}
                             >
-                              <ItemIcon className="h-3.5 w-3.5 shrink-0 opacity-80" />
+                              <ItemIcon className={`h-3.5 w-3.5 shrink-0 ${isActive ? "text-indigo-600 dark:text-indigo-400" : "opacity-80"}`} />
                               <span className="flex-1 truncate">{getMenuLabel(item.transactionCode, item.title)}</span>
                               <ChevronRight
                                 className={`h-3 w-3 shrink-0 ${isActive ? "opacity-100" : "opacity-50"}`}
                               />
+                            </Link>
+                          );
+                        })}
+                  </div>
+                )}
+                {/* Floating submenu when collapsed (hover or click/pin) */}
+                {collapsed && openFloating === group.title && hasSubmenu && floatingMenuRect && (
+                  <div
+                    className="fixed z-50 min-w-[200px] rounded-lg border border-slate-200/80 bg-white py-2 shadow-lg dark:border-slate-700/80 dark:bg-slate-800"
+                    style={{ top: floatingMenuRect.top, left: floatingMenuRect.left }}
+                    onMouseEnter={handleFloatingEnter}
+                    onMouseLeave={handleFloatingLeave}
+                  >
+                    <div className="mb-2 border-b border-slate-200/80 px-3 pb-2 dark:border-slate-700/80">
+                      <p className="text-xs font-semibold text-slate-900 dark:text-white">{label}</p>
+                    </div>
+                    {group.categoryGroups && group.categoryGroups.length > 0
+                      ? group.categoryGroups.map((cat) => (
+                          <div key={cat.transCategoryCode} className="px-2 py-1">
+                            <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                              {cat.title}
+                            </p>
+                            <div className="space-y-0.5">
+                              {cat.items.map((item) => {
+                                const href = getUrl(item.url);
+                                const isActive =
+                                  pathname === href || pathname?.startsWith(href + "/");
+                                const ItemIcon = item.icon;
+                                return (
+                                  <Link
+                                    key={item.url}
+                                    href={href}
+                                    onClick={handleCloseFloating}
+                                    className={`flex items-center gap-2 rounded-lg px-2 py-2 text-xs font-medium transition-colors ${
+                                      isActive
+                                        ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300"
+                                        : "text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
+                                    }`}
+                                  >
+                                    <ItemIcon className={`h-3.5 w-3.5 shrink-0 ${isActive ? "text-indigo-600 dark:text-indigo-400" : "opacity-80"}`} />
+                                    <span className="truncate">{getMenuLabel(item.transactionCode, item.title)}</span>
+                                  </Link>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        ))
+                      : group.items.map((item) => {
+                          const href = getUrl(item.url);
+                          const isActive =
+                            pathname === href || pathname?.startsWith(href + "/");
+                          const ItemIcon = item.icon;
+                          return (
+                            <Link
+                              key={item.url}
+                              href={href}
+                              onClick={handleCloseFloating}
+                              className={`flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition-colors ${
+                                isActive
+                                  ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300"
+                                  : "text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
+                              }`}
+                            >
+                              <ItemIcon className={`h-3.5 w-3.5 shrink-0 ${isActive ? "text-indigo-600 dark:text-indigo-400" : "opacity-80"}`} />
+                              <span className="truncate">{getMenuLabel(item.transactionCode, item.title)}</span>
                             </Link>
                           );
                         })}
@@ -630,5 +858,6 @@ export function Sidebar({ companyId }: SidebarProps) {
         )}
       </nav>
     </aside>
+    </>
   );
 }
